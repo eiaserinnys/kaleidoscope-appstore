@@ -3,7 +3,7 @@
   "description": "기본 앱 **계산기**와 같은 화면입니다.\n\n- 스토어 리포에 PR로 올리고 merge하면 R2에 배포되는지 확인합니다.\n- 확인이 끝나면 내립니다.",
   "category": "도구",
   "publisher": "eiaserinnys",
-  "release": 2,
+  "release": 1,
   "listed": true,
   "icon": "assets/icon.svg",
   "assets": [
