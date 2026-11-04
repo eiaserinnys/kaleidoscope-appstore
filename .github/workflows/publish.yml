@@ -23,6 +23,11 @@ jobs:
           node-version: 22
       - run: npm ci --ignore-scripts
       - name: 전체 앱 검사
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ vars.R2_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: node tools/check.mjs --all
       - name: 정적 파일 빌드
         run: node tools/build.mjs --out dist

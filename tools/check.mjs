@@ -8,6 +8,8 @@ import addFormats from 'ajv-formats';
 
 const here=dirname(fileURLToPath(import.meta.url));
 const ajv=new Ajv2020({allErrors:true,strict:false}); addFormats(ajv);
+for(const bits of [8,16,32,64])ajv.addFormat(`uint${bits}`,{type:'number',validate:value=>Number.isInteger(value)&&value>=0&&value<2**bits});
+ajv.addFormat('double',{type:'number',validate:Number.isFinite});
 const validateApp=ajv.compile(JSON.parse(readFileSync(resolve(here,'../schema/app-definition.schema.json'))));
 const builtin=new Set(JSON.parse(readFileSync(resolve(here,'builtin-ids.json'))));
 const formats=['html','svg','png','webp','jpeg','gif','javascript','woff2','ttf','otf'];
@@ -56,9 +58,17 @@ function changedContent(base,head,id,oldStore,newStore){
  if(changes.some(p=>p!==`${prefix}store.json`))return true;
  const a={...oldStore},b={...newStore};delete a.release;delete b.release;return !isDeepStrictEqual(a,b);
 }
+function remoteReleases(){
+ const {R2_ACCOUNT_ID:account,R2_BUCKET:bucket,AWS_ACCESS_KEY_ID:access,AWS_SECRET_ACCESS_KEY:secretKey}=process.env;
+ if(!account||!bucket||!access||!secretKey)throw Error('R2 기존 판을 확인하려면 R2 접속 설정이 필요합니다');
+ try{const data=gitlessAws(['s3api','list-objects-v2','--bucket',bucket,'--prefix','appstore/apps/','--output','json','--endpoint-url',`https://${account}.r2.cloudflarestorage.com`,'--region','auto']);return (JSON.parse(data).Contents||[]).map(item=>item.Key);}
+ catch{throw Error('R2 기존 판 목록을 읽지 못했습니다. R2 접속 설정을 확인해 주세요');}
+}
+function gitlessAws(args){return execFileSync('aws',args,{encoding:'utf8',maxBuffer:30*1024*1024,stdio:['ignore','pipe','pipe']});}
 try{
  const head=commit(args.includes('--head')?flag('--head'):'HEAD'); const base=all?null:commit(flag('--base'));
  if(!all&&!author)throw Error('--author와 --base가 필요합니다');
+ const remote=all?remoteReleases():[];
  const changed=all?files(head,'apps/').map(x=>x.path):git('diff','--name-only','--no-renames','-z',base,head).toString().split('\0').filter(Boolean);
  const errors=[];const ids=new Set();
  for(const path of changed){const match=/^apps\/([^/]+)\//.exec(path);if(match)ids.add(match[1]);else if(!all&&author!=='eiaserinnys')errors.push(recordError(path,'이 경로는 저장소 관리자만 변경할 수 있습니다'));}
@@ -69,6 +79,7 @@ try{
   if(!current){if(files(head,`apps/${id}/`).length)errors.push(recordError(path,'스토어 파일이 없습니다'));continue;}
   const result=checkApp(head,id,errors),s=result.store;
   if(!s)continue;
+  if(all&&remote.some(key=>{const match=/^appstore\/apps\/([^/]+)\/(\d+)\/manifest\.json$/.exec(key);return match&&match[1]===id&&Number(match[2])>s.release;}))errors.push(recordError(path,'R2에 더 높은 판이 있어 배포할 수 없습니다'));
   if(base){if(oldStore){if(s.publisher!==oldStore.publisher)errors.push(recordError(path,'게시자를 바꿀 수 없습니다'));const changed=changedContent(base,head,id,oldStore,s);if(changed&&s.release!==oldStore.release+1)errors.push(recordError(path,'내용 변경 시 release를 정확히 1 올려 주세요'));if(!changed&&s.release!==oldStore.release)errors.push(recordError(path,'내용 없이 release만 바꿀 수 없습니다'));}else{if(s.publisher!==author)errors.push(recordError(path,'새 앱 게시자는 PR 작성자여야 합니다'));if(s.release!==1)errors.push(recordError(path,'새 앱 release는 1이어야 합니다'));}}
   if(result.app){const badges=[];if(result.app.permissions?.some(p=>p.module==='process'))badges.push('process');if(Object.hasOwn(result.app,'worker'))badges.push('worker');summaries.push(`| ${String(result.app.name).replaceAll('|','\\|')} | ${s.release} | ${JSON.stringify(result.app.permissions??[]).replaceAll('|','\\|')} | ${badges.join(', ')||'없음'} |`);}
  }

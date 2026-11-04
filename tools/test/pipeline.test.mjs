@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, rmSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, cpSync, rmSync, symlinkSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
@@ -36,13 +36,21 @@ function commit(dir, msg='head') { git(dir,'add','-A'); git(dir,'commit','-qm',m
 function runCheck(dir, base, author='alice', head='HEAD') {
   return spawnSync(process.execPath,[check,'--base',base,'--head',head,'--author',author],{cwd:dir,encoding:'utf8'});
 }
-function allCheck(dir) { return spawnSync(process.execPath,[check,'--all'],{cwd:dir,encoding:'utf8'}); }
+function allCheck(dir, keys=[]) {
+  const bin=join(dir,'fake-bin');mkdirSync(bin,{recursive:true});const aws=join(bin,'aws');writeFileSync(aws,'#!/usr/bin/env node\nprocess.stdout.write(process.env.STORE_TEST_KEYS);\n');chmodSync(aws,0o755);
+  const env={...process.env,PATH:`${bin}:${process.env.PATH}`,R2_ACCOUNT_ID:'test',R2_BUCKET:'test',AWS_ACCESS_KEY_ID:'test',AWS_SECRET_ACCESS_KEY:'test',STORE_TEST_KEYS:JSON.stringify({Contents:keys.map(Key=>({Key}))})};
+  return spawnSync(process.execPath,[check,'--all'],{cwd:dir,encoding:'utf8',env});
+}
 function expectBad(result, pattern) { assert.notEqual(result.status,0, result.stdout + result.stderr); assert.match(result.stdout + result.stderr, pattern); }
 
 test('정상 새 앱과 --head 및 --all 검사', t => {
   const dir=setup(t), base=git(dir,'rev-parse','HEAD'); app(dir); const head=commit(dir);
   const result=runCheck(dir,base,'alice',head); assert.equal(result.status,0,result.stdout+result.stderr);
   assert.equal(allCheck(dir).status,0);
+});
+
+test('--all은 빌드 전에 R2에 있는 더 높은 판을 거부한다',t=>{
+  const dir=setup(t);app(dir);commit(dir);expectBad(allCheck(dir,['appstore/apps/hello/2/manifest.json']),/더 높은 판/);
 });
 
 test('규칙 1: 허용 밖 파일과 비소유자의 도구 변경', t => {

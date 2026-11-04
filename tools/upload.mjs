@@ -45,7 +45,7 @@ async function prepare(dist,remote){
 export async function planUpload(dist,remote){const plan=await prepare(resolve(dist),remote);return [...plan.skips,...plan.puts.map(p=>`올리기 ${p.key}`),...plan.deletes.map(k=>`삭제 ${k}`)];}
 function s3(){
  const account=process.env.R2_ACCOUNT_ID,bucket=process.env.R2_BUCKET;if(!account||!bucket||!process.env.AWS_ACCESS_KEY_ID||!process.env.AWS_SECRET_ACCESS_KEY)throw Error('R2 접속 설정이 없습니다');
- const endpoint=`https://${account}.r2.cloudflarestorage.com`;const aws=(...args)=>execFileSync('aws',[...args,'--endpoint-url',endpoint,'--region','auto'],{maxBuffer:30*1024*1024,stdio:['ignore','pipe','pipe']});
+ const endpoint=`https://${account}.r2.cloudflarestorage.com`;const aws=(...args)=>{try{return execFileSync('aws',[...args,'--endpoint-url',endpoint,'--region','auto'],{maxBuffer:30*1024*1024,stdio:['ignore','pipe','pipe']});}catch{throw Error('R2 요청에 실패했습니다. 접속 설정과 저장소 상태를 확인해 주세요');}};
  return {list:async()=>{const data=JSON.parse(aws('s3api','list-objects-v2','--bucket',bucket,'--prefix','appstore/','--output','json'));return(data.Contents||[]).map(o=>o.Key);},get:async key=>JSON.parse(aws('s3','cp',`s3://${bucket}/${key}`,'-').toString()),
   put:p=>{const args=['s3','cp',p.file,`s3://${bucket}/${p.key}`,'--content-type',p.type,'--cache-control',p.cache];if(p.attachment)args.push('--content-disposition','attachment');aws(...args);},remove:key=>aws('s3','rm',`s3://${bucket}/${key}`)};
 }
