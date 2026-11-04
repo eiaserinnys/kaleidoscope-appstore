@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "store_app_id": "reader",
+  "release": 1,
+  "name": "읽을거리",
+  "summary": "새 글과 자료를 모아 읽습니다.",
+  "description": "새 글과 자료를 모아 읽습니다.\n\n**간편하게** 필요한 내용을 살펴볼 수 있습니다.\n\n- 원하는 항목을 고르세요.\n- 자세한 내용은 [도움말](https://github.com/eiaserinnys/kaleidoscope-appstore#readme)을 참고하세요.\n\n앱 id는 `reader`입니다.",
+  "category": "자료",
+  "publisher": "eiaserinnys",
+  "icon": "apps/reader/1/assets/icon/1",
+  "screenshots": [],
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "badges": [],
+  "files": {
+    "apps/reader/1/app.json": {
+      "sha256": "1dbc1e57249e580561c432e1a5e1638e98fa768c3f684d378c521e8b60659cb8",
+      "bytes": 348
+    },
+    "apps/reader/1/assets/icon/1": {
+      "sha256": "9f53701f0b89dbf2149cee77feb88c259bca66928e0dcb399736669b820fbb5a",
+      "bytes": 199,
+      "format": "png",
+      "source": "fixture",
+      "license": "MIT"
+    }
+  },
+  "published_at": "2026-11-04T09:30:00Z"
+}

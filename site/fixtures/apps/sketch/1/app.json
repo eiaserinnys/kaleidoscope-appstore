@@ -1,0 +1,20 @@
+{
+  "id": "sketch",
+  "name": "낙서장",
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "description": "자유롭게 그림을 그립니다.",
+  "ui": {
+    "type": "text",
+    "value": "자유롭게 그림을 그립니다."
+  },
+  "assets": [
+    {
+      "id": "icon",
+      "version": 1
+    }
+  ]
+}

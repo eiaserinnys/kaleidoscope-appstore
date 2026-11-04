@@ -1,0 +1,25 @@
+{
+  "format": 1,
+  "store_app_id": "team-chat",
+  "release": 1,
+  "name": "팀 대화",
+  "summary": "팀의 이야기를 한곳에서 봅니다.",
+  "description": "팀의 이야기를 한곳에서 봅니다.\n\n**간편하게** 필요한 내용을 살펴볼 수 있습니다.\n\n- 원하는 항목을 고르세요.\n- 자세한 내용은 [도움말](https://github.com/eiaserinnys/kaleidoscope-appstore#readme)을 참고하세요.\n\n앱 id는 `team-chat`입니다.",
+  "category": "팀",
+  "publisher": "eiaserinnys",
+  "icon": null,
+  "screenshots": [],
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "badges": [],
+  "files": {
+    "apps/team-chat/1/app.json": {
+      "sha256": "d173d77311f4cdd661e6fb1d064463e44e0ce846499b40ad5097f8871539b0f4",
+      "bytes": 283
+    }
+  },
+  "published_at": "2026-11-04T09:30:00Z"
+}

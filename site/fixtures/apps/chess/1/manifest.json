@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "store_app_id": "chess",
+  "release": 1,
+  "name": "체스",
+  "summary": "작은 체스판에서 한 판 둡니다.",
+  "description": "작은 체스판에서 한 판 둡니다.\n\n**간편하게** 필요한 내용을 살펴볼 수 있습니다.\n\n- 원하는 항목을 고르세요.\n- 자세한 내용은 [도움말](https://github.com/eiaserinnys/kaleidoscope-appstore#readme)을 참고하세요.\n\n앱 id는 `chess`입니다.",
+  "category": "게임",
+  "publisher": "eiaserinnys",
+  "icon": "apps/chess/1/assets/icon/1",
+  "screenshots": [],
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "badges": [],
+  "files": {
+    "apps/chess/1/app.json": {
+      "sha256": "5563cef1ba48df6ba72d0eb93551b0c977c9ae08f598809f362edae716b7b6d2",
+      "bytes": 341
+    },
+    "apps/chess/1/assets/icon/1": {
+      "sha256": "5b68cbf6d62a269c4259ea225395d1af439a27300a5cde7fe9549260f7bbb0ff",
+      "bytes": 193,
+      "format": "svg",
+      "source": "fixture",
+      "license": "MIT"
+    }
+  },
+  "published_at": "2026-11-04T09:30:00Z"
+}

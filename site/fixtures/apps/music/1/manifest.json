@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "store_app_id": "music",
+  "release": 1,
+  "name": "음악 상자",
+  "summary": "좋아하는 음악을 듣습니다.",
+  "description": "좋아하는 음악을 듣습니다.\n\n**간편하게** 필요한 내용을 살펴볼 수 있습니다.\n\n- 원하는 항목을 고르세요.\n- 자세한 내용은 [도움말](https://github.com/eiaserinnys/kaleidoscope-appstore#readme)을 참고하세요.\n\n앱 id는 `music`입니다.",
+  "category": "놀이",
+  "publisher": "eiaserinnys",
+  "icon": "apps/music/1/assets/icon/1",
+  "screenshots": [],
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "badges": [],
+  "files": {
+    "apps/music/1/app.json": {
+      "sha256": "4a2fdf1d43facf21637e4d5f1cc22add923198df06f7b54421a1b65b08a95d32",
+      "bytes": 338
+    },
+    "apps/music/1/assets/icon/1": {
+      "sha256": "d8e9e32d4c1513b12d5e341689d51ce3643f6735465ab12a6626edf7723debc1",
+      "bytes": 271,
+      "format": "png",
+      "source": "fixture",
+      "license": "MIT"
+    }
+  },
+  "published_at": "2026-11-04T09:30:00Z"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "team-board",
+  "name": "팀 보드",
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "description": "함께 할 일을 정리합니다.",
+  "ui": {
+    "type": "text",
+    "value": "함께 할 일을 정리합니다."
+  }
+}

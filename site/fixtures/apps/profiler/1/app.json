@@ -1,0 +1,14 @@
+{
+  "id": "profiler",
+  "name": "성능 기록",
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "description": "작업의 흐름과 시간을 살펴봅니다.",
+  "ui": {
+    "type": "text",
+    "value": "작업의 흐름과 시간을 살펴봅니다."
+  }
+}
