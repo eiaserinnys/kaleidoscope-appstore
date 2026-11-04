@@ -4,11 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>kaleidoscope 앱스토어</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root {
   color-scheme: light dark;
-  --text: #252431; --muted: #6d6b7a; --surface: #fff; --panel: #f8f8fb;
-  --hover: #eeedf5; --selected: #e9e6f5; --line: #e3e2e9; --accent: #6c58a0;
+  --text: #252431; --muted: #675a70; --surface: #fff; --panel: #f8f8fb;
+  --hover: #f3f2f8; --selected: #e9e6f5; --line: #e3e2e9; --accent: #6c58a0;
   --danger-bg: #fae8e8; --danger: #a33440; --badge: #eeedf1; --skeleton: #e7e6ed;
   --body-size: 15px; --meta-size: 12px; --bar-height: 44px; --radius: 8px;
   --space-1: 4px; --space-2: 6px; --space-3: 8px; --space-4: 12px; --space-5: 14px;
@@ -18,13 +19,13 @@
   --skeleton-title-height: 15px; --skeleton-detail-height: 18px; --action-icon-size: 20px;
   --skeleton-row-height: 24px; --action-size: 32px; --category-height: 38px;
   --property-label-width: 84px; --screenshot-max-width: 260px; --dialog-max-width: 1100px;
-  --backdrop: #000b;
-  font-family: Pretendard, 'DM Sans', system-ui, 'Malgun Gothic', sans-serif;
+  --backdrop: #000b; --detail-inset: var(--space-6);
+  font-family: "Pretendard Variable", Pretendard, system-ui, sans-serif;
   font-size: var(--body-size); color: var(--text); background: var(--surface);
 }
 @media (prefers-color-scheme: dark) {
-  :root { --text: #ecebf2; --muted: #adabb9; --surface: #1c1b22; --panel: #222129;
-    --hover: #302e3b; --selected: #3a344c; --line: #383640; --accent: #c2b1ed;
+  :root { --text: #ecebf2; --muted: #bfb4c4; --surface: #1c1b22; --panel: #222129;
+    --hover: #2a2832; --selected: #3a344c; --line: #383640; --accent: #c2b1ed;
     --danger-bg: #48292f; --danger: #f0adb5; --badge: #36343d; --skeleton: #393742; }
 }
 * { box-sizing: border-box; }
@@ -41,7 +42,9 @@ a { color: var(--accent); }
 .pane.categories { background: var(--panel); }
 .bar { height: var(--bar-height); min-height: var(--bar-height); display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-4); border-bottom: var(--stroke) solid var(--line); user-select: none; }
 .bar h1, .bar h2 { margin: 0; font-size: var(--body-size); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bar .publisher { margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--meta-size); color: var(--muted); }
+.categories .bar { padding-inline: calc(var(--space-3) + var(--space-4)); }
+.detail .bar { padding-inline: var(--detail-inset); }
+.browse .bar { padding-left: 0; }
 .scroll { flex: 1; min-height: 0; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
 .scroll::-webkit-scrollbar, .screenshots::-webkit-scrollbar { width: var(--scrollbar-size); height: var(--scrollbar-size); }
 .scroll::-webkit-scrollbar-thumb, .screenshots::-webkit-scrollbar-thumb { background: var(--muted); border: var(--focus-width) solid transparent; border-radius: var(--scrollbar-size); background-clip: padding-box; }
@@ -50,8 +53,10 @@ a { color: var(--accent); }
 .category:hover, .app:hover { background: var(--hover); }
 .category[aria-pressed="true"], .app[aria-pressed="true"] { background: var(--selected); }
 .category-count { margin-left: auto; color: var(--muted); font-size: var(--meta-size); padding-left: var(--space-3); }
-.search { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; }
+.search { flex: 1; min-width: 0; height: var(--action-size); padding: 0 var(--space-4); border: 0; border-radius: var(--radius); outline: 0; background: transparent; }
 .search:focus-visible { outline: var(--focus-width) solid var(--accent); }
+.search::placeholder { color: var(--muted); opacity: 1; }
+.search::-webkit-search-cancel-button { -webkit-appearance: none; }
 .icon-button { display: inline-flex; flex: none; align-items: center; justify-content: center; width: var(--action-size); height: var(--action-size); border-radius: var(--radius); color: var(--muted); }
 .icon-button:hover { background: var(--hover); color: var(--text); }
 .icon-button svg { width: var(--action-icon-size); height: var(--action-icon-size); }
@@ -59,11 +64,13 @@ a { color: var(--accent); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--grid-min), 1fr)); gap: var(--space-1); padding: var(--space-3); align-content: start; }
 .app { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-5) var(--space-2) var(--space-4); border-radius: var(--radius); user-select: none; }
 .app-icon { width: var(--icon-size); height: var(--icon-size); object-fit: contain; flex: none; }
+.app-icon-placeholder { display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius); background: var(--badge); color: var(--muted); font-weight: 600; }
 .app-name { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; line-height: 1.35; text-align: center; overflow-wrap: anywhere; }
 .empty { color: var(--muted); padding: var(--space-6); margin: 0; }
-.detail-content { padding: var(--space-6); }
+.detail-content { padding: var(--space-6) var(--detail-inset); }
 .properties { width: 100%; border-collapse: collapse; line-height: 1.55; }
-.properties th, .properties td { padding: var(--space-2) 0; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.properties th, .properties td { padding: var(--space-2) 0; text-align: left; vertical-align: top; }
+.description, .error, .footer, .properties td { overflow-wrap: anywhere; word-break: keep-all; }
 .properties th { width: var(--property-label-width); color: var(--muted); font-weight: 400; padding-right: var(--space-4); white-space: nowrap; }
 .badges { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .badge { display: inline-block; padding: var(--badge-inset) var(--space-3); border-radius: var(--radius); background: var(--badge); font-size: var(--meta-size); }
@@ -71,12 +78,13 @@ a { color: var(--accent); }
 .screenshots { display: flex; gap: var(--space-3); overflow-x: auto; padding: 0 0 var(--space-3); margin-top: var(--space-7); scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
 .screenshot { flex: none; padding: 0; border-radius: var(--radius); overflow: hidden; background: var(--panel); }
 .screenshot img { display: block; width: auto; height: var(--shot-height); max-width: var(--screenshot-max-width); object-fit: contain; }
-.description { line-height: 1.65; overflow-wrap: anywhere; }
+.description { line-height: 1.65; }
 .description p, .description ul, .description ol { margin: var(--space-6) 0; }
 .description code { padding: var(--stroke) var(--space-1); background: var(--badge); border-radius: var(--space-1); font-size: inherit; }
-.install { color: var(--muted); font-size: var(--meta-size); margin: var(--space-8) 0 0; }
-.error { padding: var(--space-6); line-height: 1.6; overflow-wrap: anywhere; }
+.install-hint { display: block; color: var(--muted); font-size: var(--meta-size); }
+.error { padding: var(--space-6); line-height: 1.6; }
 .error p { margin: 0 0 var(--space-4); }
+.error .error-reason { margin: var(--space-3) 0 0; color: var(--muted); font-size: var(--meta-size); }
 .retry { padding: var(--space-2) var(--space-4); border: var(--stroke) solid var(--line); border-radius: var(--radius); background: var(--panel); }
 .retry:hover { background: var(--hover); }
 .skeleton { background: var(--skeleton); border-radius: var(--radius); }
@@ -86,6 +94,7 @@ a { color: var(--accent); }
 .skeleton-name { width: 70%; height: var(--skeleton-title-height); }
 .skeleton-detail { height: var(--skeleton-detail-height); margin-bottom: var(--space-4); }
 .footer { flex: none; min-height: var(--footer-height); display: flex; align-items: center; justify-content: center; padding: var(--space-2) var(--space-4); border-top: var(--stroke) solid var(--line); color: var(--muted); font-size: var(--meta-size); text-align: center; }
+.footer p { margin: 0; }
 .footer a { color: inherit; }
 dialog { max-width: min(92vw, var(--dialog-max-width)); max-height: 90vh; padding: var(--space-3); border: 0; border-radius: var(--radius); background: var(--surface); color: var(--text); }
 dialog::backdrop { background: var(--backdrop); }
@@ -95,12 +104,12 @@ dialog .close { display: block; margin-left: auto; }
 @media (max-width: 799px) {
   .panes { display: block; position: relative; }
   .pane.categories { display: none; }
-  .pane.browse { height: 100%; }
+  .pane.browse { height: 100%; border-left: 0; }
   .pane.detail { display: none; position: absolute; inset: 0; border: 0; z-index: 1; }
   .pane.detail.open { display: flex; }
-  .mobile-category { display: block; max-width: 35%; border: 0; border-radius: var(--radius); background: var(--panel); padding: var(--space-2); }
+  .mobile-category { display: block; height: var(--action-size); max-width: 35%; border: 0; border-radius: var(--radius); background: var(--panel); padding: var(--space-2); }
   .back { display: inline-flex; }
-  .footer { justify-content: flex-start; }
+  .footer { justify-content: flex-start; text-align: left; }
 }
 </style>
 </head>
@@ -115,27 +124,26 @@ dialog .close { display: block; margin-left: auto; }
       <header class="bar">
         <select id="mobile-category" class="mobile-category" aria-label="분류 고르기"><option value="">전체</option></select>
         <input id="search" class="search" type="search" placeholder="앱 찾기" aria-label="앱 찾기" autocomplete="off">
-        <a class="icon-button" href="https://github.com/eiaserinnys/kaleidoscope-appstore#readme" title="GitHub에서 올리는 법" aria-label="GitHub에서 올리는 법"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M5 15v4h14v-4"/></svg></a>
+        <a class="icon-button" href="https://github.com/eiaserinnys/kaleidoscope-appstore#readme" title="GitHub에서 올리는 법" aria-label="GitHub에서 올리는 법"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 .75a11.25 11.25 0 0 0-3.56 21.92c.56.1.77-.24.77-.54v-2.1c-3.13.68-3.79-1.33-3.79-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.71 2.62 1.22 3.26.93.1-.72.39-1.22.7-1.5-2.5-.29-5.13-1.25-5.13-5.56 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.43.11-2.98 0 0 .95-.3 3.1 1.15a10.8 10.8 0 0 1 5.64 0c2.15-1.46 3.1-1.15 3.1-1.15.61 1.55.23 2.7.11 2.98.72.79 1.16 1.79 1.16 3.02 0 4.32-2.64 5.27-5.15 5.55.4.35.76 1.03.76 2.08v3.11c0 .3.2.65.78.54A11.25 11.25 0 0 0 12 .75Z"/></svg></a>
       </header>
       <div id="apps" class="scroll" aria-live="polite"></div>
     </section>
     <section id="detail-pane" class="pane detail" aria-label="앱 상세">
       <header class="bar">
         <button id="back" class="icon-button back" aria-label="앱 목록으로 돌아가기" title="돌아가기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 5-7 7 7 7M7 12h12"/></svg></button>
-        <h2 id="detail-title"></h2><span id="detail-publisher" class="publisher"></span>
+        <h2 id="detail-title"></h2>
       </header>
       <div id="detail" class="scroll" aria-live="polite"><p class="empty">앱을 고르면 여기에 설명이 나타납니다.</p></div>
     </section>
   </main>
-  <footer class="footer">이 스토어는 올린 사람의 GitHub 로그인 말고는 모으지 않습니다. 내려 달라는 요청:&nbsp;<a href="mailto:eiaserinnys@gmail.com">eiaserinnys@gmail.com</a></footer>
+  <footer class="footer"><p>이 스토어는 올린 사람의 GitHub 로그인 말고는 모으지 않습니다. 내려 달라는 요청: <a href="mailto:eiaserinnys@gmail.com">eiaserinnys@gmail.com</a></p></footer>
 </div>
-<dialog id="lightbox" aria-label="스크린샷 크게 보기"><button class="icon-button close" aria-label="닫기" title="닫기">✕</button><img alt=""></dialog>
+<dialog id="lightbox" aria-label="스크린샷 크게 보기"><button class="icon-button close" aria-label="닫기" title="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button><img alt=""></dialog>
 <script>
 'use strict';
 const $ = id => document.getElementById(id);
 const base = new URL('./', location.href);
 const state = { items: [], appNodes: [], category: '', query: '', app: '', indexReady: false, detailToken: 0 };
-const defaultIcon = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="#8b829f" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="4" width="24" height="24" rx="6"/><path d="M10 16h12M16 10v12"/></svg>');
 function node(tag, options = {}) {
   const element = document.createElement(tag);
   if (options.className) element.className = options.className;
@@ -166,22 +174,29 @@ function applyHash() {
   renderCategories(); renderApps();
   if (previous !== state.app || !state.app) loadDetail();
 }
+class StoreReadError extends Error {
+  constructor(message, status, path) { super(message); this.status = status; this.path = path; }
+}
 async function readJson(path) {
   const url = storeUrl(path);
   let response;
-  try { response = await fetch(url); } catch (error) { throw new Error(`${url}에 연결할 수 없습니다. 원인: ${error.message}`); }
-  if (!response.ok) throw new Error(`${url}을 읽을 수 없습니다. HTTP ${response.status}`);
+  try { response = await fetch(url); } catch { throw new StoreReadError('연결할 수 없습니다', null, path); }
+  if (!response.ok) throw new StoreReadError(`HTTP ${response.status}`, response.status, path);
   let data;
-  try { data = await response.json(); } catch { throw new Error(`${url}의 JSON 형식을 읽을 수 없습니다.`); }
-  if (data.format > 1) throw new Error(`이 스토어 형식(판 ${data.format})은 이 페이지보다 새것입니다. 주소: ${url}`);
+  try { data = await response.json(); } catch { throw new StoreReadError('JSON 형식을 읽을 수 없습니다', null, path); }
+  if (data.format > 1) throw new StoreReadError(`이 스토어 형식(판 ${data.format})은 이 페이지보다 새것입니다`, null, path);
   return data;
 }
-function showError(target, message, retry) {
+function showError(target, message, reason, retry) {
   const box = node('div', { className: 'error' });
   box.setAttribute('role', 'alert');
   box.append(node('p', { text: message }));
-  const button = node('button', { className: 'retry', text: '다시 읽기' });
-  button.addEventListener('click', retry); box.append(button); target.replaceChildren(box);
+  if (retry) {
+    const button = node('button', { className: 'retry', text: '다시 읽기' });
+    button.addEventListener('click', retry); box.append(button);
+  }
+  if (reason) box.append(node('p', { className: 'error-reason', text: reason }));
+  target.replaceChildren(box);
 }
 function skeletonCategories() {
   const fragment = document.createDocumentFragment();
@@ -206,9 +221,13 @@ async function loadIndex() {
   try {
     const index = await readJson('./index.json');
     state.items = index.items; state.indexReady = true; buildApps(); renderCategories(); renderApps();
+    if (state.app && !$('detail-title').textContent) {
+      const selected = state.items.find(item => item.id === state.app);
+      if (selected) $('detail-title').textContent = selected.name;
+    }
   } catch (error) {
-    showError($('categories'), error.message, loadIndex);
-    showError($('apps'), error.message, loadIndex);
+    $('categories').replaceChildren();
+    showError($('apps'), '앱 목록을 불러오지 못했습니다', error.message, loadIndex);
   }
 }
 function renderCategories() {
@@ -222,21 +241,28 @@ function renderCategories() {
     const label = category || '전체';
     const button = node('button', { className: 'category' });
     button.setAttribute('aria-pressed', String(state.category === category));
-    button.append(node('span', { text: label }), node('span', { className: 'category-count', text: `(${count})` }));
+    button.append(node('span', { text: label }), node('span', { className: 'category-count', text: String(count) }));
     button.addEventListener('click', () => chooseCategory(category)); list.append(button);
-    const option = node('option', { text: `${label} (${count})` }); option.value = category; select.append(option);
+    const option = node('option', { text: `${label} ${count}` }); option.value = category; select.append(option);
   }
   select.value = state.category;
   $('categories').replaceChildren(list);
 }
 function chooseCategory(category) { state.category = category; writeHash(); renderCategories(); renderApps(); }
+function placeholderIcon(name) {
+  const icon = node('span', { className: 'app-icon app-icon-placeholder', text: Array.from(name.trim())[0] || '' });
+  icon.setAttribute('aria-hidden', 'true'); return icon;
+}
 function buildApps() {
   const grid = node('div', { className: 'grid' });
   const empty = node('p', { className: 'empty', text: '일치하는 앱이 없습니다.' });
   state.appNodes = state.items.map(item => {
     const button = node('button', { className: 'app' });
-    const icon = node('img', { className: 'app-icon' }); icon.alt = ''; icon.src = item.icon ? storeUrl(item.icon) : defaultIcon;
-    icon.addEventListener('error', () => { icon.src = defaultIcon; }, { once: true });
+    let icon;
+    if (item.icon) {
+      icon = node('img', { className: 'app-icon' }); icon.alt = ''; icon.src = storeUrl(item.icon);
+      icon.addEventListener('error', () => icon.replaceWith(placeholderIcon(item.name)), { once: true });
+    } else icon = placeholderIcon(item.name);
     button.append(icon, node('span', { className: 'app-name', text: item.name }));
     button.addEventListener('click', () => { state.app = item.id; writeHash(); renderApps(); loadDetail(); });
     grid.append(button); return { item, button };
@@ -318,18 +344,21 @@ function formatRequires(requires) {
   return [`블록 ${requires.blocks}판`, ...Object.entries(requires.modules || {}).map(([name, version]) => `${name} ${version}판`)].join(', ');
 }
 function renderDetail(detail, manifest) {
-  $('detail-title').textContent = detail.name; $('detail-publisher').textContent = detail.publisher;
+  $('detail-title').textContent = detail.name;
   const box = node('div', { className: 'detail-content' });
   const table = node('table', { className: 'properties' });
   const publisher = node('a', { text: detail.publisher }); publisher.href = `https://github.com/${encodeURIComponent(detail.publisher)}`; publisher.rel = 'noopener noreferrer';
-  addRow(table, '제작자', publisher); addRow(table, '분류', detail.category); addRow(table, '판', `release ${detail.release}`);
+  addRow(table, '제작자', publisher); addRow(table, '분류', detail.category); addRow(table, '판', String(detail.release));
   const published = manifest.published_at || detail.releases[0].published_at;
   addRow(table, '올린 날', new Date(published).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }));
   const badges = node('div', { className: 'badges' });
   const labels = permissionLabels(manifest);
   if (labels.length) for (const entry of labels) badges.append(node('span', { className: `badge${entry.danger ? ' danger' : ''}`, text: entry.label }));
   else badges.append(node('span', { className: 'badge', text: '없음' }));
-  addRow(table, '권한', badges); addRow(table, '요구 쉘', formatRequires(manifest.requires)); addRow(table, 'id', detail.id); box.append(table);
+  addRow(table, '권한', badges); addRow(table, '요구 쉘', formatRequires(manifest.requires));
+  const installId = document.createElement('div');
+  installId.append(document.createTextNode(detail.id), node('span', { className: 'install-hint', text: '쉘의 앱스토어 앱에서 이 id로 찾습니다' }));
+  addRow(table, '설치 id', installId); box.append(table);
   if (detail.screenshots && detail.screenshots.length) {
     const screenshots = node('div', { className: 'screenshots' });
     detail.screenshots.forEach((path, index) => {
@@ -338,21 +367,33 @@ function renderDetail(detail, manifest) {
       button.append(image); button.addEventListener('click', () => { const dialog = $('lightbox'); dialog.querySelector('img').src = image.src; dialog.querySelector('img').alt = image.alt; dialog.showModal(); }); screenshots.append(button);
     }); box.append(screenshots);
   }
-  box.append(markdown(detail.description), node('p', { className: 'install', text: '쉘의 앱스토어 앱에서 이 id로 찾아 설치합니다' }));
+  box.append(markdown(detail.description));
   $('detail').replaceChildren(box); $('detail').scrollTop = 0;
 }
 async function loadDetail() {
   const token = ++state.detailToken;
-  $('detail-pane').classList.toggle('open', Boolean(state.app));
-  $('detail-title').textContent = ''; $('detail-publisher').textContent = '';
+  const pane = $('detail-pane');
+  const wasOpen = pane.classList.contains('open');
+  pane.classList.toggle('open', Boolean(state.app));
+  $('detail-title').textContent = '';
   if (!state.app) { $('detail').replaceChildren(node('p', { className: 'empty', text: '앱을 고르면 여기에 설명이 나타납니다.' })); return; }
+  if (!wasOpen && matchMedia('(max-width: 799px)').matches) $('back').focus({ preventScroll: true });
+  const selected = state.items.find(item => item.id === state.app);
+  if (selected) $('detail-title').textContent = selected.name;
   skeletonDetail();
+  const detailPath = `./apps/${encodeURIComponent(state.app)}/index.json`;
   try {
-    const detail = await readJson(`./apps/${encodeURIComponent(state.app)}/index.json`);
+    const detail = await readJson(detailPath);
     const release = detail.releases.find(entry => entry.release === detail.release);
     const manifest = await readJson(release.manifest);
     if (token === state.detailToken) renderDetail(detail, manifest);
-  } catch (error) { if (token === state.detailToken) showError($('detail'), error.message, loadDetail); }
+  } catch (error) {
+    if (token !== state.detailToken) return;
+    if (error.status === 404 && error.path === detailPath) {
+      $('detail-title').textContent = state.app;
+      showError($('detail'), `스토어에 ${state.app} 앱이 없습니다. 내려졌거나 링크의 id가 틀렸을 수 있습니다`);
+    } else showError($('detail'), '앱 정보를 불러오지 못했습니다', error.message, loadDetail);
+  }
 }
 $('search').addEventListener('input', event => { state.query = event.target.value; writeHash(true); renderApps(); });
 $('mobile-category').addEventListener('change', event => chooseCategory(event.target.value));
