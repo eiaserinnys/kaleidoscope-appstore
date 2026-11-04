@@ -1,0 +1,14 @@
+{
+  "id": "team-chat",
+  "name": "팀 대화",
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "description": "팀의 이야기를 한곳에서 봅니다.",
+  "ui": {
+    "type": "text",
+    "value": "팀의 이야기를 한곳에서 봅니다."
+  }
+}

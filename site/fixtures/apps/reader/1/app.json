@@ -1,0 +1,20 @@
+{
+  "id": "reader",
+  "name": "읽을거리",
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "description": "새 글과 자료를 모아 읽습니다.",
+  "ui": {
+    "type": "text",
+    "value": "새 글과 자료를 모아 읽습니다."
+  },
+  "assets": [
+    {
+      "id": "icon",
+      "version": 1
+    }
+  ]
+}

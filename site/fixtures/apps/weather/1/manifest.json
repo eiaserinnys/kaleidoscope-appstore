@@ -1,0 +1,55 @@
+{
+  "format": 1,
+  "store_app_id": "weather",
+  "release": 1,
+  "name": "날씨",
+  "summary": "지금 날씨와 예보를 살펴봅니다.",
+  "description": "지금 날씨와 예보를 살펴봅니다.\n\n**간편하게** 필요한 내용을 살펴볼 수 있습니다.\n\n- 원하는 항목을 고르세요.\n- 자세한 내용은 [도움말](https://github.com/eiaserinnys/kaleidoscope-appstore#readme)을 참고하세요.\n\n앱 id는 `weather`입니다.",
+  "category": "도구",
+  "publisher": "eiaserinnys",
+  "icon": "apps/weather/1/assets/icon/1",
+  "screenshots": [
+    "apps/weather/1/screenshots/1.png",
+    "apps/weather/1/screenshots/2.png"
+  ],
+  "requires": {
+    "blocks": 3,
+    "modules": {
+      "http": 1
+    }
+  },
+  "permissions": [
+    {
+      "module": "http",
+      "id": "forecast",
+      "label": "예보",
+      "base_url": "https://api.open-meteo.com",
+      "paths": [
+        "/v1/forecast"
+      ]
+    }
+  ],
+  "badges": [],
+  "files": {
+    "apps/weather/1/app.json": {
+      "sha256": "3c211a9054a96cc96c7096b460869063d4cf2f966749db30f8a179f9aecfebac",
+      "bytes": 552
+    },
+    "apps/weather/1/assets/icon/1": {
+      "sha256": "d8e9e32d4c1513b12d5e341689d51ce3643f6735465ab12a6626edf7723debc1",
+      "bytes": 271,
+      "format": "png",
+      "source": "fixture",
+      "license": "MIT"
+    },
+    "apps/weather/1/screenshots/1.png": {
+      "sha256": "169cb0d7a583aab2585ef648d621758f9211bb650258c6b0a28502b3253081dd",
+      "bytes": 8704
+    },
+    "apps/weather/1/screenshots/2.png": {
+      "sha256": "81d662e417d46bb7e3b2217db19ab6345ad323b19dbbda4d4b3ebca1aff8b345",
+      "bytes": 7244
+    }
+  },
+  "published_at": "2026-11-04T09:30:00Z"
+}

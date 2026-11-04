@@ -1,0 +1,191 @@
+{
+  "format": 1,
+  "generated_at": "2026-11-04T09:30:00Z",
+  "items": [
+    {
+      "id": "weather",
+      "name": "날씨",
+      "summary": "지금 날씨와 예보를 살펴봅니다.",
+      "category": "도구",
+      "publisher": "eiaserinnys",
+      "release": 1,
+      "icon": "apps/weather/1/assets/icon/1",
+      "badges": [],
+      "requires": {
+        "blocks": 3,
+        "modules": {
+          "http": 1
+        }
+      },
+      "updated_at": "2026-11-04T09:30:00Z"
+    },
+    {
+      "id": "calculator",
+      "name": "계산기",
+      "summary": "빠르게 계산합니다.",
+      "category": "도구",
+      "publisher": "eiaserinnys",
+      "release": 1,
+      "icon": "apps/calculator/1/assets/icon/1",
+      "badges": [],
+      "requires": {
+        "blocks": 3,
+        "modules": {}
+      },
+      "updated_at": "2026-11-04T09:30:00Z"
+    },
+    {
+      "id": "notes",
+      "name": "작은 노트",
+      "summary": "생각과 메모를 모아 둡니다.",
+      "category": "자료",
+      "publisher": "eiaserinnys",
+      "release": 1,
+      "icon": "apps/notes/1/assets/icon/1",
+      "badges": [],
+      "requires": {
+        "blocks": 3,
+        "modules": {}
+      },
+      "updated_at": "2026-11-04T09:30:00Z"
+    },
+    {
+      "id": "reader",
+      "name": "읽을거리",
+      "summary": "새 글과 자료를 모아 읽습니다.",
+      "category": "자료",
+      "publisher": "eiaserinnys",
+      "release": 1,
+      "icon": "apps/reader/1/assets/icon/1",
+      "badges": [],
+      "requires": {
+        "blocks": 3,
+        "modules": {}
+      },
+      "updated_at": "2026-11-04T09:30:00Z"
+    },
+    {
+      "id": "music",
+      "name": "음악 상자",
+      "summary": "좋아하는 음악을 듣습니다.",
+      "category": "놀이",
+      "publisher": "eiaserinnys",
+      "release": 1,
+      "icon": "apps/music/1/assets/icon/1",
+      "badges": [],
+      "requires": {
+        "blocks": 3,
+        "modules": {}
+      },
+      "updated_at": "2026-11-04T09:30:00Z"
+    },
+    {
+      "id": "sketch",
+      "name": "낙서장",
+      "summary": "자유롭게 그림을 그립니다.",
+      "category": "놀이",
+      "publisher": "eiaserinnys",
+      "release": 1,
+      "icon": "apps/sketch/1/assets/icon/1",
+      "badges": [],
+      "requires": {
+        "blocks": 3,
+        "modules": {}
+      },
+      "updated_at": "2026-11-04T09:30:00Z"
+    },
+    {
+      "id": "puzzle",
+      "name": "조각 맞추기",
+      "summary": "그림을 맞추며 잠시 쉽니다.",
+      "category": "게임",
+      "publisher": "eiaserinnys",
+      "release": 1,
+      "icon": "apps/puzzle/1/assets/icon/1",
+      "badges": [],
+      "requires": {
+        "blocks": 3,
+        "modules": {}
+      },
+      "updated_at": "2026-11-04T09:30:00Z"
+    },
+    {
+      "id": "chess",
+      "name": "체스",
+      "summary": "작은 체스판에서 한 판 둡니다.",
+      "category": "게임",
+      "publisher": "eiaserinnys",
+      "release": 1,
+      "icon": "apps/chess/1/assets/icon/1",
+      "badges": [],
+      "requires": {
+        "blocks": 3,
+        "modules": {}
+      },
+      "updated_at": "2026-11-04T09:30:00Z"
+    },
+    {
+      "id": "api-tester",
+      "name": "API 살펴보기",
+      "summary": "공개 API의 응답을 살펴봅니다.",
+      "category": "개발",
+      "publisher": "eiaserinnys",
+      "release": 1,
+      "icon": null,
+      "badges": [
+        "process",
+        "worker"
+      ],
+      "requires": {
+        "blocks": 3,
+        "modules": {}
+      },
+      "updated_at": "2026-11-04T09:30:00Z"
+    },
+    {
+      "id": "profiler",
+      "name": "성능 기록",
+      "summary": "작업의 흐름과 시간을 살펴봅니다.",
+      "category": "개발",
+      "publisher": "eiaserinnys",
+      "release": 1,
+      "icon": null,
+      "badges": [],
+      "requires": {
+        "blocks": 3,
+        "modules": {}
+      },
+      "updated_at": "2026-11-04T09:30:00Z"
+    },
+    {
+      "id": "team-board",
+      "name": "팀 보드",
+      "summary": "함께 할 일을 정리합니다.",
+      "category": "팀",
+      "publisher": "eiaserinnys",
+      "release": 1,
+      "icon": null,
+      "badges": [],
+      "requires": {
+        "blocks": 3,
+        "modules": {}
+      },
+      "updated_at": "2026-11-04T09:30:00Z"
+    },
+    {
+      "id": "team-chat",
+      "name": "팀 대화",
+      "summary": "팀의 이야기를 한곳에서 봅니다.",
+      "category": "팀",
+      "publisher": "eiaserinnys",
+      "release": 1,
+      "icon": null,
+      "badges": [],
+      "requires": {
+        "blocks": 3,
+        "modules": {}
+      },
+      "updated_at": "2026-11-04T09:30:00Z"
+    }
+  ]
+}

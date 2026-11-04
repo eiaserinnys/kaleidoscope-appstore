@@ -1,0 +1,20 @@
+{
+  "id": "puzzle",
+  "name": "조각 맞추기",
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "description": "그림을 맞추며 잠시 쉽니다.",
+  "ui": {
+    "type": "text",
+    "value": "그림을 맞추며 잠시 쉽니다."
+  },
+  "assets": [
+    {
+      "id": "icon",
+      "version": 1
+    }
+  ]
+}

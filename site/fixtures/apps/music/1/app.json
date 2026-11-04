@@ -1,0 +1,20 @@
+{
+  "id": "music",
+  "name": "음악 상자",
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "description": "좋아하는 음악을 듣습니다.",
+  "ui": {
+    "type": "text",
+    "value": "좋아하는 음악을 듣습니다."
+  },
+  "assets": [
+    {
+      "id": "icon",
+      "version": 1
+    }
+  ]
+}

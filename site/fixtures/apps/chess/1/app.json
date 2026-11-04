@@ -1,0 +1,20 @@
+{
+  "id": "chess",
+  "name": "체스",
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "description": "작은 체스판에서 한 판 둡니다.",
+  "ui": {
+    "type": "text",
+    "value": "작은 체스판에서 한 판 둡니다."
+  },
+  "assets": [
+    {
+      "id": "icon",
+      "version": 1
+    }
+  ]
+}

@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>kaleidoscope 앱스토어</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --text: #252431; --muted: #6d6b7a; --surface: #fff; --panel: #f8f8fb;
+  --hover: #eeedf5; --selected: #e9e6f5; --line: #e3e2e9; --accent: #6c58a0;
+  --danger-bg: #fae8e8; --danger: #a33440; --badge: #eeedf1; --skeleton: #e7e6ed;
+  --body-size: 15px; --meta-size: 12px; --bar-height: 44px; --radius: 8px;
+  --space-1: 4px; --space-2: 6px; --space-3: 8px; --space-4: 12px; --space-5: 14px;
+  --space-6: 16px; --space-7: 20px; --space-8: 24px; --icon-size: 32px;
+  --grid-min: 104px; --shot-height: 128px; --footer-height: 38px;
+  --stroke: 1px; --focus-width: 2px; --badge-inset: 3px; --scrollbar-size: 8px;
+  --skeleton-title-height: 15px; --skeleton-detail-height: 18px; --action-icon-size: 20px;
+  --skeleton-row-height: 24px; --action-size: 32px; --category-height: 38px;
+  --property-label-width: 84px; --screenshot-max-width: 260px; --dialog-max-width: 1100px;
+  --backdrop: #000b;
+  font-family: Pretendard, 'DM Sans', system-ui, 'Malgun Gothic', sans-serif;
+  font-size: var(--body-size); color: var(--text); background: var(--surface);
+}
+@media (prefers-color-scheme: dark) {
+  :root { --text: #ecebf2; --muted: #adabb9; --surface: #1c1b22; --panel: #222129;
+    --hover: #302e3b; --selected: #3a344c; --line: #383640; --accent: #c2b1ed;
+    --danger-bg: #48292f; --danger: #f0adb5; --badge: #36343d; --skeleton: #393742; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input, select { font: inherit; color: inherit; }
+button, select { cursor: pointer; }
+button { border: 0; background: none; }
+a { color: var(--accent); }
+:focus-visible { outline: var(--focus-width) solid var(--accent); outline-offset: calc(-1 * var(--focus-width)); border-radius: var(--radius); }
+.shell { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+.panes { display: grid; grid-template-columns: 18fr 47fr 35fr; flex: 1; min-height: 0; }
+.pane { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: var(--surface); }
+.pane + .pane { border-left: var(--stroke) solid var(--line); }
+.pane.categories { background: var(--panel); }
+.bar { height: var(--bar-height); min-height: var(--bar-height); display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-4); border-bottom: var(--stroke) solid var(--line); user-select: none; }
+.bar h1, .bar h2 { margin: 0; font-size: var(--body-size); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar .publisher { margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--meta-size); color: var(--muted); }
+.scroll { flex: 1; min-height: 0; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
+.scroll::-webkit-scrollbar, .screenshots::-webkit-scrollbar { width: var(--scrollbar-size); height: var(--scrollbar-size); }
+.scroll::-webkit-scrollbar-thumb, .screenshots::-webkit-scrollbar-thumb { background: var(--muted); border: var(--focus-width) solid transparent; border-radius: var(--scrollbar-size); background-clip: padding-box; }
+.category-list { padding: var(--space-3); }
+.category { display: flex; align-items: center; width: 100%; min-height: var(--category-height); text-align: left; padding: var(--space-3) var(--space-4); border-radius: var(--radius); user-select: none; }
+.category:hover, .app:hover { background: var(--hover); }
+.category[aria-pressed="true"], .app[aria-pressed="true"] { background: var(--selected); }
+.category-count { margin-left: auto; color: var(--muted); font-size: var(--meta-size); padding-left: var(--space-3); }
+.search { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; }
+.search:focus-visible { outline: var(--focus-width) solid var(--accent); }
+.icon-button { display: inline-flex; flex: none; align-items: center; justify-content: center; width: var(--action-size); height: var(--action-size); border-radius: var(--radius); color: var(--muted); }
+.icon-button:hover { background: var(--hover); color: var(--text); }
+.icon-button svg { width: var(--action-icon-size); height: var(--action-icon-size); }
+.mobile-category, .back { display: none; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--grid-min), 1fr)); gap: var(--space-1); padding: var(--space-3); align-content: start; }
+.app { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-5) var(--space-2) var(--space-4); border-radius: var(--radius); user-select: none; }
+.app-icon { width: var(--icon-size); height: var(--icon-size); object-fit: contain; flex: none; }
+.app-name { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; line-height: 1.35; text-align: center; overflow-wrap: anywhere; }
+.empty { color: var(--muted); padding: var(--space-6); margin: 0; }
+.detail-content { padding: var(--space-6); }
+.properties { width: 100%; border-collapse: collapse; line-height: 1.55; }
+.properties th, .properties td { padding: var(--space-2) 0; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.properties th { width: var(--property-label-width); color: var(--muted); font-weight: 400; padding-right: var(--space-4); white-space: nowrap; }
+.badges { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.badge { display: inline-block; padding: var(--badge-inset) var(--space-3); border-radius: var(--radius); background: var(--badge); font-size: var(--meta-size); }
+.badge.danger { background: var(--danger-bg); color: var(--danger); }
+.screenshots { display: flex; gap: var(--space-3); overflow-x: auto; padding: 0 0 var(--space-3); margin-top: var(--space-7); scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
+.screenshot { flex: none; padding: 0; border-radius: var(--radius); overflow: hidden; background: var(--panel); }
+.screenshot img { display: block; width: auto; height: var(--shot-height); max-width: var(--screenshot-max-width); object-fit: contain; }
+.description { line-height: 1.65; overflow-wrap: anywhere; }
+.description p, .description ul, .description ol { margin: var(--space-6) 0; }
+.description code { padding: var(--stroke) var(--space-1); background: var(--badge); border-radius: var(--space-1); font-size: inherit; }
+.install { color: var(--muted); font-size: var(--meta-size); margin: var(--space-8) 0 0; }
+.error { padding: var(--space-6); line-height: 1.6; overflow-wrap: anywhere; }
+.error p { margin: 0 0 var(--space-4); }
+.retry { padding: var(--space-2) var(--space-4); border: var(--stroke) solid var(--line); border-radius: var(--radius); background: var(--panel); }
+.retry:hover { background: var(--hover); }
+.skeleton { background: var(--skeleton); border-radius: var(--radius); }
+.skeleton-row { height: var(--skeleton-row-height); margin: var(--space-4); }
+.skeleton-app { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-5) var(--space-2) var(--space-4); }
+.skeleton-icon { width: var(--icon-size); height: var(--icon-size); }
+.skeleton-name { width: 70%; height: var(--skeleton-title-height); }
+.skeleton-detail { height: var(--skeleton-detail-height); margin-bottom: var(--space-4); }
+.footer { flex: none; min-height: var(--footer-height); display: flex; align-items: center; justify-content: center; padding: var(--space-2) var(--space-4); border-top: var(--stroke) solid var(--line); color: var(--muted); font-size: var(--meta-size); text-align: center; }
+.footer a { color: inherit; }
+dialog { max-width: min(92vw, var(--dialog-max-width)); max-height: 90vh; padding: var(--space-3); border: 0; border-radius: var(--radius); background: var(--surface); color: var(--text); }
+dialog::backdrop { background: var(--backdrop); }
+dialog img { display: block; max-width: 100%; max-height: 82vh; object-fit: contain; }
+dialog .close { display: block; margin-left: auto; }
+[hidden] { display: none !important; }
+@media (max-width: 799px) {
+  .panes { display: block; position: relative; }
+  .pane.categories { display: none; }
+  .pane.browse { height: 100%; }
+  .pane.detail { display: none; position: absolute; inset: 0; border: 0; z-index: 1; }
+  .pane.detail.open { display: flex; }
+  .mobile-category { display: block; max-width: 35%; border: 0; border-radius: var(--radius); background: var(--panel); padding: var(--space-2); }
+  .back { display: inline-flex; }
+  .footer { justify-content: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <main class="panes">
+    <nav class="pane categories" aria-label="분류">
+      <header class="bar"><h1>카테고리</h1></header>
+      <div id="categories" class="scroll category-list" aria-live="polite"></div>
+    </nav>
+    <section class="pane browse" aria-label="앱 목록">
+      <header class="bar">
+        <select id="mobile-category" class="mobile-category" aria-label="분류 고르기"><option value="">전체</option></select>
+        <input id="search" class="search" type="search" placeholder="앱 찾기" aria-label="앱 찾기" autocomplete="off">
+        <a class="icon-button" href="https://github.com/eiaserinnys/kaleidoscope-appstore#readme" title="GitHub에서 올리는 법" aria-label="GitHub에서 올리는 법"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m-4 4 4-4 4 4M5 15v4h14v-4"/></svg></a>
+      </header>
+      <div id="apps" class="scroll" aria-live="polite"></div>
+    </section>
+    <section id="detail-pane" class="pane detail" aria-label="앱 상세">
+      <header class="bar">
+        <button id="back" class="icon-button back" aria-label="앱 목록으로 돌아가기" title="돌아가기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 5-7 7 7 7M7 12h12"/></svg></button>
+        <h2 id="detail-title"></h2><span id="detail-publisher" class="publisher"></span>
+      </header>
+      <div id="detail" class="scroll" aria-live="polite"><p class="empty">앱을 고르면 여기에 설명이 나타납니다.</p></div>
+    </section>
+  </main>
+  <footer class="footer">이 스토어는 올린 사람의 GitHub 로그인 말고는 모으지 않습니다. 내려 달라는 요청:&nbsp;<a href="mailto:eiaserinnys@gmail.com">eiaserinnys@gmail.com</a></footer>
+</div>
+<dialog id="lightbox" aria-label="스크린샷 크게 보기"><button class="icon-button close" aria-label="닫기" title="닫기">✕</button><img alt=""></dialog>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const base = new URL('./', location.href);
+const state = { items: [], appNodes: [], category: '', query: '', app: '', indexReady: false, detailToken: 0 };
+const defaultIcon = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="#8b829f" stroke-width="1.8" stroke-linejoin="round"><rect x="4" y="4" width="24" height="24" rx="6"/><path d="M10 16h12M16 10v12"/></svg>');
+function node(tag, options = {}) {
+  const element = document.createElement(tag);
+  if (options.className) element.className = options.className;
+  if (options.text !== undefined) element.textContent = options.text;
+  return element;
+}
+function storeUrl(path) {
+  const url = new URL(path, base);
+  if (url.origin !== base.origin || !url.pathname.startsWith(base.pathname)) throw new Error('스토어 밖의 자료 경로입니다');
+  return url.href;
+}
+function stateFromHash() {
+  const params = new URLSearchParams(location.hash.slice(1));
+  return { app: params.get('app') || '', category: params.get('cat') || '', query: params.get('q') || '' };
+}
+function writeHash(replace = false) {
+  const params = new URLSearchParams();
+  if (state.app) params.set('app', state.app);
+  if (state.category) params.set('cat', state.category);
+  if (state.query) params.set('q', state.query);
+  const url = location.pathname + location.search + (params.size ? '#' + params.toString() : '');
+  history[replace ? 'replaceState' : 'pushState'](null, '', url);
+}
+function applyHash() {
+  const previous = state.app;
+  Object.assign(state, stateFromHash());
+  $('search').value = state.query;
+  renderCategories(); renderApps();
+  if (previous !== state.app || !state.app) loadDetail();
+}
+async function readJson(path) {
+  const url = storeUrl(path);
+  let response;
+  try { response = await fetch(url); } catch (error) { throw new Error(`${url}에 연결할 수 없습니다. 원인: ${error.message}`); }
+  if (!response.ok) throw new Error(`${url}을 읽을 수 없습니다. HTTP ${response.status}`);
+  let data;
+  try { data = await response.json(); } catch { throw new Error(`${url}의 JSON 형식을 읽을 수 없습니다.`); }
+  if (data.format > 1) throw new Error(`이 스토어 형식(판 ${data.format})은 이 페이지보다 새것입니다. 주소: ${url}`);
+  return data;
+}
+function showError(target, message, retry) {
+  const box = node('div', { className: 'error' });
+  box.setAttribute('role', 'alert');
+  box.append(node('p', { text: message }));
+  const button = node('button', { className: 'retry', text: '다시 읽기' });
+  button.addEventListener('click', retry); box.append(button); target.replaceChildren(box);
+}
+function skeletonCategories() {
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < 7; i++) fragment.append(node('div', { className: 'skeleton skeleton-row' }));
+  $('categories').replaceChildren(fragment);
+}
+function skeletonApps() {
+  const grid = node('div', { className: 'grid' });
+  for (let i = 0; i < 12; i++) {
+    const item = node('div', { className: 'skeleton-app' });
+    item.append(node('div', { className: 'skeleton skeleton-icon' }), node('div', { className: 'skeleton skeleton-name' })); grid.append(item);
+  }
+  $('apps').replaceChildren(grid);
+}
+function skeletonDetail() {
+  const box = node('div', { className: 'detail-content' });
+  for (let i = 0; i < 7; i++) box.append(node('div', { className: 'skeleton skeleton-detail' }));
+  $('detail').replaceChildren(box);
+}
+async function loadIndex() {
+  state.indexReady = false; skeletonCategories(); skeletonApps();
+  try {
+    const index = await readJson('./index.json');
+    state.items = index.items; state.indexReady = true; buildApps(); renderCategories(); renderApps();
+  } catch (error) {
+    showError($('categories'), error.message, loadIndex);
+    showError($('apps'), error.message, loadIndex);
+  }
+}
+function renderCategories() {
+  if (!state.indexReady) return;
+  const counts = new Map();
+  for (const item of state.items) counts.set(item.category, (counts.get(item.category) || 0) + 1);
+  const categories = [['', state.items.length], ...[...counts].sort((a, b) => a[0].localeCompare(b[0], 'ko'))];
+  const list = document.createDocumentFragment();
+  const select = $('mobile-category'); select.replaceChildren();
+  for (const [category, count] of categories) {
+    const label = category || '전체';
+    const button = node('button', { className: 'category' });
+    button.setAttribute('aria-pressed', String(state.category === category));
+    button.append(node('span', { text: label }), node('span', { className: 'category-count', text: `(${count})` }));
+    button.addEventListener('click', () => chooseCategory(category)); list.append(button);
+    const option = node('option', { text: `${label} (${count})` }); option.value = category; select.append(option);
+  }
+  select.value = state.category;
+  $('categories').replaceChildren(list);
+}
+function chooseCategory(category) { state.category = category; writeHash(); renderCategories(); renderApps(); }
+function buildApps() {
+  const grid = node('div', { className: 'grid' });
+  const empty = node('p', { className: 'empty', text: '일치하는 앱이 없습니다.' });
+  state.appNodes = state.items.map(item => {
+    const button = node('button', { className: 'app' });
+    const icon = node('img', { className: 'app-icon' }); icon.alt = ''; icon.src = item.icon ? storeUrl(item.icon) : defaultIcon;
+    icon.addEventListener('error', () => { icon.src = defaultIcon; }, { once: true });
+    button.append(icon, node('span', { className: 'app-name', text: item.name }));
+    button.addEventListener('click', () => { state.app = item.id; writeHash(); renderApps(); loadDetail(); });
+    grid.append(button); return { item, button };
+  });
+  $('apps').replaceChildren(grid, empty);
+}
+function renderApps() {
+  if (!state.indexReady) return;
+  const query = state.query.trim().toLocaleLowerCase();
+  let count = 0;
+  for (const { item, button } of state.appNodes) {
+    const matches = (!state.category || item.category === state.category) && [item.id, item.name, item.summary].some(value => value.toLocaleLowerCase().includes(query));
+    button.hidden = !matches; button.setAttribute('aria-pressed', String(state.app === item.id));
+    if (matches) count++;
+  }
+  $('apps').querySelector('.empty').hidden = count > 0;
+}
+function addRow(table, label, content) {
+  const row = document.createElement('tr'); const heading = node('th', { text: label }); heading.scope = 'row';
+  const cell = document.createElement('td');
+  if (typeof content === 'string') cell.textContent = content; else cell.append(content);
+  row.append(heading, cell); table.append(row);
+}
+function permissionLabels(manifest) {
+  const labels = [];
+  for (const permission of manifest.permissions || []) {
+    let label;
+    if (permission.module === 'files') label = permission.scope === 'pc' ? '내 PC 파일' : `파일 폴더: ${permission.label}`;
+    else if (permission.module === 'http') { try { label = `공개 HTTPS: ${new URL(permission.base_url).host}`; } catch { label = `공개 HTTPS: ${permission.base_url}`; } }
+    else if (permission.module === 'connection') label = `연결: ${permission.label}`;
+    else if (permission.module === 'local_agent' || permission.module === 'process') label = '프로그램 실행';
+    else if (permission.module === 'worker') label = '서버 실행 코드';
+    else if (permission.module === 'storage') label = '저장소';
+    else label = permission.label || permission.module;
+    labels.push({ label, danger: ['프로그램 실행', '서버 실행 코드'].includes(label) });
+  }
+  for (const badge of manifest.badges || []) {
+    const label = badge === 'process' ? '프로그램 실행' : badge === 'worker' ? '서버 실행 코드' : null;
+    if (label && !labels.some(entry => entry.label === label)) labels.push({ label, danger: true });
+  }
+  return labels;
+}
+function safeLink(href) {
+  try { const url = new URL(href, base); return ['http:', 'https:', 'mailto:'].includes(url.protocol) ? url.href : null; } catch { return null; }
+}
+function inlineMarkdown(target, text) {
+  const pattern = /(`[^`]+`|\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g;
+  let start = 0;
+  for (const match of text.matchAll(pattern)) {
+    target.append(document.createTextNode(text.slice(start, match.index)));
+    const token = match[0];
+    if (token.startsWith('`')) target.append(node('code', { text: token.slice(1, -1) }));
+    else if (token.startsWith('**')) target.append(node('strong', { text: token.slice(2, -2) }));
+    else {
+      const parts = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(token); const href = safeLink(parts[2]);
+      if (href) { const link = node('a', { text: parts[1] }); link.href = href; link.rel = 'noopener noreferrer'; target.append(link); }
+      else target.append(document.createTextNode(parts[1]));
+    }
+    start = match.index + token.length;
+  }
+  target.append(document.createTextNode(text.slice(start)));
+}
+function markdown(text) {
+  const container = node('div', { className: 'description' });
+  let paragraph = []; let list = null; let listType = '';
+  function flush() { if (paragraph.length) { const p = document.createElement('p'); inlineMarkdown(p, paragraph.join(' ')); container.append(p); paragraph = []; } }
+  for (const line of (text || '').split(/\r?\n/)) {
+    const match = /^\s*(?:([-*])\s+|(\d+)\.\s+)(.*)$/.exec(line);
+    if (match) {
+      flush(); const type = match[2] ? 'ol' : 'ul';
+      if (!list || listType !== type) { list = document.createElement(type); listType = type; container.append(list); }
+      const item = document.createElement('li'); inlineMarkdown(item, match[3]); list.append(item);
+    } else { list = null; if (line.trim()) paragraph.push(line.trim()); else flush(); }
+  }
+  flush(); return container;
+}
+function formatRequires(requires) {
+  if (!requires) return '없음';
+  return [`블록 ${requires.blocks}판`, ...Object.entries(requires.modules || {}).map(([name, version]) => `${name} ${version}판`)].join(', ');
+}
+function renderDetail(detail, manifest) {
+  $('detail-title').textContent = detail.name; $('detail-publisher').textContent = detail.publisher;
+  const box = node('div', { className: 'detail-content' });
+  const table = node('table', { className: 'properties' });
+  const publisher = node('a', { text: detail.publisher }); publisher.href = `https://github.com/${encodeURIComponent(detail.publisher)}`; publisher.rel = 'noopener noreferrer';
+  addRow(table, '제작자', publisher); addRow(table, '분류', detail.category); addRow(table, '판', `release ${detail.release}`);
+  const published = manifest.published_at || detail.releases[0].published_at;
+  addRow(table, '올린 날', new Date(published).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }));
+  const badges = node('div', { className: 'badges' });
+  const labels = permissionLabels(manifest);
+  if (labels.length) for (const entry of labels) badges.append(node('span', { className: `badge${entry.danger ? ' danger' : ''}`, text: entry.label }));
+  else badges.append(node('span', { className: 'badge', text: '없음' }));
+  addRow(table, '권한', badges); addRow(table, '요구 쉘', formatRequires(manifest.requires)); addRow(table, 'id', detail.id); box.append(table);
+  if (detail.screenshots && detail.screenshots.length) {
+    const screenshots = node('div', { className: 'screenshots' });
+    detail.screenshots.forEach((path, index) => {
+      const button = node('button', { className: 'screenshot' }); button.setAttribute('aria-label', `스크린샷 ${index + 1} 크게 보기`);
+      const image = document.createElement('img'); image.src = storeUrl(path); image.alt = `${detail.name} 스크린샷 ${index + 1}`;
+      button.append(image); button.addEventListener('click', () => { const dialog = $('lightbox'); dialog.querySelector('img').src = image.src; dialog.querySelector('img').alt = image.alt; dialog.showModal(); }); screenshots.append(button);
+    }); box.append(screenshots);
+  }
+  box.append(markdown(detail.description), node('p', { className: 'install', text: '쉘의 앱스토어 앱에서 이 id로 찾아 설치합니다' }));
+  $('detail').replaceChildren(box); $('detail').scrollTop = 0;
+}
+async function loadDetail() {
+  const token = ++state.detailToken;
+  $('detail-pane').classList.toggle('open', Boolean(state.app));
+  $('detail-title').textContent = ''; $('detail-publisher').textContent = '';
+  if (!state.app) { $('detail').replaceChildren(node('p', { className: 'empty', text: '앱을 고르면 여기에 설명이 나타납니다.' })); return; }
+  skeletonDetail();
+  try {
+    const detail = await readJson(`./apps/${encodeURIComponent(state.app)}/index.json`);
+    const release = detail.releases.find(entry => entry.release === detail.release);
+    const manifest = await readJson(release.manifest);
+    if (token === state.detailToken) renderDetail(detail, manifest);
+  } catch (error) { if (token === state.detailToken) showError($('detail'), error.message, loadDetail); }
+}
+$('search').addEventListener('input', event => { state.query = event.target.value; writeHash(true); renderApps(); });
+$('mobile-category').addEventListener('change', event => chooseCategory(event.target.value));
+$('back').addEventListener('click', () => { state.app = ''; writeHash(); renderApps(); loadDetail(); });
+$('lightbox').querySelector('.close').addEventListener('click', () => $('lightbox').close());
+$('lightbox').addEventListener('click', event => { if (event.target === $('lightbox')) $('lightbox').close(); });
+window.addEventListener('hashchange', applyHash);
+Object.assign(state, stateFromHash()); $('search').value = state.query; loadIndex(); loadDetail();
+</script>
+</body>
+</html>

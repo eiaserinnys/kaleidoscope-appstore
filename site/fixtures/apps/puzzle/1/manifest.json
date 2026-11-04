@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "store_app_id": "puzzle",
+  "release": 1,
+  "name": "조각 맞추기",
+  "summary": "그림을 맞추며 잠시 쉽니다.",
+  "description": "그림을 맞추며 잠시 쉽니다.\n\n**간편하게** 필요한 내용을 살펴볼 수 있습니다.\n\n- 원하는 항목을 고르세요.\n- 자세한 내용은 [도움말](https://github.com/eiaserinnys/kaleidoscope-appstore#readme)을 참고하세요.\n\n앱 id는 `puzzle`입니다.",
+  "category": "게임",
+  "publisher": "eiaserinnys",
+  "icon": "apps/puzzle/1/assets/icon/1",
+  "screenshots": [],
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "badges": [],
+  "files": {
+    "apps/puzzle/1/app.json": {
+      "sha256": "97a6883733a0ef16404acd86206fd71b8c1af9733fe4062aa14bab5ef43acb86",
+      "bytes": 344
+    },
+    "apps/puzzle/1/assets/icon/1": {
+      "sha256": "be9e459eb800aadd140aafb4cd310106a8606293f7e56ba742c53978fd2716de",
+      "bytes": 270,
+      "format": "png",
+      "source": "fixture",
+      "license": "MIT"
+    }
+  },
+  "published_at": "2026-11-04T09:30:00Z"
+}

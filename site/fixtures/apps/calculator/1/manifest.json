@@ -1,0 +1,32 @@
+{
+  "format": 1,
+  "store_app_id": "calculator",
+  "release": 1,
+  "name": "계산기",
+  "summary": "빠르게 계산합니다.",
+  "description": "빠르게 계산합니다.\n\n**간편하게** 필요한 내용을 살펴볼 수 있습니다.\n\n- 원하는 항목을 고르세요.\n- 자세한 내용은 [도움말](https://github.com/eiaserinnys/kaleidoscope-appstore#readme)을 참고하세요.\n\n앱 id는 `calculator`입니다.",
+  "category": "도구",
+  "publisher": "eiaserinnys",
+  "icon": "apps/calculator/1/assets/icon/1",
+  "screenshots": [],
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "badges": [],
+  "files": {
+    "apps/calculator/1/app.json": {
+      "sha256": "a29a169462ef84ba6a3bfe692c7abe4adadba405c8a947e82cbd5ee2a53a8a5a",
+      "bytes": 319
+    },
+    "apps/calculator/1/assets/icon/1": {
+      "sha256": "29a38dd4efa41401402831cbba56e753065eebfb049c6959295abe2ef6cecdbd",
+      "bytes": 202,
+      "format": "png",
+      "source": "fixture",
+      "license": "MIT"
+    }
+  },
+  "published_at": "2026-11-04T09:30:00Z"
+}

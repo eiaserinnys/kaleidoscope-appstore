@@ -1,0 +1,32 @@
+{
+  "id": "weather",
+  "name": "날씨",
+  "requires": {
+    "blocks": 3,
+    "modules": {
+      "http": 1
+    }
+  },
+  "permissions": [
+    {
+      "module": "http",
+      "id": "forecast",
+      "label": "예보",
+      "base_url": "https://api.open-meteo.com",
+      "paths": [
+        "/v1/forecast"
+      ]
+    }
+  ],
+  "description": "지금 날씨와 예보를 살펴봅니다.",
+  "ui": {
+    "type": "text",
+    "value": "지금 날씨와 예보를 살펴봅니다."
+  },
+  "assets": [
+    {
+      "id": "icon",
+      "version": 1
+    }
+  ]
+}

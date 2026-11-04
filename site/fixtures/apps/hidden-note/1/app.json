@@ -1,0 +1,14 @@
+{
+  "id": "hidden-note",
+  "name": "링크로 여는 노트",
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [],
+  "description": "목록에 없는 앱입니다.",
+  "ui": {
+    "type": "text",
+    "value": "목록에 없는 앱입니다."
+  }
+}

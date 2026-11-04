@@ -1,0 +1,37 @@
+{
+  "id": "api-tester",
+  "name": "API 살펴보기",
+  "requires": {
+    "blocks": 3,
+    "modules": {}
+  },
+  "permissions": [
+    {
+      "module": "files",
+      "id": "work",
+      "label": "작업 폴더",
+      "access": "read"
+    },
+    {
+      "module": "connection",
+      "id": "team",
+      "connection": "team",
+      "label": "팀 연결",
+      "access": "read"
+    },
+    {
+      "module": "local_agent",
+      "id": "run",
+      "label": "프로그램 실행"
+    }
+  ],
+  "description": "공개 API의 응답을 살펴봅니다.",
+  "ui": {
+    "type": "text",
+    "value": "공개 API의 응답을 살펴봅니다."
+  },
+  "worker": {
+    "runtime": "python3",
+    "code": "def run(context):\n    return {}"
+  }
+}

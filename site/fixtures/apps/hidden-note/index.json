@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "id": "hidden-note",
+  "name": "링크로 여는 노트",
+  "summary": "목록에 없는 앱입니다.",
+  "description": "목록에 없는 앱입니다.\n\n**간편하게** 필요한 내용을 살펴볼 수 있습니다.\n\n- 원하는 항목을 고르세요.\n- 자세한 내용은 [도움말](https://github.com/eiaserinnys/kaleidoscope-appstore#readme)을 참고하세요.\n\n앱 id는 `hidden-note`입니다.",
+  "category": "자료",
+  "publisher": "eiaserinnys",
+  "release": 1,
+  "icon": null,
+  "screenshots": [],
+  "releases": [
+    {
+      "release": 1,
+      "published_at": "2026-11-04T09:30:00Z",
+      "manifest": "apps/hidden-note/1/manifest.json"
+    }
+  ]
+}
