@@ -1,0 +1,19 @@
+{
+  "summary": "스토어 배포를 끝까지 확인하려고 올린 시험 앱입니다",
+  "description": "기본 앱 **계산기**와 같은 화면입니다.\n\n- 스토어 리포에 PR로 올리고 merge하면 R2에 배포되는지 확인합니다.\n- 확인이 끝나면 내립니다.",
+  "category": "도구",
+  "publisher": "eiaserinnys",
+  "release": 1,
+  "listed": true,
+  "icon": "assets/icon.svg",
+  "assets": [
+    {
+      "id": "store-sample-calc-icon",
+      "version": 1,
+      "file": "assets/icon.svg",
+      "format": "svg",
+      "source": "kaleidoscope 앱스토어 시험용으로 그림",
+      "license": "MIT"
+    }
+  ]
+}
