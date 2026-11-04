@@ -1,0 +1,374 @@
+{
+  "id": "reader",
+  "name": "해커뉴스",
+  "description": "해커뉴스 이야기와 토론을 읽습니다",
+  "icon": {
+    "asset": "reader-icon",
+    "version": 1
+  },
+  "requires": {
+    "blocks": 26,
+    "modules": {
+      "http": 1,
+      "assets": 1
+    }
+  },
+  "permissions": [
+    {
+      "module": "http",
+      "id": "hn",
+      "label": "Hacker News 공개 API",
+      "base_url": "https://hn.algolia.com",
+      "paths": [
+        "/api/v1/search",
+        "/api/v1/search_by_date",
+        "/api/v1/items/"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "reader-icon",
+      "version": 1
+    }
+  ],
+  "state": {
+    "feed_kind": "front_page",
+    "search_input": "",
+    "query": "",
+    "selected_story": "top"
+  },
+  "sources": {
+    "stories": {
+      "kind": "request",
+      "permission": "hn",
+      "path": {
+        "expr": "$state.feed_kind = 'latest' ? '/api/v1/search_by_date' : '/api/v1/search'"
+      },
+      "query": {
+        "tags": {
+          "expr": "$state.feed_kind = 'show_hn' ? 'show_hn' : ($state.feed_kind = 'ask_hn' ? 'ask_hn' : ($state.feed_kind = 'front_page' and ($not($exists($state.query)) or $trim($state.query) = '') ? 'front_page' : 'story'))"
+        },
+        "query": {
+          "expr": "$exists($state.query) and $trim($state.query) != '' ? $trim($state.query) : null"
+        },
+        "hitsPerPage": "30"
+      },
+      "page": {
+        "param": "page",
+        "next": "page + 1 < nbPages ? page + 1 : null",
+        "items": "hits"
+      }
+    },
+    "item": {
+      "kind": "request",
+      "permission": "hn",
+      "path": {
+        "expr": "($hits := $data.stories.hits[title != null and title != '']; $m := $hits[$string(objectID) = $state.selected_story]; $s := $exists($m) ? $m[0] : $hits[0]; $exists($s) ? '/api/v1/items/' & $string($s.objectID) : null)"
+      }
+    }
+  },
+  "ui": {
+    "type": "stack",
+    "direction": "column",
+    "fill": 1,
+    "children": [
+      {
+        "type": "stack",
+        "direction": "column",
+        "gap": "none",
+        "children": [
+          {
+            "type": "when",
+            "min_width": 559,
+            "child": {
+              "type": "toolbar",
+              "start": [
+                {
+                  "type": "select",
+                  "style": "segmented",
+                  "value": {
+                    "state": "feed_kind"
+                  },
+                  "options": [
+                    {
+                      "value": "front_page",
+                      "label": "인기"
+                    },
+                    {
+                      "value": "story",
+                      "label": "전체"
+                    },
+                    {
+                      "value": "show_hn",
+                      "label": "Show HN"
+                    },
+                    {
+                      "value": "ask_hn",
+                      "label": "Ask HN"
+                    },
+                    {
+                      "value": "latest",
+                      "label": "최신"
+                    }
+                  ],
+                  "on_change": [
+                    {
+                      "set_state": "feed_kind"
+                    },
+                    {
+                      "set_state": "selected_story",
+                      "value": "top"
+                    }
+                  ]
+                },
+                {
+                  "type": "input",
+                  "kind": "search",
+                  "value": {
+                    "state": "search_input"
+                  },
+                  "placeholder": "검색",
+                  "on_change": [
+                    {
+                      "set_state": "search_input"
+                    },
+                    {
+                      "set_state": "query",
+                      "value": {
+                        "expr": "$event = '' ? '' : $state.query"
+                      }
+                    },
+                    {
+                      "set_state": "selected_story",
+                      "value": {
+                        "expr": "$event = '' ? 'top' : $state.selected_story"
+                      }
+                    }
+                  ],
+                  "on_submit": [
+                    {
+                      "set_state": "query"
+                    },
+                    {
+                      "set_state": "selected_story",
+                      "value": "top"
+                    }
+                  ]
+                }
+              ],
+              "end": [
+                {
+                  "type": "button",
+                  "label": "초기화",
+                  "icon": "rotate-ccw",
+                  "on_click": [
+                    {
+                      "set_state": "search_input",
+                      "value": ""
+                    },
+                    {
+                      "set_state": "query",
+                      "value": ""
+                    },
+                    {
+                      "set_state": "selected_story",
+                      "value": "top"
+                    },
+                    {
+                      "refresh": [
+                        "stories"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "when",
+            "max_width": 558,
+            "child": {
+              "type": "stack",
+              "direction": "column",
+              "gap": "none",
+              "children": [
+                {
+                  "type": "toolbar",
+                  "start": [
+                    {
+                      "type": "select",
+                      "style": "segmented",
+                      "value": {
+                        "state": "feed_kind"
+                      },
+                      "options": [
+                        {
+                          "value": "front_page",
+                          "label": "인기"
+                        },
+                        {
+                          "value": "story",
+                          "label": "전체"
+                        },
+                        {
+                          "value": "show_hn",
+                          "label": "Show HN"
+                        },
+                        {
+                          "value": "ask_hn",
+                          "label": "Ask HN"
+                        },
+                        {
+                          "value": "latest",
+                          "label": "최신"
+                        }
+                      ],
+                      "on_change": [
+                        {
+                          "set_state": "feed_kind"
+                        },
+                        {
+                          "set_state": "selected_story",
+                          "value": "top"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "toolbar",
+                  "start": [
+                    {
+                      "type": "input",
+                      "kind": "search",
+                      "value": {
+                        "state": "search_input"
+                      },
+                      "placeholder": "검색",
+                      "on_change": [
+                        {
+                          "set_state": "search_input"
+                        },
+                        {
+                          "set_state": "query",
+                          "value": {
+                            "expr": "$event = '' ? '' : $state.query"
+                          }
+                        },
+                        {
+                          "set_state": "selected_story",
+                          "value": {
+                            "expr": "$event = '' ? 'top' : $state.selected_story"
+                          }
+                        }
+                      ],
+                      "on_submit": [
+                        {
+                          "set_state": "query"
+                        },
+                        {
+                          "set_state": "selected_story",
+                          "value": "top"
+                        }
+                      ]
+                    }
+                  ],
+                  "end": [
+                    {
+                      "type": "button",
+                      "label": "초기화",
+                      "icon": "rotate-ccw",
+                      "on_click": [
+                        {
+                          "set_state": "search_input",
+                          "value": ""
+                        },
+                        {
+                          "set_state": "query",
+                          "value": ""
+                        },
+                        {
+                          "set_state": "selected_story",
+                          "value": "top"
+                        },
+                        {
+                          "refresh": [
+                            "stories"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "split",
+        "direction": "row",
+        "sizes": [
+          40,
+          60
+        ],
+        "children": [
+          {
+            "type": "table",
+            "rows": {
+              "expr": "($hits := $data.stories.hits[title != null and title != '']; $m := $hits[$string(objectID) = $state.selected_story]; $s := $exists($m) ? $m[0] : $hits[0]; $append([], $map($hits,function($h,$i) { {'key':$i = 0 and $state.selected_story = 'top' ? 'top' : $string($h.objectID),'objectID':$string($h.objectID),'points':$exists($h.points) ? $h.points : 0,'title':$h.title,'domain':$exists($h.url) ? $replace($replace($h.url,/^https?:\\/\\//,''),/\\/.*$/,'') : 'HN 토론','comments':$exists($h.num_comments) ? $h.num_comments : 0,'author':$exists($h.author) ? $h.author : '익명'} })))"
+            },
+            "columns": [
+              {
+                "field": "points",
+                "label": "점수",
+                "width": "narrow",
+                "format": "number"
+              },
+              {
+                "field": "title",
+                "label": "이야기"
+              },
+              {
+                "field": "comments",
+                "label": "댓글",
+                "width": "narrow",
+                "format": "number"
+              }
+            ],
+            "selected": {
+              "state": "selected_story"
+            },
+            "on_select": [
+              {
+                "set_state": "selected_story",
+                "value": {
+                  "expr": "$item.objectID"
+                }
+              }
+            ]
+          },
+          {
+            "type": "section",
+            "title": {
+              "expr": "($hits := $data.stories.hits[title != null and title != '']; $m := $hits[$string(objectID) = $state.selected_story]; $s := $exists($m) ? $m[0] : $hits[0]; $s).title"
+            },
+            "meta": {
+              "expr": "($hits := $data.stories.hits[title != null and title != '']; $m := $hits[$string(objectID) = $state.selected_story]; $s := $exists($m) ? $m[0] : $hits[0]; $exists($s) ? (($exists($s.author) ? $s.author : '익명') & ($exists($s.created_at) ? ' ' & $replace($substring($s.created_at, 0, 16), 'T', ' ') : '')) : null)"
+            },
+            "child": {
+              "type": "feed",
+              "entries": {
+                "expr": "($clean := function($s) {(\n  $text := ($contains($s, '<') ? $replace($s, /<[^>]+>/g, function($m) {(\n    $tag := $lowercase($m.match);\n    $substring($tag,0,4) = '<pre' ? '\\n\\n```\\n' :\n    $tag = '</pre>' ? '\\n```\\n' :\n    ($tag = '<p>' or $substring($tag,0,3) = '<p ' or $tag = '</p>' or $substring($tag,0,4) = '</p ') ? '\\n\\n' : ''\n  )}) : $s);\n  $contains($text, '&') ? $replace($text, /&(quot|#x27|#39|#039|gt|lt|amp);/ig, function($m) {(\n    $entity := $lowercase($m.groups[0]);\n    $entity = 'quot' ? '\"' :\n    ($entity = '#x27' or $entity = '#39' or $entity = '#039') ? \"'\" :\n    $entity = 'gt' ? '>' : $entity = 'lt' ? '<' : $entity = 'amp' ? '&' : $m.match\n  )}) : $text\n)};\n$node := function($c,$depth) {(\n  $children := $c.children[author != null and text != null and text != '' and $not($exists(deleted) and deleted = true)];\n  {'key':$string($c.id),'name':$c.author,'meta':$exists($c.created_at) ? $replace($substring($c.created_at, 0, 16), 'T', ' ') : '',\n   'badges':[],\n   'depth':$depth,'body':$clean($c.text),\n   'children':$append([], $map($children, function($child) {$node($child,$depth+1)}))}\n)};\n$roots := $data.item.children[author != null and text != null and text != '' and $not($exists(deleted) and deleted = true)];\n$story := $data.item.text != null and $data.item.text != '' ? [{'key':'story-body','name':'본문','badges':[],'depth':0,'body':$clean($data.item.text)}] : [];\n$append($story,$append([], $map($roots,function($root){$node($root,0)}))))"
+              },
+              "format": "markdown",
+              "collapsible": true,
+              "copy": true
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

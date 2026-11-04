@@ -1,0 +1,1033 @@
+{
+  "id": "market",
+  "name": "시세와 환율",
+  "description": "글로벌 자산 시세와 통화 환율, 구매력 지표를 한눈에 비교하고 환산합니다",
+  "icon": {
+    "asset": "market-icon",
+    "version": 1
+  },
+  "requires": {
+    "blocks": 26,
+    "modules": {
+      "http": 1,
+      "assets": 1
+    }
+  },
+  "permissions": [
+    {
+      "module": "http",
+      "id": "binance",
+      "label": "글로벌 암호화폐 시세 (Binance)",
+      "base_url": "https://api.binance.com",
+      "paths": [
+        "/api/v3/ticker/24hr",
+        "/api/v3/klines"
+      ]
+    },
+    {
+      "module": "http",
+      "id": "frankfurter",
+      "label": "유럽중앙은행 통화 환율 (Frankfurter)",
+      "base_url": "https://api.frankfurter.dev",
+      "paths": [
+        "/v1/latest",
+        "/v1/2026-09-15.."
+      ]
+    },
+    {
+      "module": "http",
+      "id": "worldbank",
+      "label": "세계은행 물가·구매력 지표 (World Bank)",
+      "base_url": "https://api.worldbank.org",
+      "paths": [
+        "/v2/country/KOR;USA;EMU;DEU;JPN;GBR;CHN;CHE;CAN;AUS/indicator/FP.CPI.TOTL.ZG",
+        "/v2/country/KOR;USA;DEU;JPN;GBR;CHN;CHE;CAN;AUS/indicator/PA.NUS.PPP"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "market-icon",
+      "version": 1
+    }
+  ],
+  "state": {
+    "asset": "BTC",
+    "currency": "KRW",
+    "interval": "1d",
+    "quote_unit": "LOCAL",
+    "amount_usd": 1000,
+    "amount_local": null,
+    "selected_candle": null,
+    "table_tab": 0
+  },
+  "sources": {
+    "asset_tickers": {
+      "kind": "request",
+      "permission": "binance",
+      "path": "/api/v3/ticker/24hr",
+      "query": {
+        "symbols": "[\"BTCUSDT\",\"ETHUSDT\",\"SOLUSDT\",\"XRPUSDT\",\"BNBUSDT\",\"DOGEUSDT\",\"ADAUSDT\",\"AVAXUSDT\"]"
+      },
+      "refresh_secs": 60
+    },
+    "asset_candles": {
+      "kind": "request",
+      "permission": "binance",
+      "path": "/api/v3/klines",
+      "query": {
+        "symbol": {
+          "expr": "$state.asset & 'USDT'"
+        },
+        "interval": {
+          "state": "interval"
+        },
+        "limit": "30"
+      },
+      "refresh_secs": 60
+    },
+    "fx_asset_quote": {
+      "kind": "request",
+      "permission": "frankfurter",
+      "path": "/v1/latest",
+      "query": {
+        "base": "USD",
+        "symbols": "KRW,EUR,JPY,GBP,CNY,CHF,CAD,AUD"
+      },
+      "refresh_secs": 3600
+    },
+    "fx_series": {
+      "kind": "request",
+      "permission": "frankfurter",
+      "path": "/v1/2026-09-15..",
+      "query": {
+        "base": {
+          "expr": "$data.fx_asset_quote.base"
+        },
+        "symbols": "KRW,EUR,JPY,GBP,CNY,CHF,CAD,AUD"
+      },
+      "refresh_secs": 3600
+    },
+    "macro_cpi": {
+      "kind": "request",
+      "permission": "worldbank",
+      "path": "/v2/country/KOR;USA;EMU;DEU;JPN;GBR;CHN;CHE;CAN;AUS/indicator/FP.CPI.TOTL.ZG",
+      "query": {
+        "format": "json",
+        "per_page": "100",
+        "date": {
+          "expr": "'2020:' & $substring($data.fx_asset_quote.date, 0, 4)"
+        }
+      }
+    },
+    "macro_ppp": {
+      "kind": "request",
+      "permission": "worldbank",
+      "path": "/v2/country/KOR;USA;DEU;JPN;GBR;CHN;CHE;CAN;AUS/indicator/PA.NUS.PPP",
+      "query": {
+        "format": "json",
+        "per_page": "100",
+        "date": {
+          "expr": "'2020:' & $substring($data.fx_asset_quote.date, 0, 4)"
+        }
+      }
+    },
+    "trend_btc": {
+      "kind": "request",
+      "permission": "binance",
+      "path": "/api/v3/klines",
+      "query": {
+        "symbol": "BTCUSDT",
+        "interval": "1h",
+        "limit": "24"
+      },
+      "refresh_secs": 300
+    },
+    "trend_eth": {
+      "kind": "request",
+      "permission": "binance",
+      "path": "/api/v3/klines",
+      "query": {
+        "symbol": "ETHUSDT",
+        "interval": "1h",
+        "limit": "24"
+      },
+      "refresh_secs": 300
+    },
+    "trend_sol": {
+      "kind": "request",
+      "permission": "binance",
+      "path": "/api/v3/klines",
+      "query": {
+        "symbol": "SOLUSDT",
+        "interval": "1h",
+        "limit": "24"
+      },
+      "refresh_secs": 300
+    },
+    "trend_xrp": {
+      "kind": "request",
+      "permission": "binance",
+      "path": "/api/v3/klines",
+      "query": {
+        "symbol": "XRPUSDT",
+        "interval": "1h",
+        "limit": "24"
+      },
+      "refresh_secs": 300
+    },
+    "trend_bnb": {
+      "kind": "request",
+      "permission": "binance",
+      "path": "/api/v3/klines",
+      "query": {
+        "symbol": "BNBUSDT",
+        "interval": "1h",
+        "limit": "24"
+      },
+      "refresh_secs": 300
+    },
+    "trend_doge": {
+      "kind": "request",
+      "permission": "binance",
+      "path": "/api/v3/klines",
+      "query": {
+        "symbol": "DOGEUSDT",
+        "interval": "1h",
+        "limit": "24"
+      },
+      "refresh_secs": 300
+    },
+    "trend_ada": {
+      "kind": "request",
+      "permission": "binance",
+      "path": "/api/v3/klines",
+      "query": {
+        "symbol": "ADAUSDT",
+        "interval": "1h",
+        "limit": "24"
+      },
+      "refresh_secs": 300
+    },
+    "trend_avax": {
+      "kind": "request",
+      "permission": "binance",
+      "path": "/api/v3/klines",
+      "query": {
+        "symbol": "AVAXUSDT",
+        "interval": "1h",
+        "limit": "24"
+      },
+      "refresh_secs": 300
+    }
+  },
+  "ui": {
+    "type": "stack",
+    "direction": "column",
+    "gap": "none",
+    "fill": 1,
+    "children": [
+      {
+        "type": "stack",
+        "direction": "column",
+        "gap": "none",
+        "children": [
+          {
+            "type": "when",
+            "min_width": 615,
+            "child": {
+              "type": "toolbar",
+              "start": [
+                {
+                  "type": "select",
+                  "style": "dropdown",
+                  "value": {
+                    "state": "asset"
+                  },
+                  "options": [
+                    {
+                      "value": "BTC",
+                      "label": "BTC"
+                    },
+                    {
+                      "value": "ETH",
+                      "label": "ETH"
+                    },
+                    {
+                      "value": "SOL",
+                      "label": "SOL"
+                    },
+                    {
+                      "value": "BNB",
+                      "label": "BNB"
+                    },
+                    {
+                      "value": "XRP",
+                      "label": "XRP"
+                    },
+                    {
+                      "value": "DOGE",
+                      "label": "DOGE"
+                    },
+                    {
+                      "value": "ADA",
+                      "label": "ADA"
+                    },
+                    {
+                      "value": "AVAX",
+                      "label": "AVAX"
+                    }
+                  ],
+                  "on_change": [
+                    {
+                      "set_state": "asset"
+                    },
+                    {
+                      "set_state": "selected_candle",
+                      "value": null
+                    }
+                  ]
+                },
+                {
+                  "type": "select",
+                  "style": "dropdown",
+                  "value": {
+                    "state": "currency"
+                  },
+                  "options": [
+                    {
+                      "value": "KRW",
+                      "label": "KRW · 대한민국 원"
+                    },
+                    {
+                      "value": "EUR",
+                      "label": "EUR · 유로"
+                    },
+                    {
+                      "value": "JPY",
+                      "label": "JPY · 일본 엔"
+                    },
+                    {
+                      "value": "GBP",
+                      "label": "GBP · 영국 파운드"
+                    },
+                    {
+                      "value": "CNY",
+                      "label": "CNY · 중국 위안"
+                    },
+                    {
+                      "value": "CHF",
+                      "label": "CHF · 스위스 프랑"
+                    },
+                    {
+                      "value": "CAD",
+                      "label": "CAD · 캐나다 달러"
+                    },
+                    {
+                      "value": "AUD",
+                      "label": "AUD · 호주 달러"
+                    }
+                  ],
+                  "on_change": [
+                    {
+                      "set_state": "currency"
+                    },
+                    {
+                      "set_state": "amount_local",
+                      "value": {
+                        "expr": "$state.amount_usd != null ? $round($state.amount_usd * ($lookup($data.fx_asset_quote.rates, $event)), 2) : null"
+                      }
+                    },
+                    {
+                      "set_state": "selected_candle",
+                      "value": null
+                    }
+                  ]
+                }
+              ],
+              "end": [
+                {
+                  "type": "select",
+                  "style": "segmented",
+                  "value": {
+                    "state": "interval"
+                  },
+                  "options": [
+                    {
+                      "value": "4h",
+                      "label": "4시간"
+                    },
+                    {
+                      "value": "1d",
+                      "label": "일봉"
+                    },
+                    {
+                      "value": "1w",
+                      "label": "주봉"
+                    }
+                  ],
+                  "on_change": [
+                    {
+                      "set_state": "interval"
+                    },
+                    {
+                      "set_state": "selected_candle",
+                      "value": null
+                    }
+                  ]
+                },
+                {
+                  "type": "select",
+                  "style": "segmented",
+                  "value": {
+                    "state": "quote_unit"
+                  },
+                  "options": [
+                    {
+                      "value": "LOCAL",
+                      "label": "현지 통화"
+                    },
+                    {
+                      "value": "USD",
+                      "label": "USD"
+                    }
+                  ],
+                  "on_change": [
+                    {
+                      "set_state": "quote_unit"
+                    },
+                    {
+                      "set_state": "selected_candle",
+                      "value": null
+                    }
+                  ]
+                },
+                {
+                  "type": "button",
+                  "label": "새로고침",
+                  "icon": "refresh-cw",
+                  "icon_only": true,
+                  "on_click": [
+                    {
+                      "refresh": []
+                    },
+                    {
+                      "set_state": "amount_local",
+                      "value": {
+                        "expr": "$state.amount_usd != null ? $round($state.amount_usd * ($lookup($data.fx_asset_quote.rates, $state.currency)), 2) : null"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "type": "when",
+            "max_width": 614,
+            "child": {
+              "type": "stack",
+              "direction": "column",
+              "gap": "none",
+              "children": [
+                {
+                  "type": "toolbar",
+                  "start": [
+                    {
+                      "type": "select",
+                      "style": "dropdown",
+                      "value": {
+                        "state": "asset"
+                      },
+                      "options": [
+                        {
+                          "value": "BTC",
+                          "label": "BTC"
+                        },
+                        {
+                          "value": "ETH",
+                          "label": "ETH"
+                        },
+                        {
+                          "value": "SOL",
+                          "label": "SOL"
+                        },
+                        {
+                          "value": "BNB",
+                          "label": "BNB"
+                        },
+                        {
+                          "value": "XRP",
+                          "label": "XRP"
+                        },
+                        {
+                          "value": "DOGE",
+                          "label": "DOGE"
+                        },
+                        {
+                          "value": "ADA",
+                          "label": "ADA"
+                        },
+                        {
+                          "value": "AVAX",
+                          "label": "AVAX"
+                        }
+                      ],
+                      "on_change": [
+                        {
+                          "set_state": "asset"
+                        },
+                        {
+                          "set_state": "selected_candle",
+                          "value": null
+                        }
+                      ]
+                    },
+                    {
+                      "type": "select",
+                      "style": "dropdown",
+                      "value": {
+                        "state": "currency"
+                      },
+                      "options": [
+                        {
+                          "value": "KRW",
+                          "label": "KRW · 대한민국 원"
+                        },
+                        {
+                          "value": "EUR",
+                          "label": "EUR · 유로"
+                        },
+                        {
+                          "value": "JPY",
+                          "label": "JPY · 일본 엔"
+                        },
+                        {
+                          "value": "GBP",
+                          "label": "GBP · 영국 파운드"
+                        },
+                        {
+                          "value": "CNY",
+                          "label": "CNY · 중국 위안"
+                        },
+                        {
+                          "value": "CHF",
+                          "label": "CHF · 스위스 프랑"
+                        },
+                        {
+                          "value": "CAD",
+                          "label": "CAD · 캐나다 달러"
+                        },
+                        {
+                          "value": "AUD",
+                          "label": "AUD · 호주 달러"
+                        }
+                      ],
+                      "on_change": [
+                        {
+                          "set_state": "currency"
+                        },
+                        {
+                          "set_state": "amount_local",
+                          "value": {
+                            "expr": "$state.amount_usd != null ? $round($state.amount_usd * ($lookup($data.fx_asset_quote.rates, $event)), 2) : null"
+                          }
+                        },
+                        {
+                          "set_state": "selected_candle",
+                          "value": null
+                        }
+                      ]
+                    }
+                  ],
+                  "end": [
+                    {
+                      "type": "button",
+                      "label": "새로고침",
+                      "icon": "refresh-cw",
+                      "icon_only": true,
+                      "on_click": [
+                        {
+                          "refresh": []
+                        },
+                        {
+                          "set_state": "amount_local",
+                          "value": {
+                            "expr": "$state.amount_usd != null ? $round($state.amount_usd * ($lookup($data.fx_asset_quote.rates, $state.currency)), 2) : null"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "toolbar",
+                  "start": [
+                    {
+                      "type": "select",
+                      "style": "segmented",
+                      "value": {
+                        "state": "interval"
+                      },
+                      "options": [
+                        {
+                          "value": "4h",
+                          "label": "4시간"
+                        },
+                        {
+                          "value": "1d",
+                          "label": "일봉"
+                        },
+                        {
+                          "value": "1w",
+                          "label": "주봉"
+                        }
+                      ],
+                      "on_change": [
+                        {
+                          "set_state": "interval"
+                        },
+                        {
+                          "set_state": "selected_candle",
+                          "value": null
+                        }
+                      ]
+                    },
+                    {
+                      "type": "select",
+                      "style": "segmented",
+                      "value": {
+                        "state": "quote_unit"
+                      },
+                      "options": [
+                        {
+                          "value": "LOCAL",
+                          "label": "현지 통화"
+                        },
+                        {
+                          "value": "USD",
+                          "label": "USD"
+                        }
+                      ],
+                      "on_change": [
+                        {
+                          "set_state": "quote_unit"
+                        },
+                        {
+                          "set_state": "selected_candle",
+                          "value": null
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "stack",
+        "direction": "column",
+        "gap": "none",
+        "fill": 3,
+        "children": [
+          {
+            "type": "metrics",
+            "columns": 4,
+            "items": {
+              "expr": "(\n $chg := $number($data.asset_tickers[symbol = ($state.asset & 'USDT')].priceChangePercent); $p := $number($data.asset_tickers[symbol = ($state.asset & 'USDT')].lastPrice); $rate := ($lookup($data.fx_asset_quote.rates, $state.currency)); $ppp := ($id := $lookup({\"KRW\":\"KOR\",\"EUR\":\"DEU\",\"JPY\":\"JPN\",\"GBP\":\"GBR\",\"CNY\":\"CHN\",\"CHF\":\"CHE\",\"CAD\":\"CAN\",\"AUD\":\"AUS\"}, $state.currency); $data.macro_ppp[1][countryiso3code = $id and value != null][0].value); $cpi := ($id := $lookup({\"KRW\":\"KOR\",\"EUR\":\"EMU\",\"JPY\":\"JPN\",\"GBP\":\"GBR\",\"CNY\":\"CHN\",\"CHF\":\"CHE\",\"CAD\":\"CAN\",\"AUD\":\"AUS\"}, $state.currency); $data.macro_cpi[1][countryiso3code = $id and value != null][0]);\n $us := $data.macro_cpi[1][countryiso3code = 'USA' and value != null][0].value;\n $cut := $fromMillis($toMillis($data.fx_asset_quote.date & 'T00:00:00Z') - 2592000000, '[Y0001]-[M01]-[D01]'); $keys := $sort($keys($data.fx_series.rates))[$ >= $cut]; $first := $lookup($lookup($data.fx_series.rates,$keys[0]),$state.currency); $last := $lookup($lookup($data.fx_series.rates,$keys[$count($keys)-1]),$state.currency);\n [{\"label\":\"1 \" & $state.asset & \" (\" & $state.currency & \")\", \"value\":$formatNumber($p*$rate, \"#,##0.##\"),\"unit\":$state.currency,\"featured\":true,\"subtext\":\"USD \" & $formatNumber($p, \"#,##0.##\") & \" · 고 \" & $formatNumber($number($data.asset_tickers[symbol = ($state.asset & 'USDT')].highPrice), \"#,##0.##\") & \" / 저 \" & $formatNumber($number($data.asset_tickers[symbol = ($state.asset & 'USDT')].lowPrice), \"#,##0.##\"),\"badge\":($chg > 0 ? \"+\" : \"\") & $formatNumber($chg, \"0.00\") & \"%\"},\n {\"label\":\"USD / \" & $state.currency,\"value\":$formatNumber($rate, \"#,##0.####\"),\"unit\":$state.currency,\"subtext\":\"30일 전 대비 · \" & $data.fx_asset_quote.date,\"badge\":$string($round(($last-$first)/$first*100,2)) & \"%\"},\n {\"label\":\"PPP 구매력 환율\",\"value\":$formatNumber($ppp, \"#,##0.##\"),\"unit\":$state.currency,\"subtext\":\"자산 실질 가치 $\" & $formatNumber($p*$rate/$ppp, \"#,##0.##\"),\"badge\":$string($round(($rate-$ppp)/$ppp*100,2)) & \"%\"},\n {\"label\":\"연간 물가 CPI\",\"value\":$round($cpi.value,2),\"unit\":\"%\",\"subtext\":$cpi.date & \"년\", \"badge\":\"US 대비 \" & $formatNumber($cpi.value-$us, \"0.00\") & \"%p\"}])"
+            }
+          },
+          {
+            "type": "stack",
+            "direction": "column",
+            "gap": "none",
+            "fill": 1,
+            "children": [
+              {
+                "type": "stack",
+                "direction": "column",
+                "gap": "none",
+                "children": [
+                  {
+                    "type": "when",
+                    "min_width": 716,
+                    "child": {
+                      "type": "toolbar",
+                      "start": [
+                        {
+                          "type": "text",
+                          "style": "meta",
+                          "value": "USD"
+                        },
+                        {
+                          "type": "input",
+                          "kind": "number",
+                          "value": {
+                            "state": "amount_usd"
+                          },
+                          "placeholder": "USD",
+                          "on_change": [
+                            {
+                              "set_state": "amount_usd"
+                            },
+                            {
+                              "set_state": "amount_local",
+                              "value": {
+                                "expr": "$event != null ? $round($number($event)*($lookup($data.fx_asset_quote.rates, $state.currency)),2) : null"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "style": "meta",
+                          "value": {
+                            "expr": "$state.currency"
+                          }
+                        },
+                        {
+                          "type": "input",
+                          "kind": "number",
+                          "value": {
+                            "state": "amount_local"
+                          },
+                          "placeholder": "현지 통화",
+                          "on_change": [
+                            {
+                              "set_state": "amount_local"
+                            },
+                            {
+                              "set_state": "amount_usd",
+                              "value": {
+                                "expr": "$event != null ? $round($number($event)/($lookup($data.fx_asset_quote.rates, $state.currency)),2) : null"
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "end": [
+                        {
+                          "type": "button",
+                          "label": "$1,000",
+                          "on_click": [
+                            {
+                              "set_state": "amount_usd",
+                              "value": {
+                                "expr": "1000"
+                              }
+                            },
+                            {
+                              "set_state": "amount_local",
+                              "value": {
+                                "expr": "$round((1000) * ($lookup($data.fx_asset_quote.rates, $state.currency)), 2)"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "button",
+                          "label": "1단위 자산",
+                          "on_click": [
+                            {
+                              "set_state": "amount_usd",
+                              "value": {
+                                "expr": "$number($data.asset_tickers[symbol = ($state.asset & 'USDT')].lastPrice)"
+                              }
+                            },
+                            {
+                              "set_state": "amount_local",
+                              "value": {
+                                "expr": "$round(($number($data.asset_tickers[symbol = ($state.asset & 'USDT')].lastPrice)) * ($lookup($data.fx_asset_quote.rates, $state.currency)), 2)"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "type": "when",
+                    "max_width": 715,
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "none",
+                      "children": [
+                        {
+                          "type": "toolbar",
+                          "start": [
+                            {
+                              "type": "text",
+                              "style": "meta",
+                              "value": "USD"
+                            },
+                            {
+                              "type": "input",
+                              "kind": "number",
+                              "value": {
+                                "state": "amount_usd"
+                              },
+                              "placeholder": "USD",
+                              "on_change": [
+                                {
+                                  "set_state": "amount_usd"
+                                },
+                                {
+                                  "set_state": "amount_local",
+                                  "value": {
+                                    "expr": "$event != null ? $round($number($event)*($lookup($data.fx_asset_quote.rates, $state.currency)),2) : null"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "style": "meta",
+                              "value": {
+                                "expr": "$state.currency"
+                              }
+                            },
+                            {
+                              "type": "input",
+                              "kind": "number",
+                              "value": {
+                                "state": "amount_local"
+                              },
+                              "placeholder": "현지 통화",
+                              "on_change": [
+                                {
+                                  "set_state": "amount_local"
+                                },
+                                {
+                                  "set_state": "amount_usd",
+                                  "value": {
+                                    "expr": "$event != null ? $round($number($event)/($lookup($data.fx_asset_quote.rates, $state.currency)),2) : null"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "toolbar",
+                          "start": [],
+                          "end": [
+                            {
+                              "type": "button",
+                              "label": "$1,000",
+                              "on_click": [
+                                {
+                                  "set_state": "amount_usd",
+                                  "value": {
+                                    "expr": "1000"
+                                  }
+                                },
+                                {
+                                  "set_state": "amount_local",
+                                  "value": {
+                                    "expr": "$round((1000) * ($lookup($data.fx_asset_quote.rates, $state.currency)), 2)"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "button",
+                              "label": "1단위 자산",
+                              "on_click": [
+                                {
+                                  "set_state": "amount_usd",
+                                  "value": {
+                                    "expr": "$number($data.asset_tickers[symbol = ($state.asset & 'USDT')].lastPrice)"
+                                  }
+                                },
+                                {
+                                  "set_state": "amount_local",
+                                  "value": {
+                                    "expr": "$round(($number($data.asset_tickers[symbol = ($state.asset & 'USDT')].lastPrice)) * ($lookup($data.fx_asset_quote.rates, $state.currency)), 2)"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "text",
+                "style": "meta",
+                "value": {
+                  "expr": "$state.amount_usd != null ? ($rate := ($lookup($data.fx_asset_quote.rates, $state.currency)); $ppp := ($id := $lookup({\"KRW\":\"KOR\",\"EUR\":\"DEU\",\"JPY\":\"JPN\",\"GBP\":\"GBR\",\"CNY\":\"CHN\",\"CHF\":\"CHE\",\"CAD\":\"CAN\",\"AUD\":\"AUS\"}, $state.currency); $data.macro_ppp[1][countryiso3code = $id and value != null][0].value); '$' & $formatNumber($state.amount_usd, '#,##0.##') & ' = ' & $formatNumber($state.amount_usd * $rate, '#,##0.##') & ' ' & $state.currency & ' · ' & $string($round($state.amount_usd / $number($data.asset_tickers[symbol = ($state.asset & 'USDT')].lastPrice), 4)) & ' ' & $state.asset & ' · PPP $' & $formatNumber($state.amount_usd * $rate / $ppp, '#,##0.##')) : ''"
+                }
+              }
+            ]
+          },
+          {
+            "type": "section",
+            "title": {
+              "expr": "$state.asset & ' / ' & ($state.quote_unit = 'LOCAL' ? $state.currency : 'USD') & ' 시세 (30봉)'"
+            },
+            "meta": {
+              "expr": "$state.selected_candle ? ($state.selected_candle.x & ' · 시 ' & $string($state.selected_candle.open) & ' 고 ' & $string($state.selected_candle.high) & ' 저 ' & $string($state.selected_candle.low) & ' 종 ' & $string($state.selected_candle.close)) : $data_meta.asset_candles.updated_time"
+            },
+            "child": {
+              "type": "chart",
+              "kind": "candlestick",
+              "height": "medium",
+              "series": {
+                "expr": "($rate := $state.quote_unit = 'LOCAL' ? ($lookup($data.fx_asset_quote.rates, $state.currency)) : 1; [{\"key\":\"price\",\"name\":$state.asset,\"points\":[$map($data.asset_candles,function($k){{\"x\":$fromMillis($k[0], $state.interval = '4h' ? '[M01]-[D01] [H01]:[m01]' : '[M01]-[D01]'),\"open\":$round($number($k[1])*$rate,2),\"high\":$round($number($k[2])*$rate,2),\"low\":$round($number($k[3])*$rate,2),\"close\":$round($number($k[4])*$rate,2)}})]}])"
+              },
+              "on_select": [
+                {
+                  "set_state": "selected_candle",
+                  "value": {
+                    "expr": "$item"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "tabs",
+            "selected": {
+              "state": "table_tab"
+            },
+            "on_change": {
+              "set_state": "table_tab"
+            },
+            "tabs": [
+              {
+                "label": "통화별 환율 · 구매력",
+                "child": {
+                  "type": "table",
+                  "rows": {
+                    "expr": "($rows := [{\"code\":\"KRW\",\"name\":\"대한민국 원\",\"ppp\":\"KOR\",\"cpi\":\"KOR\"},{\"code\":\"EUR\",\"name\":\"유로\",\"ppp\":\"DEU\",\"cpi\":\"EMU\"},{\"code\":\"JPY\",\"name\":\"일본 엔\",\"ppp\":\"JPN\",\"cpi\":\"JPN\"},{\"code\":\"GBP\",\"name\":\"영국 파운드\",\"ppp\":\"GBR\",\"cpi\":\"GBR\"},{\"code\":\"CNY\",\"name\":\"중국 위안\",\"ppp\":\"CHN\",\"cpi\":\"CHN\"},{\"code\":\"CHF\",\"name\":\"스위스 프랑\",\"ppp\":\"CHE\",\"cpi\":\"CHE\"},{\"code\":\"CAD\",\"name\":\"캐나다 달러\",\"ppp\":\"CAN\",\"cpi\":\"CAN\"},{\"code\":\"AUD\",\"name\":\"호주 달러\",\"ppp\":\"AUS\",\"cpi\":\"AUS\"}]; $cut := $fromMillis($toMillis($data.fx_asset_quote.date & 'T00:00:00Z') - 2592000000, '[Y0001]-[M01]-[D01]'); $dates := $sort($keys($data.fx_series.rates))[$ >= $cut]; $map($rows,function($r){(\n $code := $r.code; $rate := $lookup($data.fx_asset_quote.rates,$code);\n $values := [$map($dates,function($d){$lookup($lookup($data.fx_series.rates,$d),$code)})];\n $ppp := $data.macro_ppp[1][countryiso3code = $r.ppp and value != null][0].value;\n $cpi := $data.macro_cpi[1][countryiso3code = $r.cpi and value != null][0].value;\n {\"key\":$code,\"currency\":$code & \" · \" & $r.name,\"asset_quote\":$lookup($data.fx_asset_quote.rates,$code)*$number($data.asset_tickers[symbol = ($state.asset & 'USDT')].lastPrice),\"fx_rate\":$rate,\"fx_delta\":($values[$count($values)-1]-$values[0])/$values[0]*100,\"fx_spark\":$values,\"ppp_gap\":($rate-$ppp)/$ppp*100,\"cpi\":$cpi != null ? $formatNumber($cpi, \"0.00\") & \"%\" : \"—\"})}))"
+                  },
+                  "columns": [
+                    {
+                      "field": "currency",
+                      "label": "통화",
+                      "format": "text",
+                      "width": "medium"
+                    },
+                    {
+                      "field": "asset_quote",
+                      "label": "자산 환산가",
+                      "format": "number",
+                      "width": "medium"
+                    },
+                    {
+                      "field": "fx_rate",
+                      "label": "명목 환율",
+                      "format": "number",
+                      "width": "narrow"
+                    },
+                    {
+                      "field": "fx_delta",
+                      "label": "30일 변동",
+                      "format": "delta",
+                      "width": "narrow"
+                    },
+                    {
+                      "field": "fx_spark",
+                      "label": "환율 추이",
+                      "format": "sparkline",
+                      "width": "narrow"
+                    },
+                    {
+                      "field": "ppp_gap",
+                      "label": "PPP 괴리",
+                      "format": "delta",
+                      "width": "narrow"
+                    },
+                    {
+                      "field": "cpi",
+                      "label": "물가 CPI",
+                      "format": "text",
+                      "width": "narrow"
+                    }
+                  ],
+                  "selected": {
+                    "state": "currency"
+                  },
+                  "on_select": [
+                    {
+                      "set_state": "currency"
+                    },
+                    {
+                      "set_state": "amount_local",
+                      "value": {
+                        "expr": "$state.amount_usd != null ? $round($state.amount_usd * ($lookup($data.fx_asset_quote.rates, $event)), 2) : null"
+                      }
+                    },
+                    {
+                      "set_state": "selected_candle",
+                      "value": null
+                    }
+                  ]
+                }
+              },
+              {
+                "label": "글로벌 자산 시세",
+                "child": {
+                  "type": "table",
+                  "rows": {
+                    "expr": "($names := {\"BTC\":\"Bitcoin\",\"ETH\":\"Ethereum\",\"SOL\":\"Solana\",\"XRP\":\"XRP\",\"BNB\":\"BNB\",\"DOGE\":\"Dogecoin\",\"ADA\":\"Cardano\",\"AVAX\":\"Avalanche\"}; $trends := {\"BTC\":$data.trend_btc,\"ETH\":$data.trend_eth,\"SOL\":$data.trend_sol,\"XRP\":$data.trend_xrp,\"BNB\":$data.trend_bnb,\"DOGE\":$data.trend_doge,\"ADA\":$data.trend_ada,\"AVAX\":$data.trend_avax}; $map($data.asset_tickers,function($t){(\n $asset := $substringBefore($t.symbol,'USDT'); $history := $lookup($trends,$asset); $usd := $number($t.lastPrice); $local := $usd * ($lookup($data.fx_asset_quote.rates, $state.currency));\n {\"key\":$asset,\"asset\":$asset & \" · \" & $lookup($names,$asset),\"local_price\":$round($local, $local >= 100 ? 2 : 4),\"usd_price\":$round($usd, $usd >= 100 ? 2 : 4),\"change_24h\":$number($t.priceChangePercent),\"spark_24h\":[$map($history,function($k){$number($k[4])})]})}))"
+                  },
+                  "columns": [
+                    {
+                      "field": "asset",
+                      "label": "자산",
+                      "format": "text",
+                      "width": "medium"
+                    },
+                    {
+                      "field": "local_price",
+                      "label": "현지 시세",
+                      "format": "number",
+                      "width": "medium"
+                    },
+                    {
+                      "field": "usd_price",
+                      "label": "USD",
+                      "format": "number",
+                      "width": "narrow"
+                    },
+                    {
+                      "field": "change_24h",
+                      "label": "24h 등락",
+                      "format": "delta",
+                      "width": "narrow"
+                    },
+                    {
+                      "field": "spark_24h",
+                      "label": "24h 추이",
+                      "format": "sparkline",
+                      "width": "narrow"
+                    }
+                  ],
+                  "selected": {
+                    "state": "asset"
+                  },
+                  "on_select": [
+                    {
+                      "set_state": "asset"
+                    },
+                    {
+                      "set_state": "selected_candle",
+                      "value": null
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

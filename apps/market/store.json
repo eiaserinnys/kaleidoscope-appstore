@@ -1,0 +1,19 @@
+{
+  "summary": "세계 자산 시세와 통화 환율, 물가 지표를 한 창에서 비교합니다",
+  "description": "암호화폐 시세와 캔들, 유럽중앙은행 기준 환율, 세계은행 물가와 구매력 지표를 함께 봅니다.\n\n- 자산과 통화를 고르면 시세를 그 통화로 바꿔 보입니다\n- 금액을 넣으면 구매력 기준으로 환산합니다\n\n자료: Binance, Frankfurter, World Bank 공개 API",
+  "category": "자료",
+  "publisher": "eiaserinnys",
+  "release": 1,
+  "listed": true,
+  "icon": "assets/icon.svg",
+  "assets": [
+    {
+      "id": "market-icon",
+      "version": 1,
+      "file": "assets/icon.svg",
+      "format": "svg",
+      "source": "kaleidoscope 기본 앱 아이콘, 서소영 작성",
+      "license": "MIT"
+    }
+  ]
+}
