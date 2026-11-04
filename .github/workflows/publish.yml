@@ -1,0 +1,35 @@
+name: 앱스토어 배포
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**'
+      - 'site/**'
+      - 'tools/**'
+      - 'schema/**'
+      - 'package*.json'
+      - '.github/workflows/publish.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency: appstore-publish
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --ignore-scripts
+      - name: 전체 앱 검사
+        run: node tools/check.mjs --all
+      - name: 정적 파일 빌드
+        run: node tools/build.mjs --out dist
+      - name: R2에 올리기
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_BUCKET: ${{ vars.R2_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: node tools/upload.mjs --dist dist
