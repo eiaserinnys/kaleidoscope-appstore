@@ -103,6 +103,24 @@ test('규칙 4: 자산 짝, 파일, 총 크기', async t => {
   });
 });
 
+test('앱 아이콘과 스토어 아이콘은 같은 이미지 자산을 가리킨다',async t=>{
+  for(const kind of ['valid','different','format','blocks'])await t.test(kind,t=>{
+    const dir=setup(t),base=git(dir,'rev-parse','HEAD'),a=app(dir);
+    a.definition.icon={asset:'icon',version:1};a.definition.requires.blocks=kind==='blocks'?25:26;
+    if(kind==='different'){
+      a.definition.assets.push({id:'other',version:1});a.store.assets.push({id:'other',version:1,file:'assets/other.svg',format:'svg',source:'직접 제작',license:'MIT'});
+      a.store.icon='assets/other.svg';writeFileSync(join(a.folder,'assets/other.svg'),'<svg/>');
+    }
+    if(kind==='format')a.store.assets[0].format='gif';
+    json(join(a.folder,'app.json'),a.definition);json(join(a.folder,'store.json'),a.store);commit(dir);
+    const result=runCheck(dir,base);
+    if(kind==='valid')assert.equal(result.status,0,result.stdout+result.stderr);
+    else if(kind==='different')expectBad(result,/app\.json의 아이콘과 store\.json의 icon/);
+    else if(kind==='format')expectBad(result,/아이콘.*형식/);
+    else expectBad(result,/아이콘.*blocks 26/);
+  });
+});
+
 test('규칙 5: 스크린샷 형식과 크기', async t => {
   for(const kind of ['magic','size','name','duplicate']) await t.test(kind,t=>{const dir=setup(t),base=git(dir,'rev-parse','HEAD'),a=app(dir);
     if(kind==='magic')writeFileSync(join(a.folder,'screenshots/1.png'),'fake');

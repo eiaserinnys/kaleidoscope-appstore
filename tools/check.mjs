@@ -48,6 +48,12 @@ function checkApp(ref,id,errors){
  const appKeys=Array.isArray(app?.assets)?app.assets.map(a=>`${a.id}@${a.version}`).sort():[];
  if(JSON.stringify([...keys].sort())!==JSON.stringify(appKeys))errors.push(recordError(storePath,'앱 정의와 자산 id 및 판이 다릅니다'));
  if(store?.icon!==null&&store?.icon!==undefined&&!assets.some(a=>a.file===store.icon))errors.push(recordError(storePath,'아이콘은 자산 파일 중 하나여야 합니다'));
+ if(app?.icon){
+  const iconAsset=assets.find(a=>a.id===app.icon.asset&&a.version===app.icon.version);
+  if(!iconAsset||store?.icon!==iconAsset.file)errors.push(recordError(storePath,'app.json의 아이콘과 store.json의 icon이 다른 자산을 가리킵니다'));
+  if(iconAsset&&!['svg','png','webp'].includes(iconAsset.format))errors.push(recordError(storePath,'앱 아이콘 자산 형식은 SVG, PNG 또는 WebP여야 합니다'));
+  if(app.requires?.blocks<26)errors.push(recordError(appPath,'앱 아이콘을 사용하려면 blocks 26 이상이 필요합니다'));
+ }
  const screens=entries.filter(e=>/^screenshots\/[1-5]\.(png|webp)$/.test(e.path.slice(dir.length+1)));
  if(screens.length>5||new Set(screens.map(e=>/\/([1-5])\.(?:png|webp)$/.exec(e.path)[1])).size!==screens.length)errors.push(recordError(`${dir}/screenshots`,'스크린샷은 번호마다 한 장씩 다섯 장까지입니다'));
  for(const e of screens){allowed.add(e.path);const data=blob(ref,e.path);if(data.length>2*1024*1024)errors.push(recordError(e.path,'스크린샷 크기는 2 MiB 이하여야 합니다'));const png=data.subarray(0,8).equals(Buffer.from('89504e470d0a1a0a','hex'));const webp=data.subarray(0,4).toString()==='RIFF'&&data.subarray(8,12).toString()==='WEBP';if((e.path.endsWith('.png')&&!png)||(e.path.endsWith('.webp')&&!webp))errors.push(recordError(e.path,'스크린샷 파일 형식이 올바르지 않습니다'));}

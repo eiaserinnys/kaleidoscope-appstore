@@ -18,6 +18,17 @@
         "null"
       ]
     },
+    "icon": {
+      "description": "앱 아이콘. assets에 같은 id와 판을 선언한 SVG, PNG 또는 WebP 자산이다.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AppIconRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "requires": {
       "$ref": "#/$defs/Requires"
     },
@@ -178,6 +189,25 @@
     "ui"
   ],
   "$defs": {
+    "AppIconRef": {
+      "description": "앱 아이콘이 가리키는 불변 자산.",
+      "type": "object",
+      "properties": {
+        "asset": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "asset",
+        "version"
+      ]
+    },
     "Requires": {
       "description": "앱이 필요로 하는 블록 세트와 모듈의 버전.",
       "type": "object",
