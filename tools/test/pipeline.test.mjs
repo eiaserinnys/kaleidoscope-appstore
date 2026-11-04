@@ -128,6 +128,8 @@ test('업로드 계획: 불변 판 건너뛰기와 내려진 앱 상세 삭제',
   const mod=await import(pathToFileURL(upload));const old=JSON.parse(readFileSync(join(out,'appstore/apps/hello/1/manifest.json')));
   const plan=await mod.planUpload(out,{list:async()=>['appstore/apps/hello/1/manifest.json','appstore/apps/gone/index.json'],get:async key=> key.includes('/hello/')?old:null});
   assert.match(plan.join('\n'),/건너|skip/i);assert.match(plan.join('\n'),/gone\/index.json/);
+  const output=[];await mod.runUpload(out,{list:async()=>['appstore/apps/hello/1/manifest.json','appstore/apps/gone/index.json'],get:async()=>old,put:()=>assert.fail('dry-run upload'),remove:()=>assert.fail('dry-run delete')},{dryRun:true,log:line=>output.push(line)});
+  assert.match(output.join('\n'),/건너/);assert.match(output.join('\n'),/삭제 appstore\/apps\/gone\/index.json/);
   const changed=structuredClone(old);changed.files[Object.keys(changed.files)[0]].sha256='0'.repeat(64);
   await assert.rejects(mod.planUpload(out,{list:async()=>['appstore/apps/hello/1/manifest.json'],get:async()=>changed}),/sha256/);
   await assert.rejects(mod.planUpload(out,{list:async()=>['appstore/apps/hello/2/manifest.json'],get:async()=>old}),/더 높은 판/);
