@@ -16,11 +16,15 @@ jobs:
           package-manager-cache: false
       - name: base 검사 코드 준비
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_REF: ${{ github.base_ref }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/store-check"
+          if ! git rev-parse --verify --quiet "refs/remotes/origin/$BASE_REF" >/dev/null; then
+            git fetch origin "+refs/heads/$BASE_REF:refs/remotes/origin/$BASE_REF"
+          fi
+          BASE_SHA=$(git rev-parse "origin/$BASE_REF")
           if git cat-file -e "$BASE_SHA:tools/check.mjs" 2>/dev/null; then
             REF="$BASE_SHA"
           else
@@ -32,7 +36,7 @@ jobs:
         run: npm ci --ignore-scripts --prefix "$RUNNER_TEMP/store-check"
       - name: 앱 검사
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BASE_REF: ${{ github.base_ref }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-        run: node "$RUNNER_TEMP/store-check/tools/check.mjs" --base "$BASE_SHA" --head "$HEAD_SHA" --author "$PR_AUTHOR"
+        run: node "$RUNNER_TEMP/store-check/tools/check.mjs" --base "origin/$BASE_REF" --head "$HEAD_SHA" --author "$PR_AUTHOR"
