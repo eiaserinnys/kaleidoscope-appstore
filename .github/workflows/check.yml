@@ -18,7 +18,16 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: node tools/trusted-check.mjs "$BASE_SHA" "$HEAD_SHA" "$RUNNER_TEMP/store-check"
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/store-check"
+          if git cat-file -e "$BASE_SHA:tools/check.mjs" 2>/dev/null; then
+            REF="$BASE_SHA"
+          else
+            REF="$HEAD_SHA"
+            printf '%s\n' '초기화 PR: main에 검사 코드가 없어 이 PR의 검사 코드로 검사했습니다' | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+          git archive "$REF" tools schema package.json package-lock.json | tar -x -C "$RUNNER_TEMP/store-check"
       - name: 검사 의존성 설치
         run: npm ci --ignore-scripts --prefix "$RUNNER_TEMP/store-check"
       - name: 앱 검사

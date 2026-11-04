@@ -18,6 +18,7 @@ const validateStore=ajv.compile({type:'object',additionalProperties:false,requir
   assets:{type:'array',items:{type:'object',additionalProperties:false,required:['id','version','file','format','source','license'],properties:{id:{type:'string',pattern:'^[a-zA-Z0-9][a-zA-Z0-9._-]*$'},version:{type:'integer',minimum:1},file:{type:'string',pattern:'^assets/(?!.*(?:^|/)\\.\\.?/)[^\\\\]+$'},format:{enum:formats},source:{type:'string'},license:{type:'string'}}}}
 }});
 const secret=/sk-ant-[A-Za-z0-9_-]*|sk-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]*|xox[abpr]-[A-Za-z0-9-]*|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----/g;
+const maskSecrets=value=>value.replace(secret,match=>`${match.slice(0,4)}…`);
 const args=process.argv.slice(2); const flag=k=>args[args.indexOf(k)+1];
 const all=args.includes('--all'); const author=flag('--author');
 function git(...args){return execFileSync('git',args,{maxBuffer:30*1024*1024,stdio:['ignore','pipe','pipe']});}
@@ -27,7 +28,7 @@ function blob(ref,path){try{return git('show',`${ref}:${path}`);}catch{return nu
 function parse(ref,path,errors){const data=blob(ref,path);if(!data){errors.push(`${path}: 파일이 없습니다`);return null;}try{return JSON.parse(data);}catch{errors.push(`${path}: JSON 형식이 잘못되었습니다`);return null;}}
 function recordError(path,message){return `${path}: ${message}`;}
 function safeFile(path){return path.startsWith('assets/') && !path.split('/').some(x=>!x || x==='.' || x==='..') && !path.includes('\\');}
-function scrub(value,path,errors){if(typeof value==='string'){for(const match of value.matchAll(secret))errors.push(recordError(path,`비밀값으로 보이는 문자열 ${match[0].slice(0,4)}…를 지워 주세요`));}else if(value&&typeof value==='object'){for(const [key,child] of Object.entries(value)){scrub(key,path,errors);scrub(child,path,errors);}}}
+function scrub(value,path,errors){if(typeof value==='string'){for(const match of value.matchAll(secret))errors.push(recordError(path,`비밀값으로 보이는 문자열 ${match[0]}를 지워 주세요`));}else if(value&&typeof value==='object'){for(const [key,child] of Object.entries(value)){scrub(key,path,errors);scrub(child,path,errors);}}}
 function checkApp(ref,id,errors){
  const dir=`apps/${id}`, appPath=`${dir}/app.json`, storePath=`${dir}/store.json`;
  const entries=files(ref,dir+'/'); const byPath=new Map(entries.map(e=>[e.path,e]));
@@ -83,5 +84,5 @@ try{
   if(base){if(oldStore){if(s.publisher!==oldStore.publisher)errors.push(recordError(path,'게시자를 바꿀 수 없습니다'));const changed=changedContent(base,head,id,oldStore,s);if(changed&&s.release!==oldStore.release+1)errors.push(recordError(path,'내용 변경 시 release를 정확히 1 올려 주세요'));if(!changed&&s.release!==oldStore.release)errors.push(recordError(path,'내용 없이 release만 바꿀 수 없습니다'));}else{if(s.publisher!==author)errors.push(recordError(path,'새 앱 게시자는 PR 작성자여야 합니다'));if(s.release!==1)errors.push(recordError(path,'새 앱 release는 1이어야 합니다'));}}
   if(result.app){const badges=[];if(result.app.permissions?.some(p=>p.module==='process'))badges.push('process');if(Object.hasOwn(result.app,'worker'))badges.push('worker');summaries.push(`| ${String(result.app.name).replaceAll('|','\\|')} | ${s.release} | ${JSON.stringify(result.app.permissions??[]).replaceAll('|','\\|')} | ${badges.join(', ')||'없음'} |`);}
  }
- if(errors.length){for(const e of errors)console.error(e);process.exitCode=1;}else{console.log(`검사 통과: 앱 ${ids.size}개`);if(process.env.GITHUB_STEP_SUMMARY&&summaries.length)appendFileSync(process.env.GITHUB_STEP_SUMMARY,`\n| 이름 | release | 권한 | 배지 |\n| --- | --- | --- | --- |\n${summaries.join('\n')}\n`);}
-}catch(error){console.error(`검사를 실행할 수 없습니다: ${error.message}`);process.exitCode=1;}
+ if(errors.length){for(const e of errors)console.error(maskSecrets(e));process.exitCode=1;}else{console.log(`검사 통과: 앱 ${ids.size}개`);if(process.env.GITHUB_STEP_SUMMARY&&summaries.length)appendFileSync(process.env.GITHUB_STEP_SUMMARY,maskSecrets(`\n| 이름 | release | 권한 | 배지 |\n| --- | --- | --- | --- |\n${summaries.join('\n')}\n`));}
+}catch(error){console.error(maskSecrets(`검사를 실행할 수 없습니다: ${error.message}`));process.exitCode=1;}

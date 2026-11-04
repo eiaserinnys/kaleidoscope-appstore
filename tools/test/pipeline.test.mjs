@@ -42,6 +42,15 @@ function allCheck(dir, keys=[]) {
   return spawnSync(process.execPath,[check,'--all'],{cwd:dir,encoding:'utf8',env});
 }
 function expectBad(result, pattern) { assert.notEqual(result.status,0, result.stdout + result.stderr); assert.match(result.stdout + result.stderr, pattern); }
+function prepareWorkflow(dir,base,head,destination){
+  const workflow=readFileSync(join(root,'.github/workflows/check.yml'),'utf8');
+  const block=/      - name: base 검사 코드 준비\n[\s\S]*?        run: \|\n((?:          .*\n)+)/.exec(workflow);
+  assert.ok(block,'워크플로의 준비 run 블록이 필요합니다');
+  const command=block[1].split('\n').map(line=>line.startsWith('          ')?line.slice(10):line).join('\n');
+  mkdirSync(destination,{recursive:true});const summary=join(destination,'summary');
+  const result=spawnSync('bash',['-e','-o','pipefail','-c',command],{cwd:dir,encoding:'utf8',env:{...process.env,BASE_SHA:base,HEAD_SHA:head,RUNNER_TEMP:destination,GITHUB_STEP_SUMMARY:summary}});
+  assert.equal(result.status,0,result.stderr);return {result,summary,selected:join(destination,'store-check')};
+}
 
 test('정상 새 앱과 --head 및 --all 검사', t => {
   const dir=setup(t), base=git(dir,'rev-parse','HEAD'); app(dir); const head=commit(dir);
@@ -103,6 +112,12 @@ test('규칙 6: 비밀은 가리고 Firebase 공개 키는 허용', t=>{
   const r=runCheck(dir,base);expectBad(r,/비밀/);assert.doesNotMatch(r.stdout+r.stderr,/A{20}/);
 });
 
+test('스키마 오류 경로에 있는 비밀값을 출력에서 가린다',t=>{
+  const dir=setup(t),base=git(dir,'rev-parse','HEAD'),a=app(dir);const token='sk-'+'A'.repeat(24);
+  a.definition.sources={[token]:{bad:true}};json(join(a.folder,'app.json'),a.definition);commit(dir);
+  const r=runCheck(dir,base);assert.equal(r.status,1);assert.equal(r.stderr.includes(token),false);assert.ok(r.stderr.includes('sk-A…'));
+});
+
 test('규칙 7: release 증가와 release만 변경 금지',async t=>{
   for(const kind of ['missing','jump','only','valid'])await t.test(kind,t=>{const dir=setup(t),a=app(dir);commit(dir,'app');const base=git(dir,'rev-parse','HEAD');
     if(kind!=='only')a.store.summary='변경'; a.store.release=kind==='missing'?1:kind==='jump'?3:2;json(join(a.folder,'store.json'),a.store);commit(dir);
@@ -136,14 +151,13 @@ test('업로드 계획: 불변 판 건너뛰기와 내려진 앱 상세 삭제',
   const dry=spawnSync(process.execPath,[upload,'--dist',out,'--dry-run'],{cwd:dir,encoding:'utf8'});assert.equal(dry.status,0,dry.stderr);
 });
 
-test('base 검사 코드 선택과 초기화 예외',async t=>{
+test('워크플로 준비 단계는 base 검사 코드를 고르고 초기화 때 head를 쓴다',t=>{
   const dir=setup(t);mkdirSync(join(dir,'tools'),{recursive:true});mkdirSync(join(dir,'schema'),{recursive:true});writeFileSync(join(dir,'tools/check.mjs'),'base');writeFileSync(join(dir,'schema/schema.json'),'base-schema');writeFileSync(join(dir,'package.json'),'{}');writeFileSync(join(dir,'package-lock.json'),'{}');commit(dir,'tools');const base=git(dir,'rev-parse','HEAD');
-  writeFileSync(join(dir,'tools/check.mjs'),'head');commit(dir,'change');
-  const mod=await import(pathToFileURL(join(root,'tools/trusted-check.mjs')));
-  const selected=mod.selectChecker(dir,base,'HEAD');assert.equal(selected.ref,base);assert.equal(selected.bootstrap,false);
-  const extracted=join(dir,'extracted');mod.extractChecker(dir,base,'HEAD',extracted);assert.equal(readFileSync(join(extracted,'tools/check.mjs'),'utf8'),'base');
-  const initial=git(dir,'rev-list','--max-parents=0','HEAD');assert.deepEqual(mod.selectChecker(dir,initial,'HEAD'),{ref:'HEAD',bootstrap:true});
-  const bootstrap=join(dir,'bootstrap');mod.extractChecker(dir,initial,'HEAD',bootstrap);assert.equal(readFileSync(join(bootstrap,'tools/check.mjs'),'utf8'),'head');
+  writeFileSync(join(dir,'tools/check.mjs'),'head');writeFileSync(join(dir,'tools/other.mjs'),'변조');commit(dir,'change');
+  const selected=prepareWorkflow(dir,base,'HEAD',join(dir,'runner-base'));assert.equal(readFileSync(join(selected.selected,'tools/check.mjs'),'utf8'),'base');
+  const initial=git(dir,'rev-list','--max-parents=0','HEAD');const bootstrap=prepareWorkflow(dir,initial,'HEAD',join(dir,'runner-head'));
+  assert.equal(readFileSync(join(bootstrap.selected,'tools/check.mjs'),'utf8'),'head');const notice='초기화 PR: main에 검사 코드가 없어 이 PR의 검사 코드로 검사했습니다';
+  assert.ok(bootstrap.result.stdout.includes(notice));assert.ok(readFileSync(bootstrap.summary,'utf8').includes(notice));
 });
 
 test('PR이 검사 코드를 고쳐도 base 검사로 남의 앱 변경을 거부한다',async t=>{
@@ -153,7 +167,7 @@ test('PR이 검사 코드를 고쳐도 base 검사로 남의 앱 변경을 거�
   cpSync(join(root,'package.json'),join(dir,'package.json'));cpSync(join(root,'package-lock.json'),join(dir,'package-lock.json'));
   commit(dir,'trusted base');const base=git(dir,'rev-parse','HEAD');
   a.store.summary='남의 앱 변경';a.store.release=2;json(join(a.folder,'store.json'),a.store);writeFileSync(join(dir,'tools/check.mjs'),'process.exit(0)');commit(dir,'untrusted head');
-  const mod=await import(pathToFileURL(join(root,'tools/trusted-check.mjs')));const selected=join(dir,'selected');mod.extractChecker(dir,base,'HEAD',selected);symlinkSync(join(root,'node_modules'),join(selected,'node_modules'),'dir');
+  const selected=prepareWorkflow(dir,base,'HEAD',join(dir,'runner')).selected;symlinkSync(join(root,'node_modules'),join(selected,'node_modules'),'dir');
   const r=spawnSync(process.execPath,[join(selected,'tools/check.mjs'),'--base',base,'--head','HEAD','--author','bob'],{cwd:dir,encoding:'utf8'});
   expectBad(r,/게시자|수정/);
 });
