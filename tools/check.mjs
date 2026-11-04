@@ -67,7 +67,7 @@ function remoteReleases(){
 }
 function gitlessAws(args){return execFileSync('aws',args,{encoding:'utf8',maxBuffer:30*1024*1024,stdio:['ignore','pipe','pipe']});}
 try{
- const head=commit(args.includes('--head')?flag('--head'):'HEAD'); const base=all?null:commit(flag('--base'));
+ const head=commit(args.includes('--head')?flag('--head'):'HEAD'); const base=all?null:git('merge-base',commit(flag('--base')),head).toString().trim();
  if(!all&&!author)throw Error('--author와 --base가 필요합니다');
  const remote=all?remoteReleases():[];
  const changed=all?files(head,'apps/').map(x=>x.path):git('diff','--name-only','--no-renames','-z',base,head).toString().split('\0').filter(Boolean);

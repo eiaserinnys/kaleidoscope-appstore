@@ -42,13 +42,13 @@ function allCheck(dir, keys=[]) {
   return spawnSync(process.execPath,[check,'--all'],{cwd:dir,encoding:'utf8',env});
 }
 function expectBad(result, pattern) { assert.notEqual(result.status,0, result.stdout + result.stderr); assert.match(result.stdout + result.stderr, pattern); }
-function prepareWorkflow(dir,base,head,destination){
+function prepareWorkflow(dir,base,head,destination,eventBase=base){
   const workflow=readFileSync(join(root,'.github/workflows/check.yml'),'utf8');
   const block=/      - name: base 검사 코드 준비\n[\s\S]*?        run: \|\n((?:          .*\n)+)/.exec(workflow);
   assert.ok(block,'워크플로의 준비 run 블록이 필요합니다');
   const command=block[1].split('\n').map(line=>line.startsWith('          ')?line.slice(10):line).join('\n');
-  mkdirSync(destination,{recursive:true});const summary=join(destination,'summary');
-  const result=spawnSync('bash',['-e','-o','pipefail','-c',command],{cwd:dir,encoding:'utf8',env:{...process.env,BASE_SHA:base,HEAD_SHA:head,RUNNER_TEMP:destination,GITHUB_STEP_SUMMARY:summary}});
+  mkdirSync(destination,{recursive:true});const summary=join(destination,'summary');git(dir,'update-ref','refs/remotes/origin/main',base);
+  const result=spawnSync('bash',['-e','-o','pipefail','-c',command],{cwd:dir,encoding:'utf8',env:{...process.env,BASE_REF:'main',BASE_SHA:eventBase,HEAD_SHA:head,RUNNER_TEMP:destination,GITHUB_STEP_SUMMARY:summary}});
   assert.equal(result.status,0,result.stderr);return {result,summary,selected:join(destination,'store-check')};
 }
 
@@ -56,6 +56,12 @@ test('정상 새 앱과 --head 및 --all 검사', t => {
   const dir=setup(t), base=git(dir,'rev-parse','HEAD'); app(dir); const head=commit(dir);
   const result=runCheck(dir,base,'alice',head); assert.equal(result.status,0,result.stdout+result.stderr);
   assert.equal(allCheck(dir).status,0);
+});
+
+test('오래된 PR에서는 main에 나중에 추가된 다른 앱을 변경으로 보지 않는다',t=>{
+  const dir=setup(t),fork=git(dir,'rev-parse','HEAD');git(dir,'checkout','-qb','pr',fork);app(dir,'hello');const head=commit(dir,'PR 앱');
+  git(dir,'checkout','-qb','upstream',fork);app(dir,'other',{publisher:'bob'});const base=commit(dir,'다른 앱 추가');
+  const result=runCheck(dir,base,'alice',head);assert.equal(result.status,0,result.stdout+result.stderr);
 });
 
 test('--all은 빌드 전에 R2에 있는 더 높은 판을 거부한다',t=>{
@@ -158,6 +164,14 @@ test('워크플로 준비 단계는 base 검사 코드를 고르고 초기화 �
   const initial=git(dir,'rev-list','--max-parents=0','HEAD');const bootstrap=prepareWorkflow(dir,initial,'HEAD',join(dir,'runner-head'));
   assert.equal(readFileSync(join(bootstrap.selected,'tools/check.mjs'),'utf8'),'head');const notice='초기화 PR: main에 검사 코드가 없어 이 PR의 검사 코드로 검사했습니다';
   assert.ok(bootstrap.result.stdout.includes(notice));assert.ok(readFileSync(bootstrap.summary,'utf8').includes(notice));
+});
+
+test('오래된 이벤트 base 대신 현재 base 브랜치 끝에서 검사 코드를 꺼낸다',t=>{
+  const dir=setup(t),fork=git(dir,'rev-parse','HEAD');git(dir,'checkout','-qb','pr',fork);writeFileSync(join(dir,'contribution.txt'),'PR');const head=commit(dir,'PR');
+  git(dir,'checkout','-qb','upstream',fork);mkdirSync(join(dir,'tools'),{recursive:true});mkdirSync(join(dir,'schema'),{recursive:true});
+  writeFileSync(join(dir,'tools/check.mjs'),'현재 main 검사');writeFileSync(join(dir,'schema/schema.json'),'schema');writeFileSync(join(dir,'package.json'),'{}');writeFileSync(join(dir,'package-lock.json'),'{}');const tip=commit(dir,'검사 추가');
+  const selected=prepareWorkflow(dir,tip,head,join(dir,'runner'),fork);
+  assert.equal(readFileSync(join(selected.selected,'tools/check.mjs'),'utf8'),'현재 main 검사');assert.equal(selected.result.stdout.includes('초기화 PR'),false);
 });
 
 test('PR이 검사 코드를 고쳐도 base 검사로 남의 앱 변경을 거부한다',async t=>{
