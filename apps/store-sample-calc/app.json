@@ -1,0 +1,161 @@
+{
+  "id": "store-sample-calc",
+  "name": "계산기 (스토어 시험)",
+  "description": "스토어 배포 시험용 계산기",
+  "requires": {
+    "blocks": 9,
+    "modules": {
+      "assets": 1
+    }
+  },
+  "permissions": [],
+  "state": {
+    "calc": {
+      "display": "0",
+      "acc": null,
+      "op": null,
+      "fresh": true,
+      "error": null,
+      "formula": ""
+    }
+  },
+  "assets": [
+    {
+      "id": "store-sample-calc-icon",
+      "version": 1
+    }
+  ],
+  "ui": {
+    "type": "stack",
+    "direction": "column",
+    "fill": 1,
+    "children": [
+      {
+        "type": "metrics",
+        "items": {
+          "expr": "[{'key':'result','label':$replace($replace($replace($state.calc.formula, '/', '÷'), '*', '×'), '-', '−'),'value':$state.calc.error ? $state.calc.error : $state.calc.display,'tone':$state.calc.error ? 'error' : 'default','align':'end'}]"
+        },
+        "columns": 1
+      },
+      {
+        "type": "button_grid",
+        "columns": 4,
+        "buttons": [
+          {
+            "key": "C",
+            "label": "C",
+            "shortcut": "Escape",
+            "variant": "danger"
+          },
+          {
+            "key": "Backspace",
+            "label": "⌫",
+            "shortcut": "Backspace",
+            "variant": "ghost"
+          },
+          {
+            "key": "%",
+            "label": "%",
+            "shortcut": "%",
+            "variant": "ghost"
+          },
+          {
+            "key": "/",
+            "label": "÷",
+            "shortcut": "/",
+            "variant": "ghost"
+          },
+          {
+            "key": "7",
+            "label": "7",
+            "shortcut": "7"
+          },
+          {
+            "key": "8",
+            "label": "8",
+            "shortcut": "8"
+          },
+          {
+            "key": "9",
+            "label": "9",
+            "shortcut": "9"
+          },
+          {
+            "key": "*",
+            "label": "×",
+            "shortcut": "*",
+            "variant": "ghost"
+          },
+          {
+            "key": "4",
+            "label": "4",
+            "shortcut": "4"
+          },
+          {
+            "key": "5",
+            "label": "5",
+            "shortcut": "5"
+          },
+          {
+            "key": "6",
+            "label": "6",
+            "shortcut": "6"
+          },
+          {
+            "key": "-",
+            "label": "−",
+            "shortcut": "-",
+            "variant": "ghost"
+          },
+          {
+            "key": "1",
+            "label": "1",
+            "shortcut": "1"
+          },
+          {
+            "key": "2",
+            "label": "2",
+            "shortcut": "2"
+          },
+          {
+            "key": "3",
+            "label": "3",
+            "shortcut": "3"
+          },
+          {
+            "key": "+",
+            "label": "+",
+            "shortcut": "+",
+            "variant": "ghost"
+          },
+          {
+            "key": "0",
+            "label": "0",
+            "shortcut": "0",
+            "span": 2
+          },
+          {
+            "key": ".",
+            "label": ".",
+            "shortcut": "."
+          },
+          {
+            "key": "=",
+            "label": "=",
+            "shortcut": "Enter",
+            "variant": "primary"
+          }
+        ],
+        "on_press": [
+          {
+            "set_state": "calc",
+            "value": {
+              "expr": "(\n $s := $state.calc;\n $k := $event;\n $initial := {\"display\":\"0\",\"acc\":null,\"op\":null,\"fresh\":true,\"error\":null,\"formula\":\"\"};\n $digit := $contains('0123456789', $k) and $length($k)=1;\n $num := function($v){$number($v)};\n $fmt := function($v){$string($round($v,10))};\n $apply := function($a,$b,$op){$op='+' ? $a+$b : $op='-' ? $a-$b : $op='*' ? $a*$b : $a/$b};\n $operator := $k in ['+','-','*','/'];\n $base := $s.error ? $initial : $s;\n $d := $base.display;\n $input := $digit or $k='.';\n $rhs := $num($s.display);\n $pending := $s.op != null and $not($s.fresh);\n $zero := $pending and $s.op='/' and $rhs=0;\n $result := $zero ? 0 : ($pending ? $apply($s.acc,$rhs,$s.op) : $rhs);\n $k='C' ? $initial :\n $input ? $merge([$base, {\"display\": $k='.' ? ($base.fresh ? '0.' : ($contains($d,'.') ? $d : $d & '.')) : ($base.fresh or $d='0' ? $k : $d='-0' ? '-' & $k : $d & $k), \"fresh\":false,\"error\":null,\"formula\":$base.fresh and $base.op=null ? '' : $base.formula}]) :\n $s.error ? $s :\n $k='Backspace' ? ($s.fresh ? $s : $merge([$s,{\"display\":$length($d)<=1 or ($length($d)=2 and $substring($d,0,1)='-') ? '0' : $substring($d,0,$length($d)-1)}])) :\n $k='%' ? $merge([$s,{\"display\":$fmt($num($d)/100),\"fresh\":false}]) :\n $k='sign' ? $merge([$s,{\"display\":$substring($d,0,1)='-' ? $substring($d,1) : '-' & $d,\"fresh\":false}]) :\n ($operator or $k='=') ? (\n $zero ? $merge([$s,{\"error\":\"0으로 나눌 수 없습니다\",\"fresh\":true}]) :\n $operator ? {\"display\":$fmt($result),\"acc\":$result,\"op\":$k,\"fresh\":true,\"error\":null,\"formula\":$fmt($result)&' '&$k} :\n $pending ? {\"display\":$fmt($result),\"acc\":null,\"op\":null,\"fresh\":true,\"error\":null,\"formula\":$fmt($s.acc)&' '&$s.op&' '&$s.display&' ='} : $s\n ) : $s\n)"
+            }
+          }
+        ]
+      }
+    ],
+    "gap": "none"
+  }
+}
