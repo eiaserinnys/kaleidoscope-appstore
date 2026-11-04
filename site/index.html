@@ -44,7 +44,7 @@ a { color: var(--accent); }
 .bar h1, .bar h2 { margin: 0; font-size: var(--body-size); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .categories .bar { padding-inline: calc(var(--space-3) + var(--space-4)); }
 .detail .bar { padding-inline: var(--detail-inset); }
-.browse .bar { padding-left: 0; }
+.browse .bar { padding-inline: var(--space-3); }
 .scroll { flex: 1; min-height: 0; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
 .scroll::-webkit-scrollbar, .screenshots::-webkit-scrollbar { width: var(--scrollbar-size); height: var(--scrollbar-size); }
 .scroll::-webkit-scrollbar-thumb, .screenshots::-webkit-scrollbar-thumb { background: var(--muted); border: var(--focus-width) solid transparent; border-radius: var(--scrollbar-size); background-clip: padding-box; }
@@ -53,7 +53,7 @@ a { color: var(--accent); }
 .category:hover, .app:hover { background: var(--hover); }
 .category[aria-pressed="true"], .app[aria-pressed="true"] { background: var(--selected); }
 .category-count { margin-left: auto; color: var(--muted); font-size: var(--meta-size); padding-left: var(--space-3); }
-.search { flex: 1; min-width: 0; height: var(--action-size); padding: 0 var(--space-4); border: 0; border-radius: var(--radius); outline: 0; background: transparent; }
+.search { flex: 1; min-width: 0; height: var(--action-size); padding: 0 var(--space-3); border: 0; border-radius: var(--radius); outline: 0; background: transparent; }
 .search:focus-visible { outline: var(--focus-width) solid var(--accent); }
 .search::placeholder { color: var(--muted); opacity: 1; }
 .search::-webkit-search-cancel-button { -webkit-appearance: none; }
@@ -84,7 +84,7 @@ a { color: var(--accent); }
 .install-hint { display: block; color: var(--muted); font-size: var(--meta-size); }
 .error { padding: var(--space-6); line-height: 1.6; }
 .error p { margin: 0 0 var(--space-4); }
-.error .error-reason { margin: var(--space-3) 0 0; color: var(--muted); font-size: var(--meta-size); }
+.error .error-reason { margin: 0 0 var(--space-3); color: var(--muted); font-size: var(--meta-size); }
 .retry { padding: var(--space-2) var(--space-4); border: var(--stroke) solid var(--line); border-radius: var(--radius); background: var(--panel); }
 .retry:hover { background: var(--hover); }
 .skeleton { background: var(--skeleton); border-radius: var(--radius); }
@@ -191,11 +191,11 @@ function showError(target, message, reason, retry) {
   const box = node('div', { className: 'error' });
   box.setAttribute('role', 'alert');
   box.append(node('p', { text: message }));
+  if (reason) box.append(node('p', { className: 'error-reason', text: reason }));
   if (retry) {
     const button = node('button', { className: 'retry', text: '다시 읽기' });
     button.addEventListener('click', retry); box.append(button);
   }
-  if (reason) box.append(node('p', { className: 'error-reason', text: reason }));
   target.replaceChildren(box);
 }
 function skeletonCategories() {
