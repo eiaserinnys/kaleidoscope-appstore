@@ -58,6 +58,22 @@ test('정상 새 앱과 --head 및 --all 검사', t => {
   assert.equal(allCheck(dir).status,0);
 });
 
+test('프로그램 선언은 스키마를 통과하고 검사 요약 배지에 표시된다', t => {
+  const dir=setup(t), base=git(dir,'rev-parse','HEAD');
+  for (const [id, commands] of [['one',['ffmpeg']],['many',['ffmpeg','python3']],['legacy',[null,undefined]]]) {
+    const a=app(dir,id); a.definition.name=id; a.definition.requires.modules.process=id==='legacy'?1:2;
+    a.definition.permissions=commands.map((command,index)=>({module:'process',id:`run-${index}`,label:'실행',...(command===undefined?{}:{command})}));
+    json(join(a.folder,'app.json'),a.definition);
+  }
+  const head=commit(dir), summary=join(dir,'summary');
+  const result=spawnSync(process.execPath,[check,'--base',base,'--head',head,'--author','alice'],{cwd:dir,encoding:'utf8',env:{...process.env,GITHUB_STEP_SUMMARY:summary}});
+  assert.equal(result.status,0,result.stdout+result.stderr);
+  const text=readFileSync(summary,'utf8');
+  assert.match(text,/\| one \|.*\| process\(ffmpeg\) \|/);
+  assert.match(text,/\| many \|.*\| process\(ffmpeg, python3\) \|/);
+  assert.match(text,/\| legacy \|.*\| process \|/);
+});
+
 test('큰 블록 트리의 앱 정의를 수 초 안에 검사한다', t => {
   const dir=setup(t), base=git(dir,'rev-parse','HEAD'), a=app(dir);
   const leaf=()=>structuredClone(template.ui.children[0]);
