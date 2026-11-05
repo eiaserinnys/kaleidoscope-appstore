@@ -338,6 +338,10 @@
               "items": {
                 "type": "string"
               }
+            },
+            "access": {
+              "description": "(모듈 http 3판) `readwrite`면 client의 `http.request`가 GET 밖의 메서드도 쓴다. 동작 `call`과 `request` 원천은 이 값과 무관하게 GET만 한다.",
+              "$ref": "#/$defs/FileAccess"
             }
           },
           "additionalProperties": false,
@@ -2994,6 +2998,17 @@
               "type": "string",
               "const": "chat"
             },
+            "loading": {
+              "description": "(블록 세트 38판) true면 기록만 뼈대로 표시하고 입력을 잠근다. 생략하면 false다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Binding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "client": {
               "description": "(블록 세트 18판) 대화 기록과 입력을 클라이언트 채널 및 동작에 연결한다.",
               "anyOf": [
@@ -4085,7 +4100,7 @@
           ]
         },
         {
-          "description": "(4판) 이미지 하나. `src`는 [`data::MediaRef`]이고 그 `crop`대로 자른다. `zoom`이면 휠과 단추로 확대하고\n끌어서 옮기며, 두 번 누르면 맞춤으로 돌아간다. 이미지가 없으면 빈 상태를 보인다.",
+          "description": "(4판) 이미지 하나. `src`는 [`data::MediaRef`]이고 그 `crop`대로 자른다. `zoom`이면 Ctrl(⌘)+휠, 오므리기와 단추로 확대하고\n끌어서 옮기며, 두 번 누르면 맞춤으로 돌아간다. 이미지가 없으면 빈 상태를 보인다.",
           "type": "object",
           "properties": {
             "type": {
