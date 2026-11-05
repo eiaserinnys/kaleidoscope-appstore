@@ -147,6 +147,12 @@
       "result_locked": {
         "default": true
       },
+      "lock_5_1": {
+        "default": true
+      },
+      "lock_5_2": {
+        "default": true
+      },
       "lock_7_1": {
         "default": false
       },
@@ -976,42 +982,36 @@
                         ]
                       },
                       {
-                        "type": "when",
+                        "type": "input",
                         "value": {
-                          "expr": "$state.o_random_port_generator_portRange = \"custom\""
+                          "state": "o_random_port_generator_minPort"
                         },
-                        "child": {
-                          "type": "input",
-                          "value": {
-                            "state": "o_random_port_generator_minPort"
-                          },
-                          "on_change": {
-                            "set_state": "o_random_port_generator_minPort"
-                          },
-                          "label": "최소 포트",
-                          "kind": "number",
-                          "spin": true,
-                          "step": 1
-                        }
+                        "on_change": {
+                          "set_state": "o_random_port_generator_minPort"
+                        },
+                        "label": "최소 포트",
+                        "read_only": {
+                          "client": "lock_5_1"
+                        },
+                        "kind": "number",
+                        "spin": true,
+                        "step": 1
                       },
                       {
-                        "type": "when",
+                        "type": "input",
                         "value": {
-                          "expr": "$state.o_random_port_generator_portRange = \"custom\""
+                          "state": "o_random_port_generator_maxPort"
                         },
-                        "child": {
-                          "type": "input",
-                          "value": {
-                            "state": "o_random_port_generator_maxPort"
-                          },
-                          "on_change": {
-                            "set_state": "o_random_port_generator_maxPort"
-                          },
-                          "label": "최대 포트",
-                          "kind": "number",
-                          "spin": true,
-                          "step": 1
-                        }
+                        "on_change": {
+                          "set_state": "o_random_port_generator_maxPort"
+                        },
+                        "label": "최대 포트",
+                        "read_only": {
+                          "client": "lock_5_2"
+                        },
+                        "kind": "number",
+                        "spin": true,
+                        "step": 1
                       },
                       {
                         "type": "input",

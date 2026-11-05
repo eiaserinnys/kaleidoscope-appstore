@@ -159,13 +159,43 @@
       "result_locked": {
         "default": true
       },
+      "lock_0_1": {
+        "default": false
+      },
+      "lock_3_1": {
+        "default": false
+      },
+      "lock_4_1": {
+        "default": false
+      },
+      "lock_9_7": {
+        "default": false
+      },
+      "lock_13_7": {
+        "default": false
+      },
+      "lock_15_1": {
+        "default": false
+      },
       "lock_16_3": {
         "default": true
       },
       "lock_17_6": {
         "default": true
       },
+      "lock_18_1": {
+        "default": true
+      },
       "lock_18_7": {
+        "default": true
+      },
+      "lock_18_8": {
+        "default": true
+      },
+      "lock_18_9": {
+        "default": true
+      },
+      "lock_19_7": {
         "default": true
       },
       "lock_19_9": {
@@ -498,24 +528,21 @@
                           ]
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_json_prettify_indentationType = \"space\""
+                            "state": "o_json_prettify_spacesCount"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_json_prettify_spacesCount"
-                            },
-                            "on_change": {
-                              "set_state": "o_json_prettify_spacesCount"
-                            },
-                            "label": "공백 수",
-                            "kind": "number",
-                            "spin": true,
-                            "min": 0,
-                            "step": 1
-                          }
+                          "on_change": {
+                            "set_state": "o_json_prettify_spacesCount"
+                          },
+                          "label": "공백 수",
+                          "read_only": {
+                            "client": "lock_0_1"
+                          },
+                          "kind": "number",
+                          "spin": true,
+                          "min": 0,
+                          "step": 1
                         }
                       ]
                     }
@@ -556,23 +583,20 @@
                           ]
                         },
                         {
-                          "type": "when",
+                          "type": "select",
                           "value": {
-                            "expr": "$state.o_json_sort_mode = \"value\""
+                            "state": "o_json_sort_key"
                           },
-                          "child": {
-                            "type": "select",
-                            "value": {
-                              "state": "o_json_sort_key"
-                            },
-                            "on_change": {
-                              "set_state": "o_json_sort_key"
-                            },
-                            "label": "기준 키",
-                            "style": "dropdown",
-                            "options": {
-                              "client": "choices_9db4023a9acc98fd"
-                            }
+                          "on_change": {
+                            "set_state": "o_json_sort_key"
+                          },
+                          "label": "기준 키",
+                          "style": "dropdown",
+                          "options": {
+                            "client": "choices_9db4023a9acc98fd"
+                          },
+                          "disabled": {
+                            "client": "lock_3_1"
                           }
                         },
                         {
@@ -635,24 +659,21 @@
                           ]
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_json_stringify_indentationType = \"space\""
+                            "state": "o_json_stringify_spacesCount"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_json_stringify_spacesCount"
-                            },
-                            "on_change": {
-                              "set_state": "o_json_stringify_spacesCount"
-                            },
-                            "label": "공백 수",
-                            "kind": "number",
-                            "spin": true,
-                            "min": 0,
-                            "step": 1
-                          }
+                          "on_change": {
+                            "set_state": "o_json_stringify_spacesCount"
+                          },
+                          "label": "공백 수",
+                          "read_only": {
+                            "client": "lock_4_1"
+                          },
+                          "kind": "number",
+                          "spin": true,
+                          "min": 0,
+                          "step": 1
                         },
                         {
                           "type": "toggle",
@@ -904,24 +925,21 @@
                           "label": "자료형 감지"
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_csv_to_json_indentationType = \"space\""
+                            "state": "o_csv_to_json_spacesCount"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_csv_to_json_spacesCount"
-                            },
-                            "on_change": {
-                              "set_state": "o_csv_to_json_spacesCount"
-                            },
-                            "label": "공백 수",
-                            "kind": "number",
-                            "spin": true,
-                            "min": 0,
-                            "step": 1
-                          }
+                          "on_change": {
+                            "set_state": "o_csv_to_json_spacesCount"
+                          },
+                          "label": "공백 수",
+                          "read_only": {
+                            "client": "lock_9_7"
+                          },
+                          "kind": "number",
+                          "spin": true,
+                          "min": 0,
+                          "step": 1
                         }
                       ]
                     }
@@ -1241,24 +1259,21 @@
                           "label": "자료형 감지"
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_tsv_to_json_indentationType = \"space\""
+                            "state": "o_tsv_to_json_spacesCount"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_tsv_to_json_spacesCount"
-                            },
-                            "on_change": {
-                              "set_state": "o_tsv_to_json_spacesCount"
-                            },
-                            "label": "공백 수",
-                            "kind": "number",
-                            "spin": true,
-                            "min": 0,
-                            "step": 1
-                          }
+                          "on_change": {
+                            "set_state": "o_tsv_to_json_spacesCount"
+                          },
+                          "label": "공백 수",
+                          "read_only": {
+                            "client": "lock_13_7"
+                          },
+                          "kind": "number",
+                          "spin": true,
+                          "min": 0,
+                          "step": 1
                         }
                       ]
                     }
@@ -1375,19 +1390,16 @@
                           "label": "빈 값 채우기"
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_csv_rows_to_columns_emptyValuesFilling = false"
+                            "state": "o_csv_rows_to_columns_customFiller"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_csv_rows_to_columns_customFiller"
-                            },
-                            "on_change": {
-                              "set_state": "o_csv_rows_to_columns_customFiller"
-                            },
-                            "label": "채울 값"
+                          "on_change": {
+                            "set_state": "o_csv_rows_to_columns_customFiller"
+                          },
+                          "label": "채울 값",
+                          "read_only": {
+                            "client": "lock_15_1"
                           }
                         },
                         {
@@ -1607,30 +1619,27 @@
                           ]
                         },
                         {
-                          "type": "when",
+                          "type": "select",
                           "value": {
-                            "expr": "$state.o_insert_csv_columns_insertingPosition = \"custom\""
+                            "state": "o_insert_csv_columns_customPostionOptions"
                           },
-                          "child": {
-                            "type": "select",
-                            "value": {
-                              "state": "o_insert_csv_columns_customPostionOptions"
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_customPostionOptions"
+                          },
+                          "label": "위치 기준",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "headerName",
+                              "label": "머리글"
                             },
-                            "on_change": {
-                              "set_state": "o_insert_csv_columns_customPostionOptions"
-                            },
-                            "label": "위치 기준",
-                            "style": "segmented",
-                            "options": [
-                              {
-                                "value": "headerName",
-                                "label": "머리글"
-                              },
-                              {
-                                "value": "rowNumber",
-                                "label": "번호"
-                              }
-                            ]
+                            {
+                              "value": "rowNumber",
+                              "label": "번호"
+                            }
+                          ],
+                          "disabled": {
+                            "client": "lock_18_1"
                           }
                         },
                         {
@@ -1699,43 +1708,37 @@
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "select",
                           "value": {
-                            "expr": "$state.o_insert_csv_columns_insertingPosition = \"custom\" and $state.o_insert_csv_columns_customPostionOptions = \"headerName\""
+                            "state": "o_insert_csv_columns_headerName"
                           },
-                          "child": {
-                            "type": "select",
-                            "value": {
-                              "state": "o_insert_csv_columns_headerName"
-                            },
-                            "on_change": {
-                              "set_state": "o_insert_csv_columns_headerName"
-                            },
-                            "label": "머리글",
-                            "style": "dropdown",
-                            "options": {
-                              "client": "choices_b77f71c9941fe50a"
-                            }
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_headerName"
+                          },
+                          "label": "머리글",
+                          "style": "dropdown",
+                          "options": {
+                            "client": "choices_b77f71c9941fe50a"
+                          },
+                          "disabled": {
+                            "client": "lock_18_8"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_insert_csv_columns_insertingPosition = \"custom\" and $state.o_insert_csv_columns_customPostionOptions = \"rowNumber\""
+                            "state": "o_insert_csv_columns_rowNumber"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_insert_csv_columns_rowNumber"
-                            },
-                            "on_change": {
-                              "set_state": "o_insert_csv_columns_rowNumber"
-                            },
-                            "label": "번호",
-                            "kind": "number",
-                            "spin": true,
-                            "step": 1
-                          }
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_rowNumber"
+                          },
+                          "label": "번호",
+                          "read_only": {
+                            "client": "lock_18_9"
+                          },
+                          "kind": "number",
+                          "spin": true,
+                          "step": 1
                         }
                       ]
                     }
@@ -1857,19 +1860,16 @@
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_swap_csv_columns_emptyValuesFilling = false"
+                            "state": "o_swap_csv_columns_customFiller"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_swap_csv_columns_customFiller"
-                            },
-                            "on_change": {
-                              "set_state": "o_swap_csv_columns_customFiller"
-                            },
-                            "label": "채울 값"
+                          "on_change": {
+                            "set_state": "o_swap_csv_columns_customFiller"
+                          },
+                          "label": "채울 값",
+                          "read_only": {
+                            "client": "lock_19_7"
                           }
                         },
                         {
