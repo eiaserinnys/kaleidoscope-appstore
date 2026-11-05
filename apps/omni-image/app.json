@@ -39,7 +39,7 @@
   "assets": [
     {
       "id": "omni-image-client",
-      "version": 1
+      "version": 2
     },
     {
       "id": "omni-image-icon",
@@ -140,7 +140,7 @@
     "runtime": "javascript",
     "entry": {
       "id": "omni-image-client",
-      "version": 1
+      "version": 2
     },
     "inputs": {
       "tool": {
@@ -168,6 +168,9 @@
       },
       "has_error": {
         "default": false
+      },
+      "no_error": {
+        "default": true
       },
       "has_progress": {
         "default": false
@@ -3818,7 +3821,8 @@
               "direction": "column",
               "fill": [
                 2,
-                3
+                3,
+                4
               ],
               "children": [
                 {
@@ -3850,22 +3854,28 @@
                 {
                   "type": "when",
                   "value": {
-                    "expr": "($t := [{\"id\":\"resize\",\"name\":\"크기 바꾸기\",\"description\":\"그림의 크기를 바꿉니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"rotate\",\"name\":\"회전\",\"description\":\"그림을 회전합니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"crop\",\"name\":\"자르기\",\"description\":\"그림의 일부를 자릅니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"compress\",\"name\":\"그림 압축\",\"description\":\"여러 그림의 파일 크기를 줄입니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"compress-png\",\"name\":\"PNG 압축\",\"description\":\"색상을 줄여 PNG 크기를 줄입니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"convert-to-jpg\",\"name\":\"JPG로 바꾸기\",\"description\":\"그림을 JPG로 바꿉니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"convert-to-webp\",\"name\":\"WebP로 바꾸기\",\"description\":\"그림을 WebP로 바꿉니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"convert-jgp-to-png\",\"name\":\"JPG를 PNG로\",\"description\":\"JPG를 PNG로 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"change-colors\",\"name\":\"색 바꾸기\",\"description\":\"그림의 한 색을 다른 색으로 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"create-transparent\",\"name\":\"색 채우기\",\"description\":\"비슷한 색을 지정한 배경색으로 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"change-opacity\",\"name\":\"불투명도 바꾸기\",\"description\":\"그림의 불투명도를 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"watermark\",\"name\":\"워터마크\",\"description\":\"그림에 글을 넣습니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"split\",\"name\":\"그림 나누기\",\"description\":\"그림을 여러 페이지 PDF로 나눕니다\",\"input\":\"image\",\"result\":\"file\"},{\"id\":\"image-to-text\",\"name\":\"글자 읽기\",\"description\":\"그림 속 글자를 읽습니다\",\"input\":\"image\",\"result\":\"text\"},{\"id\":\"qr-code\",\"name\":\"QR 코드\",\"description\":\"글과 주소 등을 QR 코드로 만듭니다\",\"input\":\"text\",\"result\":\"image\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).result = 'text'"
+                    "client": "no_error"
                   },
                   "child": {
-                    "type": "input",
+                    "type": "when",
                     "value": {
-                      "client": "output"
+                      "expr": "($t := [{\"id\":\"resize\",\"name\":\"크기 바꾸기\",\"description\":\"그림의 크기를 바꿉니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"rotate\",\"name\":\"회전\",\"description\":\"그림을 회전합니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"crop\",\"name\":\"자르기\",\"description\":\"그림의 일부를 자릅니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"compress\",\"name\":\"그림 압축\",\"description\":\"여러 그림의 파일 크기를 줄입니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"compress-png\",\"name\":\"PNG 압축\",\"description\":\"색상을 줄여 PNG 크기를 줄입니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"convert-to-jpg\",\"name\":\"JPG로 바꾸기\",\"description\":\"그림을 JPG로 바꿉니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"convert-to-webp\",\"name\":\"WebP로 바꾸기\",\"description\":\"그림을 WebP로 바꿉니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"convert-jgp-to-png\",\"name\":\"JPG를 PNG로\",\"description\":\"JPG를 PNG로 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"change-colors\",\"name\":\"색 바꾸기\",\"description\":\"그림의 한 색을 다른 색으로 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"create-transparent\",\"name\":\"색 채우기\",\"description\":\"비슷한 색을 지정한 배경색으로 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"change-opacity\",\"name\":\"불투명도 바꾸기\",\"description\":\"그림의 불투명도를 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"watermark\",\"name\":\"워터마크\",\"description\":\"그림에 글을 넣습니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"split\",\"name\":\"그림 나누기\",\"description\":\"그림을 여러 페이지 PDF로 나눕니다\",\"input\":\"image\",\"result\":\"file\"},{\"id\":\"image-to-text\",\"name\":\"글자 읽기\",\"description\":\"그림 속 글자를 읽습니다\",\"input\":\"image\",\"result\":\"text\"},{\"id\":\"qr-code\",\"name\":\"QR 코드\",\"description\":\"글과 주소 등을 QR 코드로 만듭니다\",\"input\":\"text\",\"result\":\"image\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).result = 'text'"
                     },
-                    "on_change": {
-                      "client": "ignore_edit"
-                    },
-                    "label": "결과",
-                    "label_position": "hidden",
-                    "multiline": true,
-                    "rows": 6,
-                    "read_only": {
-                      "client": "result_locked"
+                    "child": {
+                      "type": "input",
+                      "value": {
+                        "client": "output"
+                      },
+                      "on_change": {
+                        "client": "ignore_edit"
+                      },
+                      "label": "결과",
+                      "label_position": "hidden",
+                      "multiline": true,
+                      "rows": 6,
+                      "read_only": {
+                        "client": "result_locked"
+                      }
                     }
                   }
                 },

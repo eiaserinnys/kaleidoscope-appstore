@@ -20,6 +20,10 @@
       "version": 1
     },
     {
+      "id": "omni-pdf-engine",
+      "version": 1
+    },
+    {
       "id": "omni-pdf-icon",
       "version": 1
     },
@@ -78,6 +82,9 @@
       "has_rows": {
         "default": false
       },
+      "has_many": {
+        "default": false
+      },
       "no_result": {
         "default": true
       },
@@ -89,6 +96,9 @@
       },
       "selected": {
         "default": "0"
+      },
+      "input_selected": {
+        "default": ""
       },
       "input_rows": {
         "default": []
@@ -431,7 +441,7 @@
                             "client": "input_rows"
                           },
                           "selected": {
-                            "client": "selected"
+                            "client": "input_selected"
                           },
                           "on_select": {
                             "client": "select_preview"
@@ -473,14 +483,28 @@
                             "client": "input_rows"
                           },
                           "selected": {
-                            "client": "selected"
+                            "client": "input_selected"
                           },
                           "on_select": {
                             "client": "select_preview"
                           },
                           "on_remove": {
                             "client": "remove"
-                          }
+                          },
+                          "item_menu": [
+                            {
+                              "label": "위로",
+                              "on_select": {
+                                "client": "move_up"
+                              }
+                            },
+                            {
+                              "label": "아래로",
+                              "on_select": {
+                                "client": "move_down"
+                              }
+                            }
+                          ]
                         }
                       }
                     },
@@ -1269,7 +1293,8 @@
               "type": "stack",
               "direction": "column",
               "fill": [
-                1
+                1,
+                2
               ],
               "children": [
                 {
@@ -1302,7 +1327,7 @@
                 {
                   "type": "when",
                   "value": {
-                    "client": "has_rows"
+                    "client": "has_many"
                   },
                   "child": {
                     "type": "when",
