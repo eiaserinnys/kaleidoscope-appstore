@@ -1,0 +1,27 @@
+{
+  "summary": "동영상과 소리 파일을 고르고 변환합니다",
+  "description": "동영상, 소리, GIF를 변환합니다. 이 PC에 설치한 ffmpeg을 이용해 선택한 폴더에서 작업합니다.\n\n원작: omni-tools (https://github.com/iib0011/omni-tools), MIT License, Copyright (c) 2024 Ibrahima Gaye Coulibaly. kaleidoscope로 옮김: eiaserinnys",
+  "category": "도구",
+  "publisher": "eiaserinnys",
+  "release": 1,
+  "listed": true,
+  "icon": "assets/icon.svg",
+  "assets": [
+    {
+      "id": "omni-media-client",
+      "version": 1,
+      "file": "assets/omni-media-client.javascript",
+      "format": "javascript",
+      "source": "omni-tools 처리 코드",
+      "license": "MIT"
+    },
+    {
+      "id": "omni-media-icon",
+      "version": 1,
+      "file": "assets/icon.svg",
+      "format": "svg",
+      "source": "서소영 작성(유리 타일 app_icon.py)",
+      "license": "MIT"
+    }
+  ]
+}
