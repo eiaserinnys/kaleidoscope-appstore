@@ -3,16 +3,16 @@
   "description": "USGS 실시간 지진 목록에서 지진을 고르면 진앙의 날씨와 대기질, 주변 지형 설명을 이어서 불러옵니다.\n\n자료: USGS, Open-Meteo, Wikipedia 공개 API",
   "category": "자료",
   "publisher": "eiaserinnys",
-  "release": 1,
+  "release": 2,
   "listed": true,
   "icon": "assets/icon.svg",
   "assets": [
     {
       "id": "earth-icon",
-      "version": 1,
+      "version": 2,
       "file": "assets/icon.svg",
       "format": "svg",
-      "source": "kaleidoscope 기본 앱 아이콘, 서소영 작성",
+      "source": "gpt-image-2.6-flare SVG 생성 후 타일 정리, 서소영 작성",
       "license": "MIT"
     }
   ]

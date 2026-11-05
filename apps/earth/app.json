@@ -4,7 +4,7 @@
   "description": "실시간 지진 진앙지와 현지 기상·대기질, 주변 지형 맥락을 연쇄 조회합니다",
   "icon": {
     "asset": "earth-icon",
-    "version": 1
+    "version": 2
   },
   "requires": {
     "blocks": 26,
@@ -56,7 +56,7 @@
   "assets": [
     {
       "id": "earth-icon",
-      "version": 1
+      "version": 2
     }
   ],
   "state": {
