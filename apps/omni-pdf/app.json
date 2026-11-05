@@ -21,7 +21,7 @@
     },
     {
       "id": "omni-pdf-engine",
-      "version": 1
+      "version": 2
     },
     {
       "id": "omni-pdf-icon",
@@ -111,6 +111,12 @@
       },
       "image_info": {
         "default": ""
+      },
+      "move_up_disabled": {
+        "default": true
+      },
+      "move_down_disabled": {
+        "default": true
       },
       "format_pdf": {
         "default": false
@@ -412,6 +418,42 @@
                       "multiple": false,
                       "client": "load"
                     }
+                  }
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "expr": "($state.tool = \"PDF 합치기\") or ($state.tool = \"그림을 PDF로\")"
+                },
+                "child": {
+                  "type": "button",
+                  "icon": "arrow-up",
+                  "icon_only": true,
+                  "label": "위로",
+                  "on_click": {
+                    "client": "move_up"
+                  },
+                  "disabled": {
+                    "client": "move_up_disabled"
+                  }
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "expr": "($state.tool = \"PDF 합치기\") or ($state.tool = \"그림을 PDF로\")"
+                },
+                "child": {
+                  "type": "button",
+                  "icon": "arrow-down",
+                  "icon_only": true,
+                  "label": "아래로",
+                  "on_click": {
+                    "client": "move_down"
+                  },
+                  "disabled": {
+                    "client": "move_down_disabled"
                   }
                 }
               }

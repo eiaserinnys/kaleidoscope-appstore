@@ -120,6 +120,12 @@
       "folder_label": {
         "default": "폴더 고르기"
       },
+      "folder_info": {
+        "default": ""
+      },
+      "files_loading": {
+        "default": true
+      },
       "no_files": {
         "default": false
       },
@@ -133,6 +139,9 @@
         "default": false
       },
       "multiple": {
+        "default": false
+      },
+      "reorderable": {
         "default": false
       },
       "chosen": {
@@ -158,6 +167,12 @@
       },
       "has_many": {
         "default": false
+      },
+      "move_up_disabled": {
+        "default": true
+      },
+      "move_down_disabled": {
+        "default": true
       },
       "preview_src": {
         "default": null
@@ -292,104 +307,105 @@
               {
                 "value": "동영상 자르기",
                 "label": "동영상 자르기",
-                "description": "동영상 자르기"
+                "description": "시작과 끝 시간을 정해 동영상의 구간을 잘라냅니다."
               },
               {
                 "value": "동영상 회전",
                 "label": "동영상 회전",
-                "description": "동영상 회전"
+                "description": "동영상을 90도, 180도 또는 270도 회전합니다."
               },
               {
                 "value": "동영상 압축",
                 "label": "동영상 압축",
-                "description": "동영상 압축"
+                "description": "해상도와 압축률을 조절해 동영상 파일 크기를 줄입니다."
               },
               {
                 "value": "동영상 반복",
                 "label": "동영상 반복",
-                "description": "동영상 반복"
+                "description": "동영상을 지정한 횟수만큼 반복합니다."
               },
               {
                 "value": "동영상 뒤집기",
                 "label": "동영상 뒤집기",
-                "description": "동영상 뒤집기"
+                "description": "동영상을 좌우 또는 상하로 뒤집습니다."
               },
               {
                 "value": "화면 잘라내기",
                 "label": "화면 잘라내기",
-                "description": "화면 잘라내기"
+                "description": "동영상 화면에서 지정한 영역만 잘라냅니다."
               },
               {
                 "value": "동영상 속도",
                 "label": "동영상 속도",
-                "description": "동영상 속도"
+                "description": "동영상의 재생 속도를 조절합니다."
               },
               {
                 "value": "동영상 합치기",
                 "label": "동영상 합치기",
-                "description": "동영상 합치기"
+                "description": "동영상을 목록 순서대로 이어 붙입니다."
               },
               {
                 "value": "소리 넣기",
                 "label": "소리 넣기",
-                "description": "소리 넣기"
+                "description": "동영상의 소리를 바꾸거나 새 소리를 섞습니다."
               },
               {
                 "value": "동영상 크기",
                 "label": "동영상 크기",
-                "description": "동영상 크기"
+                "description": "동영상의 화면 너비와 높이를 바꿉니다."
               },
               {
                 "value": "GIF 속도",
                 "label": "GIF 속도",
-                "description": "GIF 속도"
+                "description": "GIF의 재생 속도를 조절합니다."
               },
               {
                 "value": "그림을 GIF로",
                 "label": "그림을 GIF로",
-                "description": "그림을 GIF로"
+                "description": "그림을 목록 순서대로 이어 붙입니다."
               },
               {
                 "value": "동영상을 GIF로",
                 "label": "동영상을 GIF로",
-                "description": "동영상을 GIF로"
+                "description": "동영상의 원하는 구간을 GIF로 만듭니다."
               },
               {
                 "value": "소리 뽑기",
                 "label": "소리 뽑기",
-                "description": "소리 뽑기"
+                "description": "동영상에서 소리를 뽑아 저장합니다."
               },
               {
                 "value": "소리 속도",
                 "label": "소리 속도",
-                "description": "소리 속도"
+                "description": "소리의 재생 속도를 조절합니다."
               },
               {
                 "value": "소리 자르기",
                 "label": "소리 자르기",
-                "description": "소리 자르기"
+                "description": "시작과 끝 시간을 정해 소리의 구간을 잘라냅니다."
               },
               {
                 "value": "소리 합치기",
                 "label": "소리 합치기",
-                "description": "소리 합치기"
+                "description": "소리를 목록 순서대로 이어 붙입니다."
               },
               {
                 "value": "소리 반복",
                 "label": "소리 반복",
-                "description": "소리 반복"
+                "description": "소리를 지정한 횟수만큼 반복합니다."
               },
               {
                 "value": "소리 형식 바꾸기",
                 "label": "소리 형식 바꾸기",
-                "description": "소리 형식 바꾸기"
+                "description": "소리를 선택한 파일 형식으로 바꿉니다."
               }
             ]
           },
           {
             "type": "button",
             "icon": "folder",
-            "label": {
+            "label": "폴더",
+            "description": {
               "client": "folder_label"
             },
             "disabled": {
@@ -428,6 +444,47 @@
           {
             "type": "section",
             "title": "입력",
+            "meta": {
+              "client": "folder_info"
+            },
+            "actions": [
+              {
+                "type": "when",
+                "value": {
+                  "client": "reorderable"
+                },
+                "child": {
+                  "type": "button",
+                  "icon": "arrow-up",
+                  "icon_only": true,
+                  "label": "위로",
+                  "disabled": {
+                    "client": "move_up_disabled"
+                  },
+                  "on_click": {
+                    "client": "move_up"
+                  }
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "client": "reorderable"
+                },
+                "child": {
+                  "type": "button",
+                  "icon": "arrow-down",
+                  "icon_only": true,
+                  "label": "아래로",
+                  "disabled": {
+                    "client": "move_down_disabled"
+                  },
+                  "on_click": {
+                    "client": "move_down"
+                  }
+                }
+              }
+            ],
             "child": {
               "type": "stack",
               "direction": "column",
@@ -489,6 +546,9 @@
                           "options": {
                             "client": "choices"
                           },
+                          "disabled": {
+                            "client": "files_loading"
+                          },
                           "on_change": {
                             "client": "choose"
                           }
@@ -514,6 +574,9 @@
                               "options": {
                                 "client": "choices"
                               },
+                              "disabled": {
+                                "client": "files_loading"
+                              },
                               "on_change": {
                                 "client": "choose"
                               }
@@ -528,6 +591,9 @@
                               },
                               "options": {
                                 "client": "audio_choices"
+                              },
+                              "disabled": {
+                                "client": "files_loading"
                               },
                               "on_change": {
                                 "client": "choose_audio"
@@ -591,6 +657,9 @@
                               },
                               "options": {
                                 "client": "choices"
+                              },
+                              "disabled": {
+                                "client": "files_loading"
                               },
                               "on_change": {
                                 "client": "add"
@@ -1681,7 +1750,7 @@
                   "child": {
                     "type": "notice",
                     "kind": "info",
-                    "message": "이 PC에서 ffmpeg를 찾지 못했습니다. 설치하면 쉘을 다시 켜지 않고 바로 쓸 수 있습니다.",
+                    "message": "이 PC에서 ffmpeg을 찾지 못했습니다.",
                     "actions": [
                       {
                         "label": "ffmpeg 설치",
