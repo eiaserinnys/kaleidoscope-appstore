@@ -220,16 +220,82 @@
       "format_txt": {
         "default": false
       },
+      "lock_0_1": {
+        "default": false
+      },
+      "lock_0_2": {
+        "default": false
+      },
       "lock_0_3": {
         "default": false
       },
       "lock_0_4": {
         "default": true
       },
+      "lock_0_5": {
+        "default": true
+      },
       "lock_7_1": {
         "default": true
       },
       "lock_7_2": {
+        "default": true
+      },
+      "lock_10_2": {
+        "default": true
+      },
+      "lock_10_3": {
+        "default": true
+      },
+      "lock_10_4": {
+        "default": true
+      },
+      "lock_10_5": {
+        "default": true
+      },
+      "lock_10_6": {
+        "default": true
+      },
+      "lock_10_7": {
+        "default": true
+      },
+      "lock_10_9": {
+        "default": true
+      },
+      "lock_11_1": {
+        "default": true
+      },
+      "lock_14_5": {
+        "default": true
+      },
+      "lock_14_6": {
+        "default": true
+      },
+      "lock_14_7": {
+        "default": true
+      },
+      "lock_14_8": {
+        "default": true
+      },
+      "lock_14_9": {
+        "default": true
+      },
+      "lock_14_10": {
+        "default": true
+      },
+      "lock_14_11": {
+        "default": true
+      },
+      "lock_14_12": {
+        "default": true
+      },
+      "lock_14_13": {
+        "default": true
+      },
+      "lock_14_14": {
+        "default": true
+      },
+      "lock_14_15": {
         "default": true
       }
     },
@@ -1128,114 +1194,93 @@
                           ]
                         },
                         {
-                          "type": "when",
+                          "type": "toggle",
                           "value": {
-                            "expr": "$state.o_resize_resizeMethod = \"pixels\""
+                            "state": "o_resize_maintainAspectRatio"
                           },
-                          "child": {
-                            "type": "toggle",
-                            "value": {
-                              "state": "o_resize_maintainAspectRatio"
-                            },
-                            "on_change": {
-                              "set_state": "o_resize_maintainAspectRatio"
-                            },
-                            "label": "비율 유지"
+                          "on_change": {
+                            "set_state": "o_resize_maintainAspectRatio"
+                          },
+                          "label": "비율 유지",
+                          "disabled": {
+                            "client": "lock_0_1"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "select",
                           "value": {
-                            "expr": "$state.o_resize_resizeMethod = \"pixels\" and $state.o_resize_maintainAspectRatio = true"
+                            "state": "o_resize_dimensionType"
                           },
-                          "child": {
-                            "type": "select",
-                            "value": {
-                              "state": "o_resize_dimensionType"
+                          "on_change": {
+                            "set_state": "o_resize_dimensionType"
+                          },
+                          "label": "기준",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "width",
+                              "label": "너비"
                             },
-                            "on_change": {
-                              "set_state": "o_resize_dimensionType"
-                            },
-                            "label": "기준",
-                            "style": "segmented",
-                            "options": [
-                              {
-                                "value": "width",
-                                "label": "너비"
-                              },
-                              {
-                                "value": "height",
-                                "label": "높이"
-                              }
-                            ]
+                            {
+                              "value": "height",
+                              "label": "높이"
+                            }
+                          ],
+                          "disabled": {
+                            "client": "lock_0_2"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_resize_resizeMethod = \"pixels\""
+                            "state": "o_resize_width"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_resize_width"
-                            },
-                            "on_change": {
-                              "set_state": "o_resize_width"
-                            },
-                            "label": "너비",
-                            "kind": "number",
-                            "spin": true,
-                            "read_only": {
-                              "client": "lock_0_3"
-                            },
-                            "min": 1,
-                            "step": 1
-                          }
+                          "on_change": {
+                            "set_state": "o_resize_width"
+                          },
+                          "label": "너비",
+                          "kind": "number",
+                          "spin": true,
+                          "read_only": {
+                            "client": "lock_0_3"
+                          },
+                          "min": 1,
+                          "step": 1
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_resize_resizeMethod = \"pixels\""
+                            "state": "o_resize_height"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_resize_height"
-                            },
-                            "on_change": {
-                              "set_state": "o_resize_height"
-                            },
-                            "label": "높이",
-                            "kind": "number",
-                            "spin": true,
-                            "read_only": {
-                              "client": "lock_0_4"
-                            },
-                            "min": 1,
-                            "step": 1
-                          }
+                          "on_change": {
+                            "set_state": "o_resize_height"
+                          },
+                          "label": "높이",
+                          "kind": "number",
+                          "spin": true,
+                          "read_only": {
+                            "client": "lock_0_4"
+                          },
+                          "min": 1,
+                          "step": 1
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_resize_resizeMethod = \"percentage\""
+                            "state": "o_resize_percentage"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_resize_percentage"
-                            },
-                            "on_change": {
-                              "set_state": "o_resize_percentage"
-                            },
-                            "label": "백분율",
-                            "kind": "number",
-                            "spin": true,
-                            "min": 1,
-                            "max": 1000,
-                            "step": 1
-                          }
+                          "on_change": {
+                            "set_state": "o_resize_percentage"
+                          },
+                          "label": "백분율",
+                          "kind": "number",
+                          "spin": true,
+                          "read_only": {
+                            "client": "lock_0_5"
+                          },
+                          "min": 1,
+                          "max": 1000,
+                          "step": 1
                         }
                       ]
                     }
@@ -1823,142 +1868,124 @@
                           "step": 0.05
                         },
                         {
-                          "type": "when",
+                          "type": "select",
                           "value": {
-                            "expr": "$state.o_change_opacity_mode = \"gradient\""
+                            "state": "o_change_opacity_gradientType"
                           },
-                          "child": {
-                            "type": "select",
-                            "value": {
-                              "state": "o_change_opacity_gradientType"
+                          "on_change": {
+                            "set_state": "o_change_opacity_gradientType"
+                          },
+                          "label": "그라데이션",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "linear",
+                              "label": "선형"
                             },
-                            "on_change": {
-                              "set_state": "o_change_opacity_gradientType"
-                            },
-                            "label": "그라데이션",
-                            "style": "segmented",
-                            "options": [
-                              {
-                                "value": "linear",
-                                "label": "선형"
-                              },
-                              {
-                                "value": "radial",
-                                "label": "원형"
-                              }
-                            ]
+                            {
+                              "value": "radial",
+                              "label": "원형"
+                            }
+                          ],
+                          "disabled": {
+                            "client": "lock_10_2"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "select",
                           "value": {
-                            "expr": "$state.o_change_opacity_gradientType = \"radial\""
+                            "state": "o_change_opacity_gradientDirection"
                           },
-                          "child": {
-                            "type": "select",
-                            "value": {
-                              "state": "o_change_opacity_gradientDirection"
+                          "on_change": {
+                            "set_state": "o_change_opacity_gradientDirection"
+                          },
+                          "label": "방향",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "left-to-right",
+                              "label": "왼쪽에서 오른쪽"
                             },
-                            "on_change": {
-                              "set_state": "o_change_opacity_gradientDirection"
+                            {
+                              "value": "inside-out",
+                              "label": "안에서 밖으로"
                             },
-                            "label": "방향",
-                            "style": "segmented",
-                            "options": [
-                              {
-                                "value": "left-to-right",
-                                "label": "왼쪽에서 오른쪽"
-                              },
-                              {
-                                "value": "inside-out",
-                                "label": "안에서 밖으로"
-                              },
-                              {
-                                "value": "outside-in",
-                                "label": "밖에서 안으로"
-                              }
-                            ]
+                            {
+                              "value": "outside-in",
+                              "label": "밖에서 안으로"
+                            }
+                          ],
+                          "disabled": {
+                            "client": "lock_10_3"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_change_opacity_mode = \"gradient\""
+                            "state": "o_change_opacity_areaLeft"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_change_opacity_areaLeft"
-                            },
-                            "on_change": {
-                              "set_state": "o_change_opacity_areaLeft"
-                            },
-                            "label": "영역 X",
-                            "kind": "number",
-                            "spin": true,
-                            "min": 0,
-                            "step": 1
-                          }
+                          "on_change": {
+                            "set_state": "o_change_opacity_areaLeft"
+                          },
+                          "label": "영역 X",
+                          "kind": "number",
+                          "spin": true,
+                          "read_only": {
+                            "client": "lock_10_4"
+                          },
+                          "min": 0,
+                          "step": 1
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_change_opacity_mode = \"gradient\""
+                            "state": "o_change_opacity_areaTop"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_change_opacity_areaTop"
-                            },
-                            "on_change": {
-                              "set_state": "o_change_opacity_areaTop"
-                            },
-                            "label": "영역 Y",
-                            "kind": "number",
-                            "spin": true,
-                            "min": 0,
-                            "step": 1
-                          }
+                          "on_change": {
+                            "set_state": "o_change_opacity_areaTop"
+                          },
+                          "label": "영역 Y",
+                          "kind": "number",
+                          "spin": true,
+                          "read_only": {
+                            "client": "lock_10_5"
+                          },
+                          "min": 0,
+                          "step": 1
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_change_opacity_mode = \"gradient\""
+                            "state": "o_change_opacity_areaWidth"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_change_opacity_areaWidth"
-                            },
-                            "on_change": {
-                              "set_state": "o_change_opacity_areaWidth"
-                            },
-                            "label": "영역 너비",
-                            "kind": "number",
-                            "spin": true,
-                            "min": 1,
-                            "step": 1
-                          }
+                          "on_change": {
+                            "set_state": "o_change_opacity_areaWidth"
+                          },
+                          "label": "영역 너비",
+                          "kind": "number",
+                          "spin": true,
+                          "read_only": {
+                            "client": "lock_10_6"
+                          },
+                          "min": 1,
+                          "step": 1
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_change_opacity_mode = \"gradient\""
+                            "state": "o_change_opacity_areaHeight"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_change_opacity_areaHeight"
-                            },
-                            "on_change": {
-                              "set_state": "o_change_opacity_areaHeight"
-                            },
-                            "label": "영역 높이",
-                            "kind": "number",
-                            "spin": true,
-                            "min": 1,
-                            "step": 1
-                          }
+                          "on_change": {
+                            "set_state": "o_change_opacity_areaHeight"
+                          },
+                          "label": "영역 높이",
+                          "kind": "number",
+                          "spin": true,
+                          "read_only": {
+                            "client": "lock_10_7"
+                          },
+                          "min": 1,
+                          "step": 1
                         },
                         {
                           "type": "select",
@@ -1982,19 +2009,16 @@
                           ]
                         },
                         {
-                          "type": "when",
+                          "type": "color",
                           "value": {
-                            "expr": "$state.o_change_opacity_backgroundMode = \"color\""
+                            "state": "o_change_opacity_backgroundColor"
                           },
-                          "child": {
-                            "type": "color",
-                            "value": {
-                              "state": "o_change_opacity_backgroundColor"
-                            },
-                            "on_change": {
-                              "set_state": "o_change_opacity_backgroundColor"
-                            },
-                            "label": "배경색"
+                          "on_change": {
+                            "set_state": "o_change_opacity_backgroundColor"
+                          },
+                          "label": "배경색",
+                          "disabled": {
+                            "client": "lock_10_9"
                           }
                         }
                       ]
@@ -2025,19 +2049,16 @@
                           "label": "파일 이름 사용"
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_watermark_filename = false"
+                            "state": "o_watermark_watermark"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_watermark_watermark"
-                            },
-                            "on_change": {
-                              "set_state": "o_watermark_watermark"
-                            },
-                            "label": "워터마크"
+                          "on_change": {
+                            "set_state": "o_watermark_watermark"
+                          },
+                          "label": "워터마크",
+                          "read_only": {
+                            "client": "lock_11_1"
                           }
                         },
                         {
@@ -2626,194 +2647,161 @@
                           ]
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_qr_code_qrCodeType = \"Email\""
+                            "state": "o_qr_code_emailSubject"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_qr_code_emailSubject"
-                            },
-                            "on_change": {
-                              "set_state": "o_qr_code_emailSubject"
-                            },
-                            "label": "메일 제목"
+                          "on_change": {
+                            "set_state": "o_qr_code_emailSubject"
+                          },
+                          "label": "메일 제목",
+                          "read_only": {
+                            "client": "lock_14_5"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_qr_code_qrCodeType = \"Email\""
+                            "state": "o_qr_code_emailBody"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_qr_code_emailBody"
-                            },
-                            "on_change": {
-                              "set_state": "o_qr_code_emailBody"
-                            },
-                            "label": "메일 본문"
+                          "on_change": {
+                            "set_state": "o_qr_code_emailBody"
+                          },
+                          "label": "메일 본문",
+                          "read_only": {
+                            "client": "lock_14_6"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_qr_code_qrCodeType = \"SMS\""
+                            "state": "o_qr_code_smsMessage"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_qr_code_smsMessage"
-                            },
-                            "on_change": {
-                              "set_state": "o_qr_code_smsMessage"
-                            },
-                            "label": "문자 내용"
+                          "on_change": {
+                            "set_state": "o_qr_code_smsMessage"
+                          },
+                          "label": "문자 내용",
+                          "read_only": {
+                            "client": "lock_14_7"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_qr_code_qrCodeType = \"WiFi\""
+                            "state": "o_qr_code_wifiPassword"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_qr_code_wifiPassword"
-                            },
-                            "on_change": {
-                              "set_state": "o_qr_code_wifiPassword"
-                            },
-                            "label": "와이파이 비밀번호"
+                          "on_change": {
+                            "set_state": "o_qr_code_wifiPassword"
+                          },
+                          "label": "와이파이 비밀번호",
+                          "read_only": {
+                            "client": "lock_14_8"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "select",
                           "value": {
-                            "expr": "$state.o_qr_code_qrCodeType = \"WiFi\""
+                            "state": "o_qr_code_wifiEncryption"
                           },
-                          "child": {
-                            "type": "select",
-                            "value": {
-                              "state": "o_qr_code_wifiEncryption"
+                          "on_change": {
+                            "set_state": "o_qr_code_wifiEncryption"
+                          },
+                          "label": "와이파이 암호화",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "WPA",
+                              "label": "WPA"
                             },
-                            "on_change": {
-                              "set_state": "o_qr_code_wifiEncryption"
+                            {
+                              "value": "WEP",
+                              "label": "WEP"
                             },
-                            "label": "와이파이 암호화",
-                            "style": "segmented",
-                            "options": [
-                              {
-                                "value": "WPA",
-                                "label": "WPA"
-                              },
-                              {
-                                "value": "WEP",
-                                "label": "WEP"
-                              },
-                              {
-                                "value": "None",
-                                "label": "None"
-                              }
-                            ]
+                            {
+                              "value": "None",
+                              "label": "None"
+                            }
+                          ],
+                          "disabled": {
+                            "client": "lock_14_9"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_qr_code_qrCodeType = \"vCard\""
+                            "state": "o_qr_code_vCardEmail"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_qr_code_vCardEmail"
-                            },
-                            "on_change": {
-                              "set_state": "o_qr_code_vCardEmail"
-                            },
-                            "label": "이메일"
+                          "on_change": {
+                            "set_state": "o_qr_code_vCardEmail"
+                          },
+                          "label": "이메일",
+                          "read_only": {
+                            "client": "lock_14_10"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_qr_code_qrCodeType = \"vCard\""
+                            "state": "o_qr_code_vCardPhone"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_qr_code_vCardPhone"
-                            },
-                            "on_change": {
-                              "set_state": "o_qr_code_vCardPhone"
-                            },
-                            "label": "전화"
+                          "on_change": {
+                            "set_state": "o_qr_code_vCardPhone"
+                          },
+                          "label": "전화",
+                          "read_only": {
+                            "client": "lock_14_11"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_qr_code_qrCodeType = \"vCard\""
+                            "state": "o_qr_code_vCardAddress"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_qr_code_vCardAddress"
-                            },
-                            "on_change": {
-                              "set_state": "o_qr_code_vCardAddress"
-                            },
-                            "label": "주소"
+                          "on_change": {
+                            "set_state": "o_qr_code_vCardAddress"
+                          },
+                          "label": "주소",
+                          "read_only": {
+                            "client": "lock_14_12"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_qr_code_qrCodeType = \"vCard\""
+                            "state": "o_qr_code_vCardCompany"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_qr_code_vCardCompany"
-                            },
-                            "on_change": {
-                              "set_state": "o_qr_code_vCardCompany"
-                            },
-                            "label": "회사"
+                          "on_change": {
+                            "set_state": "o_qr_code_vCardCompany"
+                          },
+                          "label": "회사",
+                          "read_only": {
+                            "client": "lock_14_13"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_qr_code_qrCodeType = \"vCard\""
+                            "state": "o_qr_code_vCardTitle"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_qr_code_vCardTitle"
-                            },
-                            "on_change": {
-                              "set_state": "o_qr_code_vCardTitle"
-                            },
-                            "label": "직함"
+                          "on_change": {
+                            "set_state": "o_qr_code_vCardTitle"
+                          },
+                          "label": "직함",
+                          "read_only": {
+                            "client": "lock_14_14"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_qr_code_qrCodeType = \"vCard\""
+                            "state": "o_qr_code_vCardWebsite"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_qr_code_vCardWebsite"
-                            },
-                            "on_change": {
-                              "set_state": "o_qr_code_vCardWebsite"
-                            },
-                            "label": "웹사이트"
+                          "on_change": {
+                            "set_state": "o_qr_code_vCardWebsite"
+                          },
+                          "label": "웹사이트",
+                          "read_only": {
+                            "client": "lock_14_15"
                           }
                         }
                       ]
