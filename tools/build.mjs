@@ -4,7 +4,13 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const root=process.cwd();
-const args=process.argv.slice(2);const out=resolve(args[args.indexOf('--out')+1]||'dist');
+const args=process.argv.slice(2);const outAt=args.indexOf('--out');const out=resolve(outAt===-1?'dist':args[outAt+1]||'dist');
+const publishAt=args.indexOf('--publish-pr-url');let publish;
+if(publishAt!==-1){
+ const url=args[publishAt+1];
+ try{if(new URL(url).protocol!=='https:')throw Error();}catch{throw Error('--publish-pr-url에는 HTTPS 주소가 필요합니다');}
+ publish={method:'pull_request',url};
+}
 const target=join(out,'appstore');rmSync(target,{recursive:true,force:true});mkdirSync(target,{recursive:true});
 const write=(path,data)=>{mkdirSync(dirname(path),{recursive:true});writeFileSync(path,data);};
 const writeJson=(path,data)=>write(path,JSON.stringify(data,null,2)+'\n');
@@ -27,6 +33,6 @@ for(const id of (existsSync(appDir)?readdirSync(appDir,{withFileTypes:true}).fil
  writeJson(join(target,'apps',id,'index.json'),detail);
  if(store.listed)items.push({id,name:app.name,summary:store.summary,category:store.category,publisher:store.publisher,release:store.release,icon,badges,requires:app.requires,updated_at:now});
 }
-writeJson(join(target,'index.json'),{format:1,generated_at:now,items});
+writeJson(join(target,'index.json'),{format:1,generated_at:now,items,...(publish?{publish}:{})});
 if(existsSync(join(root,'site/index.html')))copyFileSync(join(root,'site/index.html'),join(target,'index.html'));
 console.log(`빌드 완료: ${items.length}개 공개 앱, ${target}`);
