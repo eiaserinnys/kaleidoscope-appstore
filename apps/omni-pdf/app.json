@@ -75,14 +75,20 @@
       "has_result": {
         "default": false
       },
+      "has_rows": {
+        "default": false
+      },
       "no_result": {
         "default": true
       },
       "loading": {
         "default": false
       },
-      "pdf_surface": {
+      "show_result": {
         "default": false
+      },
+      "selected": {
+        "default": "0"
       },
       "input_rows": {
         "default": []
@@ -123,7 +129,8 @@
       "save",
       "remove",
       "move_up",
-      "move_down"
+      "move_down",
+      "select_preview"
     ]
   },
   "ui": {
@@ -423,6 +430,12 @@
                           "items": {
                             "client": "input_rows"
                           },
+                          "selected": {
+                            "client": "selected"
+                          },
+                          "on_select": {
+                            "client": "select_preview"
+                          },
                           "on_remove": {
                             "client": "remove"
                           },
@@ -459,6 +472,12 @@
                           "items": {
                             "client": "input_rows"
                           },
+                          "selected": {
+                            "client": "selected"
+                          },
+                          "on_select": {
+                            "client": "select_preview"
+                          },
                           "on_remove": {
                             "client": "remove"
                           }
@@ -482,11 +501,239 @@
                         "client": "no_input"
                       },
                       "child": {
-                        "type": "notice",
-                        "kind": "info",
-                        "message": {
-                          "expr": "($t := [{\"id\":\"merge-pdf\",\"name\":\"PDF 합치기\",\"input\":\"pdfs\",\"result\":\"file\"},{\"id\":\"split-pdf\",\"name\":\"PDF 나누기\",\"input\":\"pdf\",\"result\":\"file\"},{\"id\":\"rotate-pdf\",\"name\":\"PDF 회전\",\"input\":\"pdf\",\"result\":\"file\"},{\"id\":\"convert-to-pdf\",\"name\":\"그림을 PDF로\",\"input\":\"images\",\"result\":\"file\"},{\"id\":\"pdf-to-png\",\"name\":\"PDF를 PNG로\",\"input\":\"pdf\",\"result\":\"files\"},{\"id\":\"extract-images-from-pdf\",\"name\":\"PDF에서 그림 추출\",\"input\":\"pdf\",\"result\":\"files\"},{\"id\":\"pdf-to-epub\",\"name\":\"PDF를 EPUB으로\",\"input\":\"pdf\",\"result\":\"file\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).input = 'images' ? '그림을 열어 주세요' : 'PDF를 열어 주세요'"
-                        }
+                        "type": "stack",
+                        "direction": "column",
+                        "children": [
+                          {
+                            "type": "when",
+                            "value": {
+                              "expr": "$state.tool = \"PDF 합치기\""
+                            },
+                            "child": {
+                              "type": "notice",
+                              "kind": "info",
+                              "message": "PDF를 열어 주세요",
+                              "actions": [
+                                {
+                                  "label": "열기",
+                                  "on_click": {
+                                    "pick_files": {
+                                      "accept": [
+                                        {
+                                          "mime": "application/pdf",
+                                          "extensions": [
+                                            "pdf"
+                                          ]
+                                        }
+                                      ],
+                                      "multiple": true,
+                                      "client": "load"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "when",
+                            "value": {
+                              "expr": "$state.tool = \"PDF 나누기\""
+                            },
+                            "child": {
+                              "type": "notice",
+                              "kind": "info",
+                              "message": "PDF를 열어 주세요",
+                              "actions": [
+                                {
+                                  "label": "열기",
+                                  "on_click": {
+                                    "pick_files": {
+                                      "accept": [
+                                        {
+                                          "mime": "application/pdf",
+                                          "extensions": [
+                                            "pdf"
+                                          ]
+                                        }
+                                      ],
+                                      "multiple": false,
+                                      "client": "load"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "when",
+                            "value": {
+                              "expr": "$state.tool = \"PDF 회전\""
+                            },
+                            "child": {
+                              "type": "notice",
+                              "kind": "info",
+                              "message": "PDF를 열어 주세요",
+                              "actions": [
+                                {
+                                  "label": "열기",
+                                  "on_click": {
+                                    "pick_files": {
+                                      "accept": [
+                                        {
+                                          "mime": "application/pdf",
+                                          "extensions": [
+                                            "pdf"
+                                          ]
+                                        }
+                                      ],
+                                      "multiple": false,
+                                      "client": "load"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "when",
+                            "value": {
+                              "expr": "$state.tool = \"그림을 PDF로\""
+                            },
+                            "child": {
+                              "type": "notice",
+                              "kind": "info",
+                              "message": "그림을 열어 주세요",
+                              "actions": [
+                                {
+                                  "label": "열기",
+                                  "on_click": {
+                                    "pick_files": {
+                                      "accept": [
+                                        {
+                                          "mime": "image/png",
+                                          "extensions": [
+                                            "png"
+                                          ]
+                                        },
+                                        {
+                                          "mime": "image/jpeg",
+                                          "extensions": [
+                                            "jpg",
+                                            "jpeg"
+                                          ]
+                                        },
+                                        {
+                                          "mime": "image/webp",
+                                          "extensions": [
+                                            "webp"
+                                          ]
+                                        },
+                                        {
+                                          "mime": "image/gif",
+                                          "extensions": [
+                                            "gif"
+                                          ]
+                                        }
+                                      ],
+                                      "multiple": true,
+                                      "client": "load"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "when",
+                            "value": {
+                              "expr": "$state.tool = \"PDF를 PNG로\""
+                            },
+                            "child": {
+                              "type": "notice",
+                              "kind": "info",
+                              "message": "PDF를 열어 주세요",
+                              "actions": [
+                                {
+                                  "label": "열기",
+                                  "on_click": {
+                                    "pick_files": {
+                                      "accept": [
+                                        {
+                                          "mime": "application/pdf",
+                                          "extensions": [
+                                            "pdf"
+                                          ]
+                                        }
+                                      ],
+                                      "multiple": false,
+                                      "client": "load"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "when",
+                            "value": {
+                              "expr": "$state.tool = \"PDF에서 그림 추출\""
+                            },
+                            "child": {
+                              "type": "notice",
+                              "kind": "info",
+                              "message": "PDF를 열어 주세요",
+                              "actions": [
+                                {
+                                  "label": "열기",
+                                  "on_click": {
+                                    "pick_files": {
+                                      "accept": [
+                                        {
+                                          "mime": "application/pdf",
+                                          "extensions": [
+                                            "pdf"
+                                          ]
+                                        }
+                                      ],
+                                      "multiple": false,
+                                      "client": "load"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "when",
+                            "value": {
+                              "expr": "$state.tool = \"PDF를 EPUB으로\""
+                            },
+                            "child": {
+                              "type": "notice",
+                              "kind": "info",
+                              "message": "PDF를 열어 주세요",
+                              "actions": [
+                                {
+                                  "label": "열기",
+                                  "on_click": {
+                                    "pick_files": {
+                                      "accept": [
+                                        {
+                                          "mime": "application/pdf",
+                                          "extensions": [
+                                            "pdf"
+                                          ]
+                                        }
+                                      ],
+                                      "multiple": false,
+                                      "client": "load"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
@@ -690,7 +937,7 @@
                         {
                           "type": "when",
                           "value": {
-                            "client": "has_result"
+                            "client": "has_rows"
                           },
                           "child": {
                             "type": "text",
@@ -1041,7 +1288,7 @@
                 {
                   "type": "when",
                   "value": {
-                    "client": "pdf_surface"
+                    "client": "show_result"
                   },
                   "child": {
                     "type": "canvas",
@@ -1055,13 +1302,62 @@
                 {
                   "type": "when",
                   "value": {
-                    "client": "has_result"
+                    "client": "has_rows"
                   },
                   "child": {
-                    "type": "list",
-                    "layout": "rows",
-                    "items": {
-                      "client": "result_rows"
+                    "type": "when",
+                    "value": {
+                      "expr": "($t := [{\"id\":\"merge-pdf\",\"name\":\"PDF 합치기\",\"input\":\"pdfs\",\"result\":\"file\"},{\"id\":\"split-pdf\",\"name\":\"PDF 나누기\",\"input\":\"pdf\",\"result\":\"file\"},{\"id\":\"rotate-pdf\",\"name\":\"PDF 회전\",\"input\":\"pdf\",\"result\":\"file\"},{\"id\":\"convert-to-pdf\",\"name\":\"그림을 PDF로\",\"input\":\"images\",\"result\":\"file\"},{\"id\":\"pdf-to-png\",\"name\":\"PDF를 PNG로\",\"input\":\"pdf\",\"result\":\"files\"},{\"id\":\"extract-images-from-pdf\",\"name\":\"PDF에서 그림 추출\",\"input\":\"pdf\",\"result\":\"files\"},{\"id\":\"pdf-to-epub\",\"name\":\"PDF를 EPUB으로\",\"input\":\"pdf\",\"result\":\"file\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).result = 'files'"
+                    },
+                    "child": {
+                      "type": "list",
+                      "layout": "rows",
+                      "items": {
+                        "client": "result_rows"
+                      },
+                      "selected": {
+                        "client": "selected"
+                      },
+                      "on_select": {
+                        "client": "select_preview"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "has_rows"
+                  },
+                  "child": {
+                    "type": "when",
+                    "value": {
+                      "expr": "($t := [{\"id\":\"merge-pdf\",\"name\":\"PDF 합치기\",\"input\":\"pdfs\",\"result\":\"file\"},{\"id\":\"split-pdf\",\"name\":\"PDF 나누기\",\"input\":\"pdf\",\"result\":\"file\"},{\"id\":\"rotate-pdf\",\"name\":\"PDF 회전\",\"input\":\"pdf\",\"result\":\"file\"},{\"id\":\"convert-to-pdf\",\"name\":\"그림을 PDF로\",\"input\":\"images\",\"result\":\"file\"},{\"id\":\"pdf-to-png\",\"name\":\"PDF를 PNG로\",\"input\":\"pdf\",\"result\":\"files\"},{\"id\":\"extract-images-from-pdf\",\"name\":\"PDF에서 그림 추출\",\"input\":\"pdf\",\"result\":\"files\"},{\"id\":\"pdf-to-epub\",\"name\":\"PDF를 EPUB으로\",\"input\":\"pdf\",\"result\":\"file\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).result = 'file'"
+                    },
+                    "child": {
+                      "type": "list",
+                      "layout": "rows",
+                      "items": {
+                        "client": "result_rows"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "loading"
+                  },
+                  "child": {
+                    "type": "when",
+                    "value": {
+                      "expr": "($t := [{\"id\":\"merge-pdf\",\"name\":\"PDF 합치기\",\"input\":\"pdfs\",\"result\":\"file\"},{\"id\":\"split-pdf\",\"name\":\"PDF 나누기\",\"input\":\"pdf\",\"result\":\"file\"},{\"id\":\"rotate-pdf\",\"name\":\"PDF 회전\",\"input\":\"pdf\",\"result\":\"file\"},{\"id\":\"convert-to-pdf\",\"name\":\"그림을 PDF로\",\"input\":\"images\",\"result\":\"file\"},{\"id\":\"pdf-to-png\",\"name\":\"PDF를 PNG로\",\"input\":\"pdf\",\"result\":\"files\"},{\"id\":\"extract-images-from-pdf\",\"name\":\"PDF에서 그림 추출\",\"input\":\"pdf\",\"result\":\"files\"},{\"id\":\"pdf-to-epub\",\"name\":\"PDF를 EPUB으로\",\"input\":\"pdf\",\"result\":\"file\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).result = 'file'"
+                    },
+                    "child": {
+                      "type": "progress",
+                      "value": null,
+                      "max": 1,
+                      "label": "파일을 만드는 중입니다"
                     }
                   }
                 }
