@@ -31,8 +31,8 @@
     "o_censor_censoredBySymbol": true,
     "o_censor_wordsToCensor": "",
     "o_censor_censorSymbol": "█",
-    "o_censor_eachLetter": true,
     "o_censor_censorWord": "CENSORED",
+    "o_censor_eachLetter": true,
     "o_create_palindrome_lastChar": true,
     "o_create_palindrome_multiLine": false,
     "o_email_extractor_unique": true,
@@ -190,7 +190,7 @@
         "state": "tool"
       },
       "options": {
-        "expr": "$state.tool = \"Base64\" ? {\"mode\":$state.o_base64_mode} : ($state.tool = \"bcrypt 해시\" ? {\"saltRounds\":$state.o_bcrypt_saltRounds} : ($state.tool = \"단어 가리기\" ? {\"censoredBySymbol\":$state.o_censor_censoredBySymbol,\"wordsToCensor\":$state.o_censor_wordsToCensor,\"censorSymbol\":$state.o_censor_censorSymbol,\"eachLetter\":$state.o_censor_eachLetter,\"censorWord\":$state.o_censor_censorWord} : ($state.tool = \"회문 만들기\" ? {\"lastChar\":$state.o_create_palindrome_lastChar,\"multiLine\":$state.o_create_palindrome_multiLine} : ($state.tool = \"이메일 추출\" ? {\"unique\":$state.o_email_extractor_unique} : ($state.tool = \"부분 글 추출\" ? {\"start\":$state.o_extract_substring_start,\"length\":$state.o_extract_substring_length,\"multiLine\":$state.o_extract_substring_multiLine,\"reverse\":$state.o_extract_substring_reverse} : ($state.tool = \"숨은 문자 찾기\" ? {\"showUnicodeCodes\":$state.o_hidden_character_detector_showUnicodeCodes,\"highlightRTL\":$state.o_hidden_character_detector_highlightRTL,\"showInvisibleChars\":$state.o_hidden_character_detector_showInvisibleChars,\"includeZeroWidthChars\":$state.o_hidden_character_detector_includeZeroWidthChars} : ($state.tool = \"줄 합치기\" ? {\"joinCharacter\":$state.o_join_joinCharacter,\"deleteBlank\":$state.o_join_deleteBlank,\"deleteTrailing\":$state.o_join_deleteTrailing} : ($state.tool = \"회문 확인\" ? {\"splitOperatorType\":$state.o_palindrome_splitOperatorType,\"symbolValue\":$state.o_palindrome_symbolValue,\"regexValue\":$state.o_palindrome_regexValue} : ($state.tool = \"비밀번호 만들기\" ? {\"length\":$state.o_password_generator_length,\"includeLowercase\":$state.o_password_generator_includeLowercase,\"includeUppercase\":$state.o_password_generator_includeUppercase,\"includeNumbers\":$state.o_password_generator_includeNumbers,\"includeSymbols\":$state.o_password_generator_includeSymbols,\"avoidAmbiguous\":$state.o_password_generator_avoidAmbiguous} : ($state.tool = \"인용 부호 붙이기\" ? {\"leftQuote\":$state.o_quote_leftQuote,\"rightQuote\":$state.o_quote_rightQuote,\"doubleQuotation\":$state.o_quote_doubleQuotation,\"emptyQuoting\":$state.o_quote_emptyQuoting,\"multiLine\":$state.o_quote_multiLine} : ($state.tool = \"대소문자 섞기\" ? {} : ($state.tool = \"중복 줄 제거\" ? {\"mode\":$state.o_remove_duplicate_lines_mode,\"newlines\":$state.o_remove_duplicate_lines_newlines,\"sortLines\":$state.o_remove_duplicate_lines_sortLines,\"trimTextLines\":$state.o_remove_duplicate_lines_trimTextLines} : ($state.tool = \"글 반복\" ? {\"repeatAmount\":$state.o_repeat_repeatAmount,\"delimiter\":$state.o_repeat_delimiter} : ($state.tool = \"글 뒤집기\" ? {\"multiLine\":$state.o_reverse_multiLine,\"emptyItems\":$state.o_reverse_emptyItems,\"trim\":$state.o_reverse_trim} : ($state.tool = \"ROT13\" ? {} : ($state.tool = \"글 회전\" ? {\"step\":$state.o_rotate_step,\"direction\":$state.o_rotate_direction,\"multiLine\":$state.o_rotate_multiLine} : ($state.tool = \"슬러그 만들기\" ? {\"caseSensitive\":$state.o_slug_generator_caseSensitive} : ($state.tool = \"글 나누기\" ? {\"splitSeparatorType\":$state.o_split_splitSeparatorType,\"symbolValue\":$state.o_split_symbolValue,\"regexValue\":$state.o_split_regexValue,\"lengthValue\":$state.o_split_lengthValue,\"chunksValue\":$state.o_split_chunksValue,\"outputSeparator\":$state.o_split_outputSeparator,\"charBeforeChunk\":$state.o_split_charBeforeChunk,\"charAfterChunk\":$state.o_split_charAfterChunk} : ($state.tool = \"글 통계\" ? {\"emptyLines\":$state.o_statistic_emptyLines,\"sentenceDelimiters\":$state.o_statistic_sentenceDelimiters,\"wordDelimiters\":$state.o_statistic_wordDelimiters,\"characterCount\":$state.o_statistic_characterCount,\"wordCount\":$state.o_statistic_wordCount} : ($state.tool = \"표 형식 변환\" ? {\"autodetect\":$state.o_table_text_converter_autodetect,\"inputFormat\":$state.o_table_text_converter_inputFormat,\"outputFormat\":$state.o_table_text_converter_outputFormat} : ($state.tool = \"글 비교\" ? {\"level\":$state.o_text_compare_level} : ($state.tool = \"글 찾아 바꾸기\" ? {\"mode\":$state.o_text_replacer_mode,\"searchValue\":$state.o_text_replacer_searchValue,\"searchRegexp\":$state.o_text_replacer_searchRegexp,\"replaceValue\":$state.o_text_replacer_replaceValue} : ($state.tool = \"모스 부호\" ? {\"dotSymbol\":$state.o_to_morse_dotSymbol,\"dashSymbol\":$state.o_to_morse_dashSymbol} : ($state.tool = \"글 자르기\" ? {\"truncationSide\":$state.o_truncate_truncationSide,\"maxLength\":$state.o_truncate_maxLength,\"lineByLine\":$state.o_truncate_lineByLine,\"addIndicator\":$state.o_truncate_addIndicator,\"indicator\":$state.o_truncate_indicator} : ($state.tool = \"유니코드 변환\" ? {\"mode\":$state.o_unicode_mode,\"uppercase\":$state.o_unicode_uppercase} : ($state.tool = \"대문자로 바꾸기\" ? {} : ($state.tool = \"URL 디코딩\" ? {} : ($state.tool = \"URL 편집\" ? {\"protocol\":$state.o_url_editor_protocol,\"host\":$state.o_url_editor_host,\"pathname\":$state.o_url_editor_pathname,\"hash\":$state.o_url_editor_hash,\"params\":$state.o_url_editor_params} : ($state.tool = \"URL 인코딩\" ? {\"nonSpecialChar\":$state.o_url_encode_nonSpecialChar} : ($state.tool = \"목록 복제\" ? {\"splitOperatorType\":$state.o_list_duplicate_splitOperatorType,\"splitSeparator\":$state.o_list_duplicate_splitSeparator,\"joinSeparator\":$state.o_list_duplicate_joinSeparator,\"concatenate\":$state.o_list_duplicate_concatenate,\"reverse\":$state.o_list_duplicate_reverse,\"copy\":$state.o_list_duplicate_copy} : ($state.tool = \"많이 나온 항목\" ? {\"splitSeparatorType\":$state.o_find_most_popular_splitSeparatorType,\"sortingMethod\":$state.o_find_most_popular_sortingMethod,\"displayFormat\":$state.o_find_most_popular_displayFormat,\"splitSeparator\":$state.o_find_most_popular_splitSeparator,\"deleteEmptyItems\":$state.o_find_most_popular_deleteEmptyItems,\"ignoreItemCase\":$state.o_find_most_popular_ignoreItemCase,\"trimItems\":$state.o_find_most_popular_trimItems} : ($state.tool = \"고유 항목 찾기\" ? {\"splitOperatorType\":$state.o_find_unique_splitOperatorType,\"splitSeparator\":$state.o_find_unique_splitSeparator,\"joinSeparator\":$state.o_find_unique_joinSeparator,\"deleteEmptyItems\":$state.o_find_unique_deleteEmptyItems,\"caseSensitive\":$state.o_find_unique_caseSensitive,\"trimItems\":$state.o_find_unique_trimItems,\"absolutelyUnique\":$state.o_find_unique_absolutelyUnique} : ($state.tool = \"목록 묶기\" ? {\"splitOperatorType\":$state.o_group_splitOperatorType,\"splitSeparator\":$state.o_group_splitSeparator,\"groupNumber\":$state.o_group_groupNumber,\"itemSeparator\":$state.o_group_itemSeparator,\"leftWrap\":$state.o_group_leftWrap,\"rightWrap\":$state.o_group_rightWrap,\"groupSeparator\":$state.o_group_groupSeparator,\"deleteEmptyItems\":$state.o_group_deleteEmptyItems,\"padNonFullGroup\":$state.o_group_padNonFullGroup,\"paddingChar\":$state.o_group_paddingChar} : ($state.tool = \"목록 뒤집기\" ? {\"splitOperatorType\":$state.o_list_reverse_splitOperatorType,\"splitSeparator\":$state.o_list_reverse_splitSeparator,\"joinSeparator\":$state.o_list_reverse_joinSeparator} : ($state.tool = \"목록 회전\" ? {\"splitOperatorType\":$state.o_list_rotate_splitOperatorType,\"splitSeparator\":$state.o_list_rotate_splitSeparator,\"joinSeparator\":$state.o_list_rotate_joinSeparator,\"right\":$state.o_list_rotate_right,\"step\":$state.o_list_rotate_step} : ($state.tool = \"목록 섞기\" ? {\"splitOperatorType\":$state.o_shuffle_splitOperatorType,\"splitSeparator\":$state.o_shuffle_splitSeparator,\"joinSeparator\":$state.o_shuffle_joinSeparator,\"length\":$state.o_shuffle_length} : ($state.tool = \"목록 정렬\" ? {\"splitSeparatorType\":$state.o_sort_splitSeparatorType,\"sortingMethod\":$state.o_sort_sortingMethod,\"increasing\":$state.o_sort_increasing,\"splitSeparator\":$state.o_sort_splitSeparator,\"joinSeparator\":$state.o_sort_joinSeparator,\"removeDuplicated\":$state.o_sort_removeDuplicated,\"caseSensitive\":$state.o_sort_caseSensitive} : ($state.tool = \"목록 자르기\" ? {\"splitOperatorType\":$state.o_list_truncate_splitOperatorType,\"splitSeparator\":$state.o_list_truncate_splitSeparator,\"joinSeparator\":$state.o_list_truncate_joinSeparator,\"end\":$state.o_list_truncate_end,\"length\":$state.o_list_truncate_length} : ($state.tool = \"목록 감싸기 제거\" ? {\"splitOperatorType\":$state.o_unwrap_splitOperatorType,\"splitSeparator\":$state.o_unwrap_splitSeparator,\"joinSeparator\":$state.o_unwrap_joinSeparator,\"deleteEmptyItems\":$state.o_unwrap_deleteEmptyItems,\"multiLevel\":$state.o_unwrap_multiLevel,\"trimItems\":$state.o_unwrap_trimItems,\"left\":$state.o_unwrap_left,\"right\":$state.o_unwrap_right} : ($state.tool = \"목록 감싸기\" ? {\"splitOperatorType\":$state.o_wrap_splitOperatorType,\"splitSeparator\":$state.o_wrap_splitSeparator,\"joinSeparator\":$state.o_wrap_joinSeparator,\"deleteEmptyItems\":$state.o_wrap_deleteEmptyItems,\"left\":$state.o_wrap_left,\"right\":$state.o_wrap_right} : ({\"mode\":\"encode\"})))))))))))))))))))))))))))))))))))))))))"
+        "expr": "$state.tool = \"Base64\" ? {\"mode\":$state.o_base64_mode} : ($state.tool = \"bcrypt 해시\" ? {\"saltRounds\":$state.o_bcrypt_saltRounds} : ($state.tool = \"단어 가리기\" ? {\"censoredBySymbol\":$state.o_censor_censoredBySymbol,\"wordsToCensor\":$state.o_censor_wordsToCensor,\"censorSymbol\":$state.o_censor_censorSymbol,\"censorWord\":$state.o_censor_censorWord,\"eachLetter\":$state.o_censor_eachLetter} : ($state.tool = \"회문 만들기\" ? {\"lastChar\":$state.o_create_palindrome_lastChar,\"multiLine\":$state.o_create_palindrome_multiLine} : ($state.tool = \"이메일 추출\" ? {\"unique\":$state.o_email_extractor_unique} : ($state.tool = \"부분 글 추출\" ? {\"start\":$state.o_extract_substring_start,\"length\":$state.o_extract_substring_length,\"multiLine\":$state.o_extract_substring_multiLine,\"reverse\":$state.o_extract_substring_reverse} : ($state.tool = \"숨은 문자 찾기\" ? {\"showUnicodeCodes\":$state.o_hidden_character_detector_showUnicodeCodes,\"highlightRTL\":$state.o_hidden_character_detector_highlightRTL,\"showInvisibleChars\":$state.o_hidden_character_detector_showInvisibleChars,\"includeZeroWidthChars\":$state.o_hidden_character_detector_includeZeroWidthChars} : ($state.tool = \"줄 합치기\" ? {\"joinCharacter\":$state.o_join_joinCharacter,\"deleteBlank\":$state.o_join_deleteBlank,\"deleteTrailing\":$state.o_join_deleteTrailing} : ($state.tool = \"회문 확인\" ? {\"splitOperatorType\":$state.o_palindrome_splitOperatorType,\"symbolValue\":$state.o_palindrome_symbolValue,\"regexValue\":$state.o_palindrome_regexValue} : ($state.tool = \"비밀번호 만들기\" ? {\"length\":$state.o_password_generator_length,\"includeLowercase\":$state.o_password_generator_includeLowercase,\"includeUppercase\":$state.o_password_generator_includeUppercase,\"includeNumbers\":$state.o_password_generator_includeNumbers,\"includeSymbols\":$state.o_password_generator_includeSymbols,\"avoidAmbiguous\":$state.o_password_generator_avoidAmbiguous} : ($state.tool = \"인용 부호 붙이기\" ? {\"leftQuote\":$state.o_quote_leftQuote,\"rightQuote\":$state.o_quote_rightQuote,\"doubleQuotation\":$state.o_quote_doubleQuotation,\"emptyQuoting\":$state.o_quote_emptyQuoting,\"multiLine\":$state.o_quote_multiLine} : ($state.tool = \"대소문자 섞기\" ? {} : ($state.tool = \"중복 줄 제거\" ? {\"mode\":$state.o_remove_duplicate_lines_mode,\"newlines\":$state.o_remove_duplicate_lines_newlines,\"sortLines\":$state.o_remove_duplicate_lines_sortLines,\"trimTextLines\":$state.o_remove_duplicate_lines_trimTextLines} : ($state.tool = \"글 반복\" ? {\"repeatAmount\":$state.o_repeat_repeatAmount,\"delimiter\":$state.o_repeat_delimiter} : ($state.tool = \"글 뒤집기\" ? {\"multiLine\":$state.o_reverse_multiLine,\"emptyItems\":$state.o_reverse_emptyItems,\"trim\":$state.o_reverse_trim} : ($state.tool = \"ROT13\" ? {} : ($state.tool = \"글 회전\" ? {\"step\":$state.o_rotate_step,\"direction\":$state.o_rotate_direction,\"multiLine\":$state.o_rotate_multiLine} : ($state.tool = \"슬러그 만들기\" ? {\"caseSensitive\":$state.o_slug_generator_caseSensitive} : ($state.tool = \"글 나누기\" ? {\"splitSeparatorType\":$state.o_split_splitSeparatorType,\"symbolValue\":$state.o_split_symbolValue,\"regexValue\":$state.o_split_regexValue,\"lengthValue\":$state.o_split_lengthValue,\"chunksValue\":$state.o_split_chunksValue,\"outputSeparator\":$state.o_split_outputSeparator,\"charBeforeChunk\":$state.o_split_charBeforeChunk,\"charAfterChunk\":$state.o_split_charAfterChunk} : ($state.tool = \"글 통계\" ? {\"emptyLines\":$state.o_statistic_emptyLines,\"sentenceDelimiters\":$state.o_statistic_sentenceDelimiters,\"wordDelimiters\":$state.o_statistic_wordDelimiters,\"characterCount\":$state.o_statistic_characterCount,\"wordCount\":$state.o_statistic_wordCount} : ($state.tool = \"표 형식 변환\" ? {\"autodetect\":$state.o_table_text_converter_autodetect,\"inputFormat\":$state.o_table_text_converter_inputFormat,\"outputFormat\":$state.o_table_text_converter_outputFormat} : ($state.tool = \"글 비교\" ? {\"level\":$state.o_text_compare_level} : ($state.tool = \"글 찾아 바꾸기\" ? {\"mode\":$state.o_text_replacer_mode,\"searchValue\":$state.o_text_replacer_searchValue,\"searchRegexp\":$state.o_text_replacer_searchRegexp,\"replaceValue\":$state.o_text_replacer_replaceValue} : ($state.tool = \"모스 부호\" ? {\"dotSymbol\":$state.o_to_morse_dotSymbol,\"dashSymbol\":$state.o_to_morse_dashSymbol} : ($state.tool = \"글 자르기\" ? {\"truncationSide\":$state.o_truncate_truncationSide,\"maxLength\":$state.o_truncate_maxLength,\"lineByLine\":$state.o_truncate_lineByLine,\"addIndicator\":$state.o_truncate_addIndicator,\"indicator\":$state.o_truncate_indicator} : ($state.tool = \"유니코드 변환\" ? {\"mode\":$state.o_unicode_mode,\"uppercase\":$state.o_unicode_uppercase} : ($state.tool = \"대문자로 바꾸기\" ? {} : ($state.tool = \"URL 디코딩\" ? {} : ($state.tool = \"URL 편집\" ? {\"protocol\":$state.o_url_editor_protocol,\"host\":$state.o_url_editor_host,\"pathname\":$state.o_url_editor_pathname,\"hash\":$state.o_url_editor_hash,\"params\":$state.o_url_editor_params} : ($state.tool = \"URL 인코딩\" ? {\"nonSpecialChar\":$state.o_url_encode_nonSpecialChar} : ($state.tool = \"목록 복제\" ? {\"splitOperatorType\":$state.o_list_duplicate_splitOperatorType,\"splitSeparator\":$state.o_list_duplicate_splitSeparator,\"joinSeparator\":$state.o_list_duplicate_joinSeparator,\"concatenate\":$state.o_list_duplicate_concatenate,\"reverse\":$state.o_list_duplicate_reverse,\"copy\":$state.o_list_duplicate_copy} : ($state.tool = \"많이 나온 항목\" ? {\"splitSeparatorType\":$state.o_find_most_popular_splitSeparatorType,\"sortingMethod\":$state.o_find_most_popular_sortingMethod,\"displayFormat\":$state.o_find_most_popular_displayFormat,\"splitSeparator\":$state.o_find_most_popular_splitSeparator,\"deleteEmptyItems\":$state.o_find_most_popular_deleteEmptyItems,\"ignoreItemCase\":$state.o_find_most_popular_ignoreItemCase,\"trimItems\":$state.o_find_most_popular_trimItems} : ($state.tool = \"고유 항목 찾기\" ? {\"splitOperatorType\":$state.o_find_unique_splitOperatorType,\"splitSeparator\":$state.o_find_unique_splitSeparator,\"joinSeparator\":$state.o_find_unique_joinSeparator,\"deleteEmptyItems\":$state.o_find_unique_deleteEmptyItems,\"caseSensitive\":$state.o_find_unique_caseSensitive,\"trimItems\":$state.o_find_unique_trimItems,\"absolutelyUnique\":$state.o_find_unique_absolutelyUnique} : ($state.tool = \"목록 묶기\" ? {\"splitOperatorType\":$state.o_group_splitOperatorType,\"splitSeparator\":$state.o_group_splitSeparator,\"groupNumber\":$state.o_group_groupNumber,\"itemSeparator\":$state.o_group_itemSeparator,\"leftWrap\":$state.o_group_leftWrap,\"rightWrap\":$state.o_group_rightWrap,\"groupSeparator\":$state.o_group_groupSeparator,\"deleteEmptyItems\":$state.o_group_deleteEmptyItems,\"padNonFullGroup\":$state.o_group_padNonFullGroup,\"paddingChar\":$state.o_group_paddingChar} : ($state.tool = \"목록 뒤집기\" ? {\"splitOperatorType\":$state.o_list_reverse_splitOperatorType,\"splitSeparator\":$state.o_list_reverse_splitSeparator,\"joinSeparator\":$state.o_list_reverse_joinSeparator} : ($state.tool = \"목록 회전\" ? {\"splitOperatorType\":$state.o_list_rotate_splitOperatorType,\"splitSeparator\":$state.o_list_rotate_splitSeparator,\"joinSeparator\":$state.o_list_rotate_joinSeparator,\"right\":$state.o_list_rotate_right,\"step\":$state.o_list_rotate_step} : ($state.tool = \"목록 섞기\" ? {\"splitOperatorType\":$state.o_shuffle_splitOperatorType,\"splitSeparator\":$state.o_shuffle_splitSeparator,\"joinSeparator\":$state.o_shuffle_joinSeparator,\"length\":$state.o_shuffle_length} : ($state.tool = \"목록 정렬\" ? {\"splitSeparatorType\":$state.o_sort_splitSeparatorType,\"sortingMethod\":$state.o_sort_sortingMethod,\"increasing\":$state.o_sort_increasing,\"splitSeparator\":$state.o_sort_splitSeparator,\"joinSeparator\":$state.o_sort_joinSeparator,\"removeDuplicated\":$state.o_sort_removeDuplicated,\"caseSensitive\":$state.o_sort_caseSensitive} : ($state.tool = \"목록 자르기\" ? {\"splitOperatorType\":$state.o_list_truncate_splitOperatorType,\"splitSeparator\":$state.o_list_truncate_splitSeparator,\"joinSeparator\":$state.o_list_truncate_joinSeparator,\"end\":$state.o_list_truncate_end,\"length\":$state.o_list_truncate_length} : ($state.tool = \"목록 감싸기 제거\" ? {\"splitOperatorType\":$state.o_unwrap_splitOperatorType,\"splitSeparator\":$state.o_unwrap_splitSeparator,\"joinSeparator\":$state.o_unwrap_joinSeparator,\"deleteEmptyItems\":$state.o_unwrap_deleteEmptyItems,\"multiLevel\":$state.o_unwrap_multiLevel,\"trimItems\":$state.o_unwrap_trimItems,\"left\":$state.o_unwrap_left,\"right\":$state.o_unwrap_right} : ($state.tool = \"목록 감싸기\" ? {\"splitOperatorType\":$state.o_wrap_splitOperatorType,\"splitSeparator\":$state.o_wrap_splitSeparator,\"joinSeparator\":$state.o_wrap_joinSeparator,\"deleteEmptyItems\":$state.o_wrap_deleteEmptyItems,\"left\":$state.o_wrap_left,\"right\":$state.o_wrap_right} : ({\"mode\":\"encode\"})))))))))))))))))))))))))))))))))))))))))"
       }
     },
     "outputs": {
@@ -221,8 +221,14 @@
       "result_locked": {
         "default": true
       },
-      "lock_2_2": {
-        "default": false
+      "lock_18_6": {
+        "default": true
+      },
+      "lock_18_7": {
+        "default": true
+      },
+      "lock_20_1": {
+        "default": true
       },
       "lock_24_4": {
         "default": true
@@ -690,27 +696,20 @@
                           "label": "가릴 단어"
                         },
                         {
-                          "type": "input",
+                          "type": "when",
                           "value": {
-                            "state": "o_censor_censorSymbol"
+                            "expr": "$state.o_censor_censoredBySymbol = true"
                           },
-                          "on_change": {
-                            "set_state": "o_censor_censorSymbol"
-                          },
-                          "label": "가릴 기호",
-                          "read_only": {
-                            "client": "lock_2_2"
+                          "child": {
+                            "type": "input",
+                            "value": {
+                              "state": "o_censor_censorSymbol"
+                            },
+                            "on_change": {
+                              "set_state": "o_censor_censorSymbol"
+                            },
+                            "label": "가릴 기호"
                           }
-                        },
-                        {
-                          "type": "toggle",
-                          "value": {
-                            "state": "o_censor_eachLetter"
-                          },
-                          "on_change": {
-                            "set_state": "o_censor_eachLetter"
-                          },
-                          "label": "글자마다 가리기"
                         },
                         {
                           "type": "when",
@@ -727,6 +726,16 @@
                             },
                             "label": "대체할 글"
                           }
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_censor_eachLetter"
+                          },
+                          "on_change": {
+                            "set_state": "o_censor_eachLetter"
+                          },
+                          "label": "글자마다 가리기"
                         }
                       ]
                     }
@@ -1563,35 +1572,29 @@
                           "label": "출력 구분자"
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_split_splitSeparatorType = \"chunks\""
+                            "state": "o_split_charBeforeChunk"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_split_charBeforeChunk"
-                            },
-                            "on_change": {
-                              "set_state": "o_split_charBeforeChunk"
-                            },
-                            "label": "조각 앞"
+                          "on_change": {
+                            "set_state": "o_split_charBeforeChunk"
+                          },
+                          "label": "조각 앞",
+                          "read_only": {
+                            "client": "lock_18_6"
                           }
                         },
                         {
-                          "type": "when",
+                          "type": "input",
                           "value": {
-                            "expr": "$state.o_split_splitSeparatorType = \"chunks\""
+                            "state": "o_split_charAfterChunk"
                           },
-                          "child": {
-                            "type": "input",
-                            "value": {
-                              "state": "o_split_charAfterChunk"
-                            },
-                            "on_change": {
-                              "set_state": "o_split_charAfterChunk"
-                            },
-                            "label": "조각 뒤"
+                          "on_change": {
+                            "set_state": "o_split_charAfterChunk"
+                          },
+                          "label": "조각 뒤",
+                          "read_only": {
+                            "client": "lock_18_7"
                           }
                         }
                       ]
@@ -1689,46 +1692,43 @@
                           "label": "입력 형식 자동 감지"
                         },
                         {
-                          "type": "when",
+                          "type": "select",
                           "value": {
-                            "expr": "$state.o_table_text_converter_autodetect = false"
+                            "state": "o_table_text_converter_inputFormat"
                           },
-                          "child": {
-                            "type": "select",
-                            "value": {
-                              "state": "o_table_text_converter_inputFormat"
+                          "on_change": {
+                            "set_state": "o_table_text_converter_inputFormat"
+                          },
+                          "label": "입력 형식",
+                          "style": "dropdown",
+                          "options": [
+                            {
+                              "value": "markdown",
+                              "label": "MARKDOWN"
                             },
-                            "on_change": {
-                              "set_state": "o_table_text_converter_inputFormat"
+                            {
+                              "value": "csv",
+                              "label": "CSV"
                             },
-                            "label": "입력 형식",
-                            "style": "dropdown",
-                            "options": [
-                              {
-                                "value": "markdown",
-                                "label": "MARKDOWN"
-                              },
-                              {
-                                "value": "csv",
-                                "label": "CSV"
-                              },
-                              {
-                                "value": "tsv",
-                                "label": "TSV"
-                              },
-                              {
-                                "value": "html",
-                                "label": "HTML"
-                              },
-                              {
-                                "value": "mysql",
-                                "label": "MYSQL"
-                              },
-                              {
-                                "value": "json",
-                                "label": "JSON"
-                              }
-                            ]
+                            {
+                              "value": "tsv",
+                              "label": "TSV"
+                            },
+                            {
+                              "value": "html",
+                              "label": "HTML"
+                            },
+                            {
+                              "value": "mysql",
+                              "label": "MYSQL"
+                            },
+                            {
+                              "value": "json",
+                              "label": "JSON"
+                            }
+                          ],
+                          "disabled": {
+                            "client": "lock_20_1"
                           }
                         },
                         {
