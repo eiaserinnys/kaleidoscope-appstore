@@ -392,6 +392,9 @@
             "label": {
               "client": "folder_label"
             },
+            "disabled": {
+              "client": "running"
+            },
             "on_click": {
               "client": "pick_folder"
             }
