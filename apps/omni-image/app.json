@@ -1018,8 +1018,7 @@
               "type": "stack",
               "direction": "column",
               "fill": [
-                0,
-                1
+                0
               ],
               "children": [
                 {
@@ -1049,7 +1048,6 @@
                   "child": {
                     "type": "stack",
                     "direction": "column",
-                    "fill": 1,
                     "children": [
                       {
                         "type": "when",
