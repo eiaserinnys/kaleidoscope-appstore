@@ -4,7 +4,7 @@
   "description": "해커뉴스 이야기와 토론을 읽습니다",
   "icon": {
     "asset": "reader-icon",
-    "version": 1
+    "version": 2
   },
   "requires": {
     "blocks": 26,
@@ -29,7 +29,7 @@
   "assets": [
     {
       "id": "reader-icon",
-      "version": 1
+      "version": 2
     }
   ],
   "state": {

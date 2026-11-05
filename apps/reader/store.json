@@ -3,16 +3,16 @@
   "description": "해커 뉴스 첫 화면과 최신 글, 검색 결과를 끝까지 이어 읽고, 고른 글의 댓글 토론을 스레드로 봅니다.\n\n자료: Hacker News 검색 API(Algolia)",
   "category": "뉴스",
   "publisher": "eiaserinnys",
-  "release": 1,
+  "release": 2,
   "listed": true,
   "icon": "assets/icon.svg",
   "assets": [
     {
       "id": "reader-icon",
-      "version": 1,
+      "version": 2,
       "file": "assets/icon.svg",
       "format": "svg",
-      "source": "kaleidoscope 기본 앱 아이콘, 서소영 작성",
+      "source": "gpt-image-2.6-flare SVG 생성 후 타일 정리, 서소영 작성",
       "license": "MIT"
     }
   ]
