@@ -7,10 +7,14 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 
 const here=dirname(fileURLToPath(import.meta.url));
-const ajv=new Ajv2020({allErrors:true,strict:false}); addFormats(ajv);
-for(const bits of [8,16,32,64])ajv.addFormat(`uint${bits}`,{type:'number',validate:value=>Number.isInteger(value)&&value>=0&&value<2**bits});
-ajv.addFormat('double',{type:'number',validate:Number.isFinite});
-const validateApp=ajv.compile(JSON.parse(readFileSync(resolve(here,'../schema/app-definition.schema.json'))));
+const ajv=new Ajv2020({allErrors:true,strict:false});
+const appAjv=new Ajv2020({allErrors:false,strict:false});
+for(const instance of [ajv,appAjv]){
+ addFormats(instance);
+ for(const bits of [8,16,32,64])instance.addFormat(`uint${bits}`,{type:'number',validate:value=>Number.isInteger(value)&&value>=0&&value<2**bits});
+ instance.addFormat('double',{type:'number',validate:Number.isFinite});
+}
+const validateApp=appAjv.compile(JSON.parse(readFileSync(resolve(here,'../schema/app-definition.schema.json'))));
 const builtin=new Set(JSON.parse(readFileSync(resolve(here,'builtin-ids.json'))));
 const formats=['html','svg','png','webp','jpeg','gif','javascript','woff2','ttf','otf'];
 const validateStore=ajv.compile({type:'object',additionalProperties:false,required:['summary','description','category','publisher','release','listed','icon','assets'],properties:{
@@ -37,7 +41,7 @@ function checkApp(ref,id,errors){
  const app=parse(ref,appPath,errors), store=parse(ref,storePath,errors);
  if(!/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(id))errors.push(recordError(dir,'앱 폴더 id 형식이 올바르지 않습니다'));
  if(builtin.has(id))errors.push(recordError(dir,'기본 앱 id는 사용할 수 없습니다'));
- if(app){if(!validateApp(app))errors.push(recordError(appPath,`앱 스키마가 맞지 않습니다: ${ajv.errorsText(validateApp.errors)}`));if(app.id!==id)errors.push(recordError(appPath,'앱 id와 폴더 이름이 다릅니다'));scrub(app,appPath,errors);}
+ if(app){if(!validateApp(app))errors.push(recordError(appPath,`앱 스키마가 맞지 않습니다: ${appAjv.errorsText(validateApp.errors)}`));if(app.id!==id)errors.push(recordError(appPath,'앱 id와 폴더 이름이 다릅니다'));scrub(app,appPath,errors);}
  let assets=[];
  if(store){if(!validateStore(store))errors.push(recordError(storePath,`스토어 형식이 맞지 않습니다: ${ajv.errorsText(validateStore.errors)}`));scrub(store,storePath,errors); if(Array.isArray(store.assets))assets=store.assets.filter(a=>a&&typeof a==='object');}
  const allowed=new Set([appPath,storePath]);let bytes=0;
