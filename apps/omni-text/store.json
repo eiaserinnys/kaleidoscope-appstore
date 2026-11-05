@@ -12,8 +12,8 @@
       "version": 1,
       "file": "assets/omni-text-client.javascript",
       "format": "javascript",
-      "source": "omni-tools 처리 코드를 옮겨 묶음",
-      "license": "MIT"
+      "source": "omni-tools 처리 코드와 의존성 라이선스 원문을 포함한 묶음",
+      "license": "MIT AND BSD-2-Clause AND BSD-3-Clause"
     },
     {
       "id": "omni-text-icon",
