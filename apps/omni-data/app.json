@@ -1,0 +1,2358 @@
+{
+  "id": "omni-data",
+  "name": "데이터 도구",
+  "description": "데이터 도구를 한 창에서 사용합니다",
+  "icon": {
+    "asset": "omni-data-icon",
+    "version": 1
+  },
+  "requires": {
+    "blocks": 37,
+    "modules": {
+      "assets": 1,
+      "client": 2
+    }
+  },
+  "permissions": [],
+  "assets": [
+    {
+      "id": "omni-data-client",
+      "version": 1
+    },
+    {
+      "id": "omni-data-icon",
+      "version": 1
+    }
+  ],
+  "state": {
+    "tool": "JSON 정리",
+    "o_json_prettify_indentationType": "space",
+    "o_json_prettify_spacesCount": 2,
+    "o_json_sort_mode": "value",
+    "o_json_sort_key": "",
+    "o_json_sort_order": "asc",
+    "o_json_stringify_indentationType": "space",
+    "o_json_stringify_spacesCount": 2,
+    "o_json_stringify_escapeHtml": false,
+    "o_escape_json_wrapInQuotesFlag": false,
+    "o_json_to_csv_delimiter": ",",
+    "o_json_to_csv_includeHeaders": true,
+    "o_json_to_csv_quoteStrings": "auto",
+    "o_json_to_xml_indentationType": "space",
+    "o_json_to_xml_addMetaTag": false,
+    "o_csv_to_json_indentationType": "space",
+    "o_csv_to_json_delimiter": ",",
+    "o_csv_to_json_quote": "\"",
+    "o_csv_to_json_comment": "#",
+    "o_csv_to_json_useHeaders": true,
+    "o_csv_to_json_skipEmptyLines": true,
+    "o_csv_to_json_dynamicTypes": true,
+    "o_csv_to_json_spacesCount": 2,
+    "o_csv_to_xml_delimiter": ",",
+    "o_csv_to_xml_quote": "\"",
+    "o_csv_to_xml_comment": "#",
+    "o_csv_to_xml_useHeaders": true,
+    "o_csv_to_xml_skipEmptyLines": true,
+    "o_csv_to_tsv_delimiter": ",",
+    "o_csv_to_tsv_quoteCharacter": "\"",
+    "o_csv_to_tsv_commentCharacter": "#",
+    "o_csv_to_tsv_header": true,
+    "o_csv_to_tsv_emptyLines": true,
+    "o_csv_to_yaml_csvSeparator": ",",
+    "o_csv_to_yaml_quoteCharacter": "\"",
+    "o_csv_to_yaml_commentCharacter": "#",
+    "o_csv_to_yaml_emptyLines": true,
+    "o_csv_to_yaml_headerRow": true,
+    "o_csv_to_yaml_spaces": 2,
+    "o_tsv_to_json_indentationType": "space",
+    "o_tsv_to_json_delimiter": "\\t",
+    "o_tsv_to_json_quote": "\"",
+    "o_tsv_to_json_comment": "#",
+    "o_tsv_to_json_useHeaders": true,
+    "o_tsv_to_json_skipEmptyLines": true,
+    "o_tsv_to_json_dynamicTypes": true,
+    "o_tsv_to_json_spacesCount": 2,
+    "o_change_csv_separator_inputSeparator": ",",
+    "o_change_csv_separator_inputQuoteCharacter": "\"",
+    "o_change_csv_separator_commentCharacter": "#",
+    "o_change_csv_separator_emptyLines": false,
+    "o_change_csv_separator_outputSeparator": ";",
+    "o_change_csv_separator_outputQuoteAll": false,
+    "o_change_csv_separator_OutputQuoteCharacter": "\"",
+    "o_csv_rows_to_columns_emptyValuesFilling": false,
+    "o_csv_rows_to_columns_customFiller": "x",
+    "o_csv_rows_to_columns_commentCharacter": "//",
+    "o_transpose_csv_separator": ",",
+    "o_transpose_csv_commentCharacter": "#",
+    "o_transpose_csv_customFill": false,
+    "o_transpose_csv_customFillValue": "x",
+    "o_transpose_csv_quoteChar": "\"",
+    "o_find_incomplete_csv_records_csvSeparator": ",",
+    "o_find_incomplete_csv_records_quoteCharacter": "\"",
+    "o_find_incomplete_csv_records_commentCharacter": "#",
+    "o_find_incomplete_csv_records_emptyLines": true,
+    "o_find_incomplete_csv_records_emptyValues": true,
+    "o_find_incomplete_csv_records_messageLimit": false,
+    "o_find_incomplete_csv_records_messageNumber": 10,
+    "o_insert_csv_columns_insertingPosition": "append",
+    "o_insert_csv_columns_customPostionOptions": "headerName",
+    "o_insert_csv_columns_csvToInsert": "",
+    "o_insert_csv_columns_commentCharacter": "#",
+    "o_insert_csv_columns_separator": ",",
+    "o_insert_csv_columns_quoteChar": "\"",
+    "o_insert_csv_columns_customFill": false,
+    "o_insert_csv_columns_customFillValue": "",
+    "o_insert_csv_columns_headerName": "",
+    "o_insert_csv_columns_rowNumber": 1,
+    "o_swap_csv_columns_fromPositionStatus": true,
+    "o_swap_csv_columns_toPositionStatus": true,
+    "o_swap_csv_columns_emptyValuesFilling": true,
+    "o_swap_csv_columns_fromPosition": "1",
+    "o_swap_csv_columns_fromHeader": "",
+    "o_swap_csv_columns_toPosition": "2",
+    "o_swap_csv_columns_toHeader": "",
+    "o_swap_csv_columns_customFiller": "",
+    "o_swap_csv_columns_deleteComment": true,
+    "o_swap_csv_columns_commentCharacter": "#",
+    "o_swap_csv_columns_emptyLines": true,
+    "o_xml_beautifier_preserveAttributes": true
+  },
+  "client": {
+    "runtime": "javascript",
+    "entry": {
+      "id": "omni-data-client",
+      "version": 1
+    },
+    "inputs": {
+      "tool": {
+        "state": "tool"
+      },
+      "options": {
+        "expr": "$state.tool = \"JSON 정리\" ? {\"indentationType\":$state.o_json_prettify_indentationType,\"spacesCount\":$state.o_json_prettify_spacesCount} : ($state.tool = \"JSON 압축\" ? {} : ($state.tool = \"JSON 검사\" ? {} : ($state.tool = \"JSON 정렬\" ? {\"mode\":$state.o_json_sort_mode,\"key\":$state.o_json_sort_key,\"order\":$state.o_json_sort_order} : ($state.tool = \"JSON 문자열화\" ? {\"indentationType\":$state.o_json_stringify_indentationType,\"spacesCount\":$state.o_json_stringify_spacesCount,\"escapeHtml\":$state.o_json_stringify_escapeHtml} : ($state.tool = \"JSON 이스케이프\" ? {\"wrapInQuotesFlag\":$state.o_escape_json_wrapInQuotesFlag} : ($state.tool = \"JSON 비교\" ? {} : ($state.tool = \"JSON을 CSV로\" ? {\"delimiter\":$state.o_json_to_csv_delimiter,\"includeHeaders\":$state.o_json_to_csv_includeHeaders,\"quoteStrings\":$state.o_json_to_csv_quoteStrings} : ($state.tool = \"JSON을 XML로\" ? {\"indentationType\":$state.o_json_to_xml_indentationType,\"addMetaTag\":$state.o_json_to_xml_addMetaTag} : ($state.tool = \"CSV를 JSON으로\" ? {\"indentationType\":$state.o_csv_to_json_indentationType,\"delimiter\":$state.o_csv_to_json_delimiter,\"quote\":$state.o_csv_to_json_quote,\"comment\":$state.o_csv_to_json_comment,\"useHeaders\":$state.o_csv_to_json_useHeaders,\"skipEmptyLines\":$state.o_csv_to_json_skipEmptyLines,\"dynamicTypes\":$state.o_csv_to_json_dynamicTypes,\"spacesCount\":$state.o_csv_to_json_spacesCount} : ($state.tool = \"CSV를 XML로\" ? {\"delimiter\":$state.o_csv_to_xml_delimiter,\"quote\":$state.o_csv_to_xml_quote,\"comment\":$state.o_csv_to_xml_comment,\"useHeaders\":$state.o_csv_to_xml_useHeaders,\"skipEmptyLines\":$state.o_csv_to_xml_skipEmptyLines} : ($state.tool = \"CSV를 TSV로\" ? {\"delimiter\":$state.o_csv_to_tsv_delimiter,\"quoteCharacter\":$state.o_csv_to_tsv_quoteCharacter,\"commentCharacter\":$state.o_csv_to_tsv_commentCharacter,\"header\":$state.o_csv_to_tsv_header,\"emptyLines\":$state.o_csv_to_tsv_emptyLines} : ($state.tool = \"CSV를 YAML로\" ? {\"csvSeparator\":$state.o_csv_to_yaml_csvSeparator,\"quoteCharacter\":$state.o_csv_to_yaml_quoteCharacter,\"commentCharacter\":$state.o_csv_to_yaml_commentCharacter,\"emptyLines\":$state.o_csv_to_yaml_emptyLines,\"headerRow\":$state.o_csv_to_yaml_headerRow,\"spaces\":$state.o_csv_to_yaml_spaces} : ($state.tool = \"TSV를 JSON으로\" ? {\"indentationType\":$state.o_tsv_to_json_indentationType,\"delimiter\":$state.o_tsv_to_json_delimiter,\"quote\":$state.o_tsv_to_json_quote,\"comment\":$state.o_tsv_to_json_comment,\"useHeaders\":$state.o_tsv_to_json_useHeaders,\"skipEmptyLines\":$state.o_tsv_to_json_skipEmptyLines,\"dynamicTypes\":$state.o_tsv_to_json_dynamicTypes,\"spacesCount\":$state.o_tsv_to_json_spacesCount} : ($state.tool = \"CSV 구분 문자 변경\" ? {\"inputSeparator\":$state.o_change_csv_separator_inputSeparator,\"inputQuoteCharacter\":$state.o_change_csv_separator_inputQuoteCharacter,\"commentCharacter\":$state.o_change_csv_separator_commentCharacter,\"emptyLines\":$state.o_change_csv_separator_emptyLines,\"outputSeparator\":$state.o_change_csv_separator_outputSeparator,\"outputQuoteAll\":$state.o_change_csv_separator_outputQuoteAll,\"OutputQuoteCharacter\":$state.o_change_csv_separator_OutputQuoteCharacter} : ($state.tool = \"CSV 행을 열로\" ? {\"emptyValuesFilling\":$state.o_csv_rows_to_columns_emptyValuesFilling,\"customFiller\":$state.o_csv_rows_to_columns_customFiller,\"commentCharacter\":$state.o_csv_rows_to_columns_commentCharacter} : ($state.tool = \"CSV 행과 열 바꾸기\" ? {\"separator\":$state.o_transpose_csv_separator,\"commentCharacter\":$state.o_transpose_csv_commentCharacter,\"customFill\":$state.o_transpose_csv_customFill,\"customFillValue\":$state.o_transpose_csv_customFillValue,\"quoteChar\":$state.o_transpose_csv_quoteChar} : ($state.tool = \"빠진 CSV 값 찾기\" ? {\"csvSeparator\":$state.o_find_incomplete_csv_records_csvSeparator,\"quoteCharacter\":$state.o_find_incomplete_csv_records_quoteCharacter,\"commentCharacter\":$state.o_find_incomplete_csv_records_commentCharacter,\"emptyLines\":$state.o_find_incomplete_csv_records_emptyLines,\"emptyValues\":$state.o_find_incomplete_csv_records_emptyValues,\"messageLimit\":$state.o_find_incomplete_csv_records_messageLimit,\"messageNumber\":$state.o_find_incomplete_csv_records_messageNumber} : ($state.tool = \"CSV 열 삽입\" ? {\"insertingPosition\":$state.o_insert_csv_columns_insertingPosition,\"customPostionOptions\":$state.o_insert_csv_columns_customPostionOptions,\"csvToInsert\":$state.o_insert_csv_columns_csvToInsert,\"commentCharacter\":$state.o_insert_csv_columns_commentCharacter,\"separator\":$state.o_insert_csv_columns_separator,\"quoteChar\":$state.o_insert_csv_columns_quoteChar,\"customFill\":$state.o_insert_csv_columns_customFill,\"customFillValue\":$state.o_insert_csv_columns_customFillValue,\"headerName\":$state.o_insert_csv_columns_headerName,\"rowNumber\":$state.o_insert_csv_columns_rowNumber} : ($state.tool = \"CSV 열 맞바꾸기\" ? {\"fromPositionStatus\":$state.o_swap_csv_columns_fromPositionStatus,\"toPositionStatus\":$state.o_swap_csv_columns_toPositionStatus,\"emptyValuesFilling\":$state.o_swap_csv_columns_emptyValuesFilling,\"fromPosition\":$state.o_swap_csv_columns_fromPosition,\"fromHeader\":$state.o_swap_csv_columns_fromHeader,\"toPosition\":$state.o_swap_csv_columns_toPosition,\"toHeader\":$state.o_swap_csv_columns_toHeader,\"customFiller\":$state.o_swap_csv_columns_customFiller,\"deleteComment\":$state.o_swap_csv_columns_deleteComment,\"commentCharacter\":$state.o_swap_csv_columns_commentCharacter,\"emptyLines\":$state.o_swap_csv_columns_emptyLines} : ($state.tool = \"XML 정리\" ? {\"preserveAttributes\":$state.o_xml_beautifier_preserveAttributes} : ($state.tool = \"XML 검사\" ? {} : ({\"indentationType\":\"space\",\"spacesCount\":2}))))))))))))))))))))))"
+      }
+    },
+    "outputs": {
+      "input": {
+        "default": ""
+      },
+      "input2": {
+        "default": ""
+      },
+      "output": {
+        "default": ""
+      },
+      "output_html": {
+        "default": ""
+      },
+      "error": {
+        "default": null
+      },
+      "filename": {
+        "default": "json-prettify.txt"
+      },
+      "has_error": {
+        "default": false
+      },
+      "no_error": {
+        "default": true
+      },
+      "no_result": {
+        "default": true
+      },
+      "result_locked": {
+        "default": true
+      },
+      "lock_0_1": {
+        "default": false
+      },
+      "lock_3_1": {
+        "default": false
+      },
+      "lock_4_1": {
+        "default": false
+      },
+      "lock_9_7": {
+        "default": false
+      },
+      "lock_13_7": {
+        "default": false
+      },
+      "lock_15_1": {
+        "default": false
+      },
+      "lock_16_3": {
+        "default": true
+      },
+      "lock_17_6": {
+        "default": true
+      },
+      "lock_18_1": {
+        "default": true
+      },
+      "lock_18_7": {
+        "default": true
+      },
+      "lock_18_8": {
+        "default": true
+      },
+      "lock_18_9": {
+        "default": true
+      },
+      "lock_19_7": {
+        "default": true
+      },
+      "lock_19_9": {
+        "default": false
+      },
+      "choices_9db4023a9acc98fd": {
+        "default": []
+      },
+      "choices_b77f71c9941fe50a": {
+        "default": []
+      },
+      "choices_8e8771bd9885ab59": {
+        "default": []
+      },
+      "choices_707feba431cef02a": {
+        "default": []
+      }
+    },
+    "actions": [
+      "set_input",
+      "set_input2",
+      "load",
+      "save",
+      "regenerate",
+      "ignore_edit"
+    ],
+    "state_keys": [
+      "o_json_sort_mode",
+      "o_json_sort_key",
+      "o_json_sort_order",
+      "o_insert_csv_columns_insertingPosition",
+      "o_insert_csv_columns_customPostionOptions",
+      "o_insert_csv_columns_csvToInsert",
+      "o_insert_csv_columns_commentCharacter",
+      "o_insert_csv_columns_separator",
+      "o_insert_csv_columns_quoteChar",
+      "o_insert_csv_columns_customFill",
+      "o_insert_csv_columns_customFillValue",
+      "o_insert_csv_columns_headerName",
+      "o_insert_csv_columns_rowNumber",
+      "o_swap_csv_columns_fromPositionStatus",
+      "o_swap_csv_columns_toPositionStatus",
+      "o_swap_csv_columns_emptyValuesFilling",
+      "o_swap_csv_columns_fromPosition",
+      "o_swap_csv_columns_fromHeader",
+      "o_swap_csv_columns_toPosition",
+      "o_swap_csv_columns_toHeader",
+      "o_swap_csv_columns_customFiller",
+      "o_swap_csv_columns_deleteComment",
+      "o_swap_csv_columns_commentCharacter",
+      "o_swap_csv_columns_emptyLines"
+    ]
+  },
+  "ui": {
+    "type": "stack",
+    "direction": "column",
+    "fill": 1,
+    "children": [
+      {
+        "type": "toolbar",
+        "start": [
+          {
+            "type": "input",
+            "label": "도구",
+            "value": {
+              "state": "tool"
+            },
+            "on_change": {
+              "set_state": "tool"
+            },
+            "options_only": true,
+            "options": [
+              {
+                "value": "JSON 정리",
+                "label": "JSON 정리",
+                "description": "JSON의 들여쓰기를 정돈합니다"
+              },
+              {
+                "value": "JSON 압축",
+                "label": "JSON 압축",
+                "description": "JSON의 공백을 줄입니다"
+              },
+              {
+                "value": "JSON 검사",
+                "label": "JSON 검사",
+                "description": "JSON 형식이 올바른지 검사합니다"
+              },
+              {
+                "value": "JSON 정렬",
+                "label": "JSON 정렬",
+                "description": "JSON의 키나 값을 정렬합니다"
+              },
+              {
+                "value": "JSON 문자열화",
+                "label": "JSON 문자열화",
+                "description": "JavaScript 값을 JSON으로 바꿉니다"
+              },
+              {
+                "value": "JSON 이스케이프",
+                "label": "JSON 이스케이프",
+                "description": "글을 JSON 문자열로 이스케이프합니다"
+              },
+              {
+                "value": "JSON 비교",
+                "label": "JSON 비교",
+                "description": "두 JSON의 차이를 비교합니다"
+              },
+              {
+                "value": "JSON을 CSV로",
+                "label": "JSON을 CSV로",
+                "description": "JSON 배열을 CSV로 바꿉니다"
+              },
+              {
+                "value": "JSON을 XML로",
+                "label": "JSON을 XML로",
+                "description": "JSON을 XML로 바꿉니다"
+              },
+              {
+                "value": "CSV를 JSON으로",
+                "label": "CSV를 JSON으로",
+                "description": "CSV를 JSON 배열로 바꿉니다"
+              },
+              {
+                "value": "CSV를 XML로",
+                "label": "CSV를 XML로",
+                "description": "CSV를 XML로 바꿉니다"
+              },
+              {
+                "value": "CSV를 TSV로",
+                "label": "CSV를 TSV로",
+                "description": "CSV를 탭 구분 값으로 바꿉니다"
+              },
+              {
+                "value": "CSV를 YAML로",
+                "label": "CSV를 YAML로",
+                "description": "CSV를 YAML로 바꿉니다"
+              },
+              {
+                "value": "TSV를 JSON으로",
+                "label": "TSV를 JSON으로",
+                "description": "탭 구분 값을 JSON으로 바꿉니다"
+              },
+              {
+                "value": "CSV 구분 문자 변경",
+                "label": "CSV 구분 문자 변경",
+                "description": "CSV의 구분 문자와 따옴표를 바꿉니다"
+              },
+              {
+                "value": "CSV 행을 열로",
+                "label": "CSV 행을 열로",
+                "description": "CSV 행을 열로 바꿉니다"
+              },
+              {
+                "value": "CSV 행과 열 바꾸기",
+                "label": "CSV 행과 열 바꾸기",
+                "description": "CSV 행과 열을 전치합니다"
+              },
+              {
+                "value": "빠진 CSV 값 찾기",
+                "label": "빠진 CSV 값 찾기",
+                "description": "빠진 열과 빈 값을 찾습니다"
+              },
+              {
+                "value": "CSV 열 삽입",
+                "label": "CSV 열 삽입",
+                "description": "CSV에 다른 열을 삽입합니다"
+              },
+              {
+                "value": "CSV 열 맞바꾸기",
+                "label": "CSV 열 맞바꾸기",
+                "description": "두 CSV 열을 맞바꿉니다"
+              },
+              {
+                "value": "XML 정리",
+                "label": "XML 정리",
+                "description": "XML의 들여쓰기를 정돈합니다"
+              },
+              {
+                "value": "XML 검사",
+                "label": "XML 검사",
+                "description": "XML 형식이 올바른지 검사합니다"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "split",
+        "direction": "row",
+        "column_below": 640,
+        "sizes": [
+          1,
+          1
+        ],
+        "children": [
+          {
+            "type": "section",
+            "title": {
+              "expr": "false ? '옵션' : '입력'"
+            },
+            "actions": [
+              {
+                "type": "when",
+                "value": {
+                  "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                },
+                "child": {
+                  "type": "button",
+                  "icon": "upload",
+                  "icon_only": true,
+                  "label": "열기",
+                  "on_click": {
+                    "pick_files": {
+                      "accept": [
+                        {
+                          "mime": "text/*",
+                          "extensions": [
+                            "txt",
+                            "md",
+                            "csv",
+                            "json",
+                            "xml",
+                            "tsv",
+                            "yaml",
+                            "yml"
+                          ]
+                        }
+                      ],
+                      "multiple": false,
+                      "client": "load"
+                    }
+                  }
+                }
+              }
+            ],
+            "child": {
+              "type": "stack",
+              "direction": "column",
+              "fill": [
+                0,
+                1,
+                2
+              ],
+              "children": [
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                  },
+                  "child": {
+                    "type": "input",
+                    "value": {
+                      "client": "input"
+                    },
+                    "on_change": {
+                      "client": "set_input"
+                    },
+                    "label": "입력",
+                    "multiline": true,
+                    "rows": 4,
+                    "label_position": "hidden"
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"JSON 비교\""
+                  },
+                  "child": {
+                    "type": "input",
+                    "value": {
+                      "client": "input"
+                    },
+                    "on_change": {
+                      "client": "set_input"
+                    },
+                    "label": "원문",
+                    "multiline": true,
+                    "rows": 4,
+                    "label_position": "top"
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"JSON 비교\""
+                  },
+                  "child": {
+                    "type": "input",
+                    "value": {
+                      "client": "input2"
+                    },
+                    "on_change": {
+                      "client": "set_input2"
+                    },
+                    "label": "비교할 글",
+                    "multiline": true,
+                    "rows": 4,
+                    "label_position": "top"
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"JSON 정리\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "select",
+                          "value": {
+                            "state": "o_json_prettify_indentationType"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_prettify_indentationType"
+                          },
+                          "label": "들여쓰기 방식",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "space",
+                              "label": "공백"
+                            },
+                            {
+                              "value": "tab",
+                              "label": "탭"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_json_prettify_spacesCount"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_prettify_spacesCount"
+                          },
+                          "label": "공백 수",
+                          "read_only": {
+                            "client": "lock_0_1"
+                          },
+                          "kind": "number",
+                          "spin": true,
+                          "min": 0,
+                          "step": 1
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"JSON 정렬\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "select",
+                          "value": {
+                            "state": "o_json_sort_mode"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_sort_mode"
+                          },
+                          "label": "정렬 기준",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "value",
+                              "label": "값"
+                            },
+                            {
+                              "value": "key",
+                              "label": "키"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "select",
+                          "value": {
+                            "state": "o_json_sort_key"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_sort_key"
+                          },
+                          "label": "기준 키",
+                          "style": "dropdown",
+                          "options": {
+                            "client": "choices_9db4023a9acc98fd"
+                          },
+                          "disabled": {
+                            "client": "lock_3_1"
+                          }
+                        },
+                        {
+                          "type": "select",
+                          "value": {
+                            "state": "o_json_sort_order"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_sort_order"
+                          },
+                          "label": "순서",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "asc",
+                              "label": "오름차순"
+                            },
+                            {
+                              "value": "desc",
+                              "label": "내림차순"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"JSON 문자열화\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "select",
+                          "value": {
+                            "state": "o_json_stringify_indentationType"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_stringify_indentationType"
+                          },
+                          "label": "들여쓰기 방식",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "space",
+                              "label": "공백"
+                            },
+                            {
+                              "value": "tab",
+                              "label": "탭"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_json_stringify_spacesCount"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_stringify_spacesCount"
+                          },
+                          "label": "공백 수",
+                          "read_only": {
+                            "client": "lock_4_1"
+                          },
+                          "kind": "number",
+                          "spin": true,
+                          "min": 0,
+                          "step": 1
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_json_stringify_escapeHtml"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_stringify_escapeHtml"
+                          },
+                          "label": "HTML 문자 이스케이프"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"JSON 이스케이프\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_escape_json_wrapInQuotesFlag"
+                          },
+                          "on_change": {
+                            "set_state": "o_escape_json_wrapInQuotesFlag"
+                          },
+                          "label": "따옴표로 감싸기"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"JSON을 CSV로\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_json_to_csv_delimiter"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_to_csv_delimiter"
+                          },
+                          "label": "구분 문자"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_json_to_csv_includeHeaders"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_to_csv_includeHeaders"
+                          },
+                          "label": "머리글 포함"
+                        },
+                        {
+                          "type": "select",
+                          "value": {
+                            "state": "o_json_to_csv_quoteStrings"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_to_csv_quoteStrings"
+                          },
+                          "label": "따옴표",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "auto",
+                              "label": "자동"
+                            },
+                            {
+                              "value": "always",
+                              "label": "항상"
+                            },
+                            {
+                              "value": "never",
+                              "label": "사용 안 함"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"JSON을 XML로\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "select",
+                          "value": {
+                            "state": "o_json_to_xml_indentationType"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_to_xml_indentationType"
+                          },
+                          "label": "들여쓰기 방식",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "space",
+                              "label": "공백"
+                            },
+                            {
+                              "value": "tab",
+                              "label": "탭"
+                            },
+                            {
+                              "value": "none",
+                              "label": "없음"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_json_to_xml_addMetaTag"
+                          },
+                          "on_change": {
+                            "set_state": "o_json_to_xml_addMetaTag"
+                          },
+                          "label": "XML 선언 포함"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"CSV를 JSON으로\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "select",
+                          "value": {
+                            "state": "o_csv_to_json_indentationType"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_json_indentationType"
+                          },
+                          "label": "들여쓰기 방식",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "space",
+                              "label": "공백"
+                            },
+                            {
+                              "value": "tab",
+                              "label": "탭"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_json_delimiter"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_json_delimiter"
+                          },
+                          "label": "구분 문자"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_json_quote"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_json_quote"
+                          },
+                          "label": "따옴표"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_json_comment"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_json_comment"
+                          },
+                          "label": "주석 문자"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_csv_to_json_useHeaders"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_json_useHeaders"
+                          },
+                          "label": "머리글 사용"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_csv_to_json_skipEmptyLines"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_json_skipEmptyLines"
+                          },
+                          "label": "빈 줄 건너뛰기"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_csv_to_json_dynamicTypes"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_json_dynamicTypes"
+                          },
+                          "label": "자료형 감지"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_json_spacesCount"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_json_spacesCount"
+                          },
+                          "label": "공백 수",
+                          "read_only": {
+                            "client": "lock_9_7"
+                          },
+                          "kind": "number",
+                          "spin": true,
+                          "min": 0,
+                          "step": 1
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"CSV를 XML로\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_xml_delimiter"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_xml_delimiter"
+                          },
+                          "label": "구분 문자"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_xml_quote"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_xml_quote"
+                          },
+                          "label": "따옴표"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_xml_comment"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_xml_comment"
+                          },
+                          "label": "주석 문자"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_csv_to_xml_useHeaders"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_xml_useHeaders"
+                          },
+                          "label": "머리글 사용"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_csv_to_xml_skipEmptyLines"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_xml_skipEmptyLines"
+                          },
+                          "label": "빈 줄 건너뛰기"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"CSV를 TSV로\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_tsv_delimiter"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_tsv_delimiter"
+                          },
+                          "label": "구분 문자"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_tsv_quoteCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_tsv_quoteCharacter"
+                          },
+                          "label": "따옴표"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_tsv_commentCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_tsv_commentCharacter"
+                          },
+                          "label": "주석 문자"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_csv_to_tsv_header"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_tsv_header"
+                          },
+                          "label": "머리글 포함"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_csv_to_tsv_emptyLines"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_tsv_emptyLines"
+                          },
+                          "label": "빈 줄 제거"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"CSV를 YAML로\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_yaml_csvSeparator"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_yaml_csvSeparator"
+                          },
+                          "label": "구분 문자"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_yaml_quoteCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_yaml_quoteCharacter"
+                          },
+                          "label": "따옴표"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_yaml_commentCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_yaml_commentCharacter"
+                          },
+                          "label": "주석 문자"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_csv_to_yaml_emptyLines"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_yaml_emptyLines"
+                          },
+                          "label": "빈 줄 제거"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_csv_to_yaml_headerRow"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_yaml_headerRow"
+                          },
+                          "label": "머리글 사용"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_to_yaml_spaces"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_to_yaml_spaces"
+                          },
+                          "label": "들여쓰기 공백 수",
+                          "kind": "number",
+                          "spin": true,
+                          "min": 0,
+                          "step": 1
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"TSV를 JSON으로\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "select",
+                          "value": {
+                            "state": "o_tsv_to_json_indentationType"
+                          },
+                          "on_change": {
+                            "set_state": "o_tsv_to_json_indentationType"
+                          },
+                          "label": "들여쓰기 방식",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "space",
+                              "label": "공백"
+                            },
+                            {
+                              "value": "tab",
+                              "label": "탭"
+                            },
+                            {
+                              "value": "none",
+                              "label": "없음"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_tsv_to_json_delimiter"
+                          },
+                          "on_change": {
+                            "set_state": "o_tsv_to_json_delimiter"
+                          },
+                          "label": "구분 문자"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_tsv_to_json_quote"
+                          },
+                          "on_change": {
+                            "set_state": "o_tsv_to_json_quote"
+                          },
+                          "label": "따옴표"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_tsv_to_json_comment"
+                          },
+                          "on_change": {
+                            "set_state": "o_tsv_to_json_comment"
+                          },
+                          "label": "주석 문자"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_tsv_to_json_useHeaders"
+                          },
+                          "on_change": {
+                            "set_state": "o_tsv_to_json_useHeaders"
+                          },
+                          "label": "머리글 사용"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_tsv_to_json_skipEmptyLines"
+                          },
+                          "on_change": {
+                            "set_state": "o_tsv_to_json_skipEmptyLines"
+                          },
+                          "label": "빈 줄 건너뛰기"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_tsv_to_json_dynamicTypes"
+                          },
+                          "on_change": {
+                            "set_state": "o_tsv_to_json_dynamicTypes"
+                          },
+                          "label": "자료형 감지"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_tsv_to_json_spacesCount"
+                          },
+                          "on_change": {
+                            "set_state": "o_tsv_to_json_spacesCount"
+                          },
+                          "label": "공백 수",
+                          "read_only": {
+                            "client": "lock_13_7"
+                          },
+                          "kind": "number",
+                          "spin": true,
+                          "min": 0,
+                          "step": 1
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"CSV 구분 문자 변경\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_change_csv_separator_inputSeparator"
+                          },
+                          "on_change": {
+                            "set_state": "o_change_csv_separator_inputSeparator"
+                          },
+                          "label": "입력 구분 문자"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_change_csv_separator_inputQuoteCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_change_csv_separator_inputQuoteCharacter"
+                          },
+                          "label": "입력 따옴표"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_change_csv_separator_commentCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_change_csv_separator_commentCharacter"
+                          },
+                          "label": "주석 문자"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_change_csv_separator_emptyLines"
+                          },
+                          "on_change": {
+                            "set_state": "o_change_csv_separator_emptyLines"
+                          },
+                          "label": "빈 줄 제거"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_change_csv_separator_outputSeparator"
+                          },
+                          "on_change": {
+                            "set_state": "o_change_csv_separator_outputSeparator"
+                          },
+                          "label": "결과 구분 문자"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_change_csv_separator_outputQuoteAll"
+                          },
+                          "on_change": {
+                            "set_state": "o_change_csv_separator_outputQuoteAll"
+                          },
+                          "label": "모든 값 따옴표로 감싸기"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_change_csv_separator_OutputQuoteCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_change_csv_separator_OutputQuoteCharacter"
+                          },
+                          "label": "결과 따옴표"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"CSV 행을 열로\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_csv_rows_to_columns_emptyValuesFilling"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_rows_to_columns_emptyValuesFilling"
+                          },
+                          "label": "빈 값 채우기"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_rows_to_columns_customFiller"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_rows_to_columns_customFiller"
+                          },
+                          "label": "채울 값",
+                          "read_only": {
+                            "client": "lock_15_1"
+                          }
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_csv_rows_to_columns_commentCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_csv_rows_to_columns_commentCharacter"
+                          },
+                          "label": "주석 문자"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"CSV 행과 열 바꾸기\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_transpose_csv_separator"
+                          },
+                          "on_change": {
+                            "set_state": "o_transpose_csv_separator"
+                          },
+                          "label": "구분 문자"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_transpose_csv_commentCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_transpose_csv_commentCharacter"
+                          },
+                          "label": "주석 문자"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_transpose_csv_customFill"
+                          },
+                          "on_change": {
+                            "set_state": "o_transpose_csv_customFill"
+                          },
+                          "label": "값 채우기"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_transpose_csv_customFillValue"
+                          },
+                          "on_change": {
+                            "set_state": "o_transpose_csv_customFillValue"
+                          },
+                          "label": "채울 값",
+                          "read_only": {
+                            "client": "lock_16_3"
+                          }
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_transpose_csv_quoteChar"
+                          },
+                          "on_change": {
+                            "set_state": "o_transpose_csv_quoteChar"
+                          },
+                          "label": "따옴표"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"빠진 CSV 값 찾기\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_find_incomplete_csv_records_csvSeparator"
+                          },
+                          "on_change": {
+                            "set_state": "o_find_incomplete_csv_records_csvSeparator"
+                          },
+                          "label": "구분 문자"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_find_incomplete_csv_records_quoteCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_find_incomplete_csv_records_quoteCharacter"
+                          },
+                          "label": "따옴표"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_find_incomplete_csv_records_commentCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_find_incomplete_csv_records_commentCharacter"
+                          },
+                          "label": "주석 문자"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_find_incomplete_csv_records_emptyLines"
+                          },
+                          "on_change": {
+                            "set_state": "o_find_incomplete_csv_records_emptyLines"
+                          },
+                          "label": "빈 줄 제거"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_find_incomplete_csv_records_emptyValues"
+                          },
+                          "on_change": {
+                            "set_state": "o_find_incomplete_csv_records_emptyValues"
+                          },
+                          "label": "빈 값 찾기"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_find_incomplete_csv_records_messageLimit"
+                          },
+                          "on_change": {
+                            "set_state": "o_find_incomplete_csv_records_messageLimit"
+                          },
+                          "label": "메시지 수 제한"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_find_incomplete_csv_records_messageNumber"
+                          },
+                          "on_change": {
+                            "set_state": "o_find_incomplete_csv_records_messageNumber"
+                          },
+                          "label": "메시지 수",
+                          "read_only": {
+                            "client": "lock_17_6"
+                          },
+                          "kind": "number",
+                          "spin": true,
+                          "min": 1,
+                          "step": 1
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"CSV 열 삽입\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "select",
+                          "value": {
+                            "state": "o_insert_csv_columns_insertingPosition"
+                          },
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_insertingPosition"
+                          },
+                          "label": "삽입 위치",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "prepend",
+                              "label": "앞"
+                            },
+                            {
+                              "value": "append",
+                              "label": "뒤"
+                            },
+                            {
+                              "value": "custom",
+                              "label": "지정"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "select",
+                          "value": {
+                            "state": "o_insert_csv_columns_customPostionOptions"
+                          },
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_customPostionOptions"
+                          },
+                          "label": "위치 기준",
+                          "style": "segmented",
+                          "options": [
+                            {
+                              "value": "headerName",
+                              "label": "머리글"
+                            },
+                            {
+                              "value": "rowNumber",
+                              "label": "번호"
+                            }
+                          ],
+                          "disabled": {
+                            "client": "lock_18_1"
+                          }
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_insert_csv_columns_csvToInsert"
+                          },
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_csvToInsert"
+                          },
+                          "label": "삽입할 CSV",
+                          "multiline": true,
+                          "rows": 3
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_insert_csv_columns_commentCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_commentCharacter"
+                          },
+                          "label": "주석 문자"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_insert_csv_columns_separator"
+                          },
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_separator"
+                          },
+                          "label": "구분 문자"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_insert_csv_columns_quoteChar"
+                          },
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_quoteChar"
+                          },
+                          "label": "따옴표"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_insert_csv_columns_customFill"
+                          },
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_customFill"
+                          },
+                          "label": "값 채우기"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_insert_csv_columns_customFillValue"
+                          },
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_customFillValue"
+                          },
+                          "label": "채울 값",
+                          "read_only": {
+                            "client": "lock_18_7"
+                          }
+                        },
+                        {
+                          "type": "select",
+                          "value": {
+                            "state": "o_insert_csv_columns_headerName"
+                          },
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_headerName"
+                          },
+                          "label": "머리글",
+                          "style": "dropdown",
+                          "options": {
+                            "client": "choices_b77f71c9941fe50a"
+                          },
+                          "disabled": {
+                            "client": "lock_18_8"
+                          }
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_insert_csv_columns_rowNumber"
+                          },
+                          "on_change": {
+                            "set_state": "o_insert_csv_columns_rowNumber"
+                          },
+                          "label": "번호",
+                          "read_only": {
+                            "client": "lock_18_9"
+                          },
+                          "kind": "number",
+                          "spin": true,
+                          "min": 1,
+                          "step": 1
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"CSV 열 맞바꾸기\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_swap_csv_columns_fromPositionStatus"
+                          },
+                          "on_change": {
+                            "set_state": "o_swap_csv_columns_fromPositionStatus"
+                          },
+                          "label": "첫 열을 번호로 지정"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_swap_csv_columns_toPositionStatus"
+                          },
+                          "on_change": {
+                            "set_state": "o_swap_csv_columns_toPositionStatus"
+                          },
+                          "label": "둘째 열을 번호로 지정"
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_swap_csv_columns_emptyValuesFilling"
+                          },
+                          "on_change": {
+                            "set_state": "o_swap_csv_columns_emptyValuesFilling"
+                          },
+                          "label": "빈 값 채우기"
+                        },
+                        {
+                          "type": "when",
+                          "value": {
+                            "expr": "$state.o_swap_csv_columns_fromPositionStatus = true"
+                          },
+                          "child": {
+                            "type": "input",
+                            "value": {
+                              "state": "o_swap_csv_columns_fromPosition"
+                            },
+                            "on_change": {
+                              "set_state": "o_swap_csv_columns_fromPosition"
+                            },
+                            "label": "첫 열 번호",
+                            "kind": "number",
+                            "spin": true,
+                            "min": 1,
+                            "step": 1
+                          }
+                        },
+                        {
+                          "type": "when",
+                          "value": {
+                            "expr": "$state.o_swap_csv_columns_fromPositionStatus = false"
+                          },
+                          "child": {
+                            "type": "select",
+                            "value": {
+                              "state": "o_swap_csv_columns_fromHeader"
+                            },
+                            "on_change": {
+                              "set_state": "o_swap_csv_columns_fromHeader"
+                            },
+                            "label": "첫 열 머리글",
+                            "style": "dropdown",
+                            "options": {
+                              "client": "choices_8e8771bd9885ab59"
+                            }
+                          }
+                        },
+                        {
+                          "type": "when",
+                          "value": {
+                            "expr": "$state.o_swap_csv_columns_toPositionStatus = true"
+                          },
+                          "child": {
+                            "type": "input",
+                            "value": {
+                              "state": "o_swap_csv_columns_toPosition"
+                            },
+                            "on_change": {
+                              "set_state": "o_swap_csv_columns_toPosition"
+                            },
+                            "label": "둘째 열 번호",
+                            "kind": "number",
+                            "spin": true,
+                            "min": 1,
+                            "step": 1
+                          }
+                        },
+                        {
+                          "type": "when",
+                          "value": {
+                            "expr": "$state.o_swap_csv_columns_toPositionStatus = false"
+                          },
+                          "child": {
+                            "type": "select",
+                            "value": {
+                              "state": "o_swap_csv_columns_toHeader"
+                            },
+                            "on_change": {
+                              "set_state": "o_swap_csv_columns_toHeader"
+                            },
+                            "label": "둘째 열 머리글",
+                            "style": "dropdown",
+                            "options": {
+                              "client": "choices_707feba431cef02a"
+                            }
+                          }
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_swap_csv_columns_customFiller"
+                          },
+                          "on_change": {
+                            "set_state": "o_swap_csv_columns_customFiller"
+                          },
+                          "label": "채울 값",
+                          "read_only": {
+                            "client": "lock_19_7"
+                          }
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_swap_csv_columns_deleteComment"
+                          },
+                          "on_change": {
+                            "set_state": "o_swap_csv_columns_deleteComment"
+                          },
+                          "label": "주석 삭제"
+                        },
+                        {
+                          "type": "input",
+                          "value": {
+                            "state": "o_swap_csv_columns_commentCharacter"
+                          },
+                          "on_change": {
+                            "set_state": "o_swap_csv_columns_commentCharacter"
+                          },
+                          "label": "주석 문자",
+                          "read_only": {
+                            "client": "lock_19_9"
+                          }
+                        },
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_swap_csv_columns_emptyLines"
+                          },
+                          "on_change": {
+                            "set_state": "o_swap_csv_columns_emptyLines"
+                          },
+                          "label": "빈 줄 제거"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "$state.tool = \"XML 정리\""
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "옵션",
+                    "child": {
+                      "type": "stack",
+                      "direction": "column",
+                      "gap": "small",
+                      "children": [
+                        {
+                          "type": "toggle",
+                          "value": {
+                            "state": "o_xml_beautifier_preserveAttributes"
+                          },
+                          "on_change": {
+                            "set_state": "o_xml_beautifier_preserveAttributes"
+                          },
+                          "label": "속성 보존"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "section",
+            "title": "결과",
+            "actions": [
+              {
+                "type": "when",
+                "value": {
+                  "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                },
+                "child": {
+                  "type": "button",
+                  "icon": "copy",
+                  "icon_only": true,
+                  "label": "복사",
+                  "on_click": {
+                    "copy_text": {
+                      "client": "output"
+                    }
+                  },
+                  "disabled": {
+                    "client": "no_result"
+                  }
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                },
+                "child": {
+                  "type": "when",
+                  "value": {
+                    "expr": "($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).extension = 'json'"
+                  },
+                  "child": {
+                    "type": "button",
+                    "icon": "download",
+                    "icon_only": true,
+                    "label": "저장",
+                    "on_click": {
+                      "save_file": {
+                        "suggested_name": {
+                          "client": "filename"
+                        },
+                        "mime": "application/json",
+                        "client": "save"
+                      }
+                    },
+                    "disabled": {
+                      "client": "no_result"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                },
+                "child": {
+                  "type": "when",
+                  "value": {
+                    "expr": "($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).extension = 'txt'"
+                  },
+                  "child": {
+                    "type": "button",
+                    "icon": "download",
+                    "icon_only": true,
+                    "label": "저장",
+                    "on_click": {
+                      "save_file": {
+                        "suggested_name": {
+                          "client": "filename"
+                        },
+                        "mime": "text/plain",
+                        "client": "save"
+                      }
+                    },
+                    "disabled": {
+                      "client": "no_result"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                },
+                "child": {
+                  "type": "when",
+                  "value": {
+                    "expr": "($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).extension = 'csv'"
+                  },
+                  "child": {
+                    "type": "button",
+                    "icon": "download",
+                    "icon_only": true,
+                    "label": "저장",
+                    "on_click": {
+                      "save_file": {
+                        "suggested_name": {
+                          "client": "filename"
+                        },
+                        "mime": "text/csv",
+                        "client": "save"
+                      }
+                    },
+                    "disabled": {
+                      "client": "no_result"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                },
+                "child": {
+                  "type": "when",
+                  "value": {
+                    "expr": "($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).extension = 'xml'"
+                  },
+                  "child": {
+                    "type": "button",
+                    "icon": "download",
+                    "icon_only": true,
+                    "label": "저장",
+                    "on_click": {
+                      "save_file": {
+                        "suggested_name": {
+                          "client": "filename"
+                        },
+                        "mime": "application/xml",
+                        "client": "save"
+                      }
+                    },
+                    "disabled": {
+                      "client": "no_result"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                },
+                "child": {
+                  "type": "when",
+                  "value": {
+                    "expr": "($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).extension = 'tsv'"
+                  },
+                  "child": {
+                    "type": "button",
+                    "icon": "download",
+                    "icon_only": true,
+                    "label": "저장",
+                    "on_click": {
+                      "save_file": {
+                        "suggested_name": {
+                          "client": "filename"
+                        },
+                        "mime": "text/tab-separated-values",
+                        "client": "save"
+                      }
+                    },
+                    "disabled": {
+                      "client": "no_result"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                },
+                "child": {
+                  "type": "when",
+                  "value": {
+                    "expr": "($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).extension = 'yaml'"
+                  },
+                  "child": {
+                    "type": "button",
+                    "icon": "download",
+                    "icon_only": true,
+                    "label": "저장",
+                    "on_click": {
+                      "save_file": {
+                        "suggested_name": {
+                          "client": "filename"
+                        },
+                        "mime": "application/yaml",
+                        "client": "save"
+                      }
+                    },
+                    "disabled": {
+                      "client": "no_result"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "expr": "false"
+                },
+                "child": {
+                  "type": "button",
+                  "icon": "refresh-cw",
+                  "icon_only": true,
+                  "label": "다시 만들기",
+                  "on_click": {
+                    "client": "regenerate"
+                  }
+                }
+              }
+            ],
+            "child": {
+              "type": "stack",
+              "direction": "column",
+              "fill": [
+                1,
+                2
+              ],
+              "children": [
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "has_error"
+                  },
+                  "child": {
+                    "type": "notice",
+                    "kind": "error",
+                    "message": {
+                      "client": "error"
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "no_error"
+                  },
+                  "child": {
+                    "type": "when",
+                    "value": {
+                      "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                    },
+                    "child": {
+                      "type": "when",
+                      "value": {
+                        "expr": "($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).language = 'json'"
+                      },
+                      "child": {
+                        "type": "code",
+                        "value": {
+                          "client": "output"
+                        },
+                        "language": "json"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "no_error"
+                  },
+                  "child": {
+                    "type": "when",
+                    "value": {
+                      "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                    },
+                    "child": {
+                      "type": "when",
+                      "value": {
+                        "expr": "$not($exists(($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).language)) or ($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).language = 'plain'"
+                      },
+                      "child": {
+                        "type": "when",
+                        "value": {
+                          "expr": "$not(($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).code_result = true)"
+                        },
+                        "child": {
+                          "type": "input",
+                          "value": {
+                            "client": "output"
+                          },
+                          "on_change": {
+                            "client": "ignore_edit"
+                          },
+                          "label": "결과",
+                          "multiline": true,
+                          "rows": 6,
+                          "label_position": "hidden",
+                          "read_only": {
+                            "client": "result_locked"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "no_error"
+                  },
+                  "child": {
+                    "type": "when",
+                    "value": {
+                      "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                    },
+                    "child": {
+                      "type": "when",
+                      "value": {
+                        "expr": "($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).language = 'xml'"
+                      },
+                      "child": {
+                        "type": "code",
+                        "value": {
+                          "client": "output"
+                        },
+                        "language": "xml"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "no_error"
+                  },
+                  "child": {
+                    "type": "when",
+                    "value": {
+                      "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                    },
+                    "child": {
+                      "type": "when",
+                      "value": {
+                        "expr": "($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).language = 'yaml'"
+                      },
+                      "child": {
+                        "type": "code",
+                        "value": {
+                          "client": "output"
+                        },
+                        "language": "yaml"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "no_error"
+                  },
+                  "child": {
+                    "type": "when",
+                    "value": {
+                      "expr": "$state.tool = \"JSON 정리\" or $state.tool = \"JSON 압축\" or $state.tool = \"JSON 검사\" or $state.tool = \"JSON 정렬\" or $state.tool = \"JSON 문자열화\" or $state.tool = \"JSON 이스케이프\" or $state.tool = \"JSON 비교\" or $state.tool = \"JSON을 CSV로\" or $state.tool = \"JSON을 XML로\" or $state.tool = \"CSV를 JSON으로\" or $state.tool = \"CSV를 XML로\" or $state.tool = \"CSV를 TSV로\" or $state.tool = \"CSV를 YAML로\" or $state.tool = \"TSV를 JSON으로\" or $state.tool = \"CSV 구분 문자 변경\" or $state.tool = \"CSV 행을 열로\" or $state.tool = \"CSV 행과 열 바꾸기\" or $state.tool = \"빠진 CSV 값 찾기\" or $state.tool = \"CSV 열 삽입\" or $state.tool = \"CSV 열 맞바꾸기\" or $state.tool = \"XML 정리\" or $state.tool = \"XML 검사\""
+                    },
+                    "child": {
+                      "type": "when",
+                      "value": {
+                        "expr": "($t := [{\"id\":\"json-prettify\",\"name\":\"JSON 정리\",\"description\":\"JSON의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-minify\",\"name\":\"JSON 압축\",\"description\":\"JSON의 공백을 줄입니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-validate\",\"name\":\"JSON 검사\",\"description\":\"JSON 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-sort\",\"name\":\"JSON 정렬\",\"description\":\"JSON의 키나 값을 정렬합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"json-stringify\",\"name\":\"JSON 문자열화\",\"description\":\"JavaScript 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"escape-json\",\"name\":\"JSON 이스케이프\",\"description\":\"글을 JSON 문자열로 이스케이프합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-comparison\",\"name\":\"JSON 비교\",\"description\":\"두 JSON의 차이를 비교합니다\",\"input\":\"text2\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"json-to-csv\",\"name\":\"JSON을 CSV로\",\"description\":\"JSON 배열을 CSV로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"json-to-xml\",\"name\":\"JSON을 XML로\",\"description\":\"JSON을 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-json\",\"name\":\"CSV를 JSON으로\",\"description\":\"CSV를 JSON 배열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"csv-to-xml\",\"name\":\"CSV를 XML로\",\"description\":\"CSV를 XML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"csv-to-tsv\",\"name\":\"CSV를 TSV로\",\"description\":\"CSV를 탭 구분 값으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"code_result\":true,\"language\":\"plain\",\"extension\":\"tsv\"},{\"id\":\"csv-to-yaml\",\"name\":\"CSV를 YAML로\",\"description\":\"CSV를 YAML로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"yaml\",\"extension\":\"yaml\"},{\"id\":\"tsv-to-json\",\"name\":\"TSV를 JSON으로\",\"description\":\"탭 구분 값을 JSON으로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"json\",\"extension\":\"json\"},{\"id\":\"change-csv-separator\",\"name\":\"CSV 구분 문자 변경\",\"description\":\"CSV의 구분 문자와 따옴표를 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"csv-rows-to-columns\",\"name\":\"CSV 행을 열로\",\"description\":\"CSV 행을 열로 바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"transpose-csv\",\"name\":\"CSV 행과 열 바꾸기\",\"description\":\"CSV 행과 열을 전치합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"find-incomplete-csv-records\",\"name\":\"빠진 CSV 값 찾기\",\"description\":\"빠진 열과 빈 값을 찾습니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"},{\"id\":\"insert-csv-columns\",\"name\":\"CSV 열 삽입\",\"description\":\"CSV에 다른 열을 삽입합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"swap-csv-columns\",\"name\":\"CSV 열 맞바꾸기\",\"description\":\"두 CSV 열을 맞바꿉니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"csv\"},{\"id\":\"xml-beautifier\",\"name\":\"XML 정리\",\"description\":\"XML의 들여쓰기를 정돈합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"xml\",\"extension\":\"xml\"},{\"id\":\"xml-validator\",\"name\":\"XML 검사\",\"description\":\"XML 형식이 올바른지 검사합니다\",\"input\":\"text\",\"result\":\"text\",\"generate\":false,\"language\":\"plain\",\"extension\":\"txt\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).code_result = true"
+                      },
+                      "child": {
+                        "type": "code",
+                        "value": {
+                          "client": "output"
+                        },
+                        "language": "plain"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "false"
+                  },
+                  "child": {
+                    "type": "html_view",
+                    "value": {
+                      "client": "output_html"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
