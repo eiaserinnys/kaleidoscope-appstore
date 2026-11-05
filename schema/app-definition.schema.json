@@ -392,6 +392,28 @@
             "id",
             "label"
           ]
+        },
+        {
+          "description": "앱스토어에서 목록 읽기와 앱 설치·삭제.",
+          "type": "object",
+          "properties": {
+            "module": {
+              "type": "string",
+              "const": "store"
+            },
+            "id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "module",
+            "id",
+            "label"
+          ]
         }
       ]
     },
@@ -507,6 +529,81 @@
             "kind",
             "permission",
             "path"
+          ]
+        },
+        {
+          "description": "정적 스토어의 색인 또는 앱 상세를 읽는다.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "const": "store"
+            }
+          },
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "store": {
+                  "type": "string",
+                  "const": "index"
+                },
+                "permission": {
+                  "type": "string"
+                },
+                "server": {
+                  "$ref": "#/$defs/Binding"
+                },
+                "refresh_secs": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "format": "uint32",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "store",
+                "permission",
+                "server"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "store": {
+                  "type": "string",
+                  "const": "app"
+                },
+                "permission": {
+                  "type": "string"
+                },
+                "server": {
+                  "$ref": "#/$defs/Binding"
+                },
+                "id": {
+                  "$ref": "#/$defs/Binding"
+                },
+                "refresh_secs": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "format": "uint32",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "store",
+                "permission",
+                "server",
+                "id"
+              ]
+            }
+          ],
+          "required": [
+            "kind"
           ]
         },
         {
@@ -1354,6 +1451,9 @@
           }
         },
         {
+          "$ref": "#/$defs/OpenUrlAction"
+        },
+        {
           "$ref": "#/$defs/CopyTextAction"
         }
       ]
@@ -1487,6 +1587,12 @@
         },
         {
           "$ref": "#/$defs/WorkerAction"
+        },
+        {
+          "$ref": "#/$defs/StoreInstallAction"
+        },
+        {
+          "$ref": "#/$defs/StoreRemoveAction"
         },
         {
           "$ref": "#/$defs/ClientAction"
@@ -1695,6 +1801,70 @@
         "action"
       ]
     },
+    "StoreInstallAction": {
+      "type": "object",
+      "properties": {
+        "store.install": {
+          "$ref": "#/$defs/StoreInstallSpec"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "store.install"
+      ]
+    },
+    "StoreInstallSpec": {
+      "type": "object",
+      "properties": {
+        "permission": {
+          "type": "string"
+        },
+        "server": {
+          "$ref": "#/$defs/Binding"
+        },
+        "id": {
+          "$ref": "#/$defs/Binding"
+        },
+        "release": {
+          "$ref": "#/$defs/Binding"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "permission",
+        "server",
+        "id",
+        "release"
+      ]
+    },
+    "StoreRemoveAction": {
+      "type": "object",
+      "properties": {
+        "store.remove": {
+          "$ref": "#/$defs/StoreRemoveSpec"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "store.remove"
+      ]
+    },
+    "StoreRemoveSpec": {
+      "type": "object",
+      "properties": {
+        "permission": {
+          "type": "string"
+        },
+        "id": {
+          "$ref": "#/$defs/Binding"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "permission",
+        "id"
+      ]
+    },
     "CopyTextAction": {
       "description": "바인딩이 낸 글을 이 기기의 클립보드에 쓴다. 단독으로 쓴다.",
       "type": "object",
@@ -1706,6 +1876,19 @@
       "additionalProperties": false,
       "required": [
         "copy_text"
+      ]
+    },
+    "OpenUrlAction": {
+      "description": "(블록 세트 36판) 바인딩이 낸 공개 HTTPS 주소를 기본 브라우저로 연다.",
+      "type": "object",
+      "properties": {
+        "open_url": {
+          "$ref": "#/$defs/Binding"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "open_url"
       ]
     },
     "DeviceStorage": {
@@ -1735,12 +1918,21 @@
       ]
     },
     "ClientCapability": {
-      "type": "string",
-      "enum": [
-        "share",
-        "keep_awake",
-        "instructions",
-        "context_capture"
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "share",
+            "keep_awake",
+            "instructions",
+            "context_capture"
+          ]
+        },
+        {
+          "description": "다른 창에서 보낸 글을 받는다. 블록 세트 29판과 client 6판 이상이 필요하다.",
+          "type": "string",
+          "const": "receive_message"
+        }
       ]
     },
     "Shortcut": {
@@ -1815,6 +2007,17 @@
             },
             "key": {
               "type": "string"
+            },
+            "gap": {
+              "description": "항목 사이 간격. 생략하면 기존 배치의 간격을 쓴다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Gap"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "layout": {
               "$ref": "#/$defs/RepeatLayout",
@@ -2141,6 +2344,42 @@
               "type": "string",
               "const": "timeline"
             },
+            "scale": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/TimelineScale"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lanes": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/TimelineLanes"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "today": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "off_days": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Binding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "viewport": {
               "anyOf": [
                 {
@@ -2168,10 +2407,24 @@
               ]
             },
             "duration": {
-              "$ref": "#/$defs/Binding"
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Binding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "position": {
-              "$ref": "#/$defs/Binding"
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Binding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "tracks": {
               "$ref": "#/$defs/Binding"
@@ -2254,8 +2507,6 @@
           "additionalProperties": false,
           "required": [
             "type",
-            "duration",
-            "position",
             "tracks"
           ]
         },
@@ -2446,6 +2697,15 @@
             },
             "direction": {
               "$ref": "#/$defs/SplitDirection"
+            },
+            "column_below": {
+              "description": "row 분할의 자기 폭이 이 값보다 작으면 column으로 놓는다. 0은 쓸 수 없다.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint32",
+              "minimum": 0
             },
             "sizes": {
               "description": "자식마다의 상대 크기. 없으면 똑같이 나눈다.",
@@ -2853,7 +3113,7 @@
           ]
         },
         {
-          "description": "(4판) 자식을 한 줄로 쌓는다. 끌어서 크기를 바꾸지 않는다(그건 `split`). `fill`번째 자식이 남은\n자리를 모두 차지하며 넘치면 그 칸 안에서 스크롤한다. 앞 칸이 길면 채우는 칸이 먼저 0까지 줄어드니,\n길어질 수 있는 목록과 문서를 `fill`로 둔다. `fill`을 생략하면 마지막 자식이 채운다. 다만 마지막 자식이\n쌓는 방향으로 크기가 정해진 조작이면 채우는 칸 없이 모두 제 크기를 갖는다. 세로에서는 단추, 한 줄 입력,\n고르기, 켜기, 슬라이더, 색, 도구 막대, 가로에서는 단추, 켜기, 색이고 이것들만 담은 스택도 같다.\n`when`과 `anchor`는 감싼 자식으로 본다. 세로 스택이 넘치면 창 몸통이 스크롤한다.\n`fill`이 `min_width`나 `max_width`를 가진 `when`을 가리키면, 바로 이웃한 폭 조건 `when`들도\n채움 자리가 되어 창 폭으로 배치를 바꿔 끼울 때 보이는 쪽이 남은 공간을 채운다.\n`place:\"center\"`는 `fill`을 무시하고 가운데 배치한다.",
+          "description": "(4판) 자식을 한 줄로 쌓는다. 끌어서 크기를 바꾸지 않는다(그건 `split`). `fill`번째 자식이 남은\n자리를 모두 차지하며 넘치면 그 칸 안에서 스크롤한다. 앞 칸이 길면 채우는 칸이 먼저 0까지 줄어드니,\n길어질 수 있는 목록과 문서를 `fill`로 둔다. `fill`을 생략하면 마지막 자식이 채운다. 다만 마지막 자식이\n쌓는 방향으로 크기가 정해진 조작이면 채우는 칸 없이 모두 제 크기를 갖는다. 세로에서는 단추, 한 줄 입력,\n고르기, 켜기, 슬라이더, 색, 도구 막대, 가로에서는 단추, 켜기, 색이고 이것들만 담은 스택도 같다.\n`when`과 `anchor`는 감싼 자식으로 본다. 세로 스택이 넘치면 창 몸통이 스크롤한다.\n`fill`이 `min_width`나 `max_width`를 가진 `when`을 가리키면, 바로 이웃한 폭 조건 `when`들도\n채움 자리가 되어 창 폭으로 배치를 바꿔 끼울 때 보이는 쪽이 남은 공간을 채운다.\n목록 형태의 `fill`은 지정한 칸들이 남은 공간을 똑같이 나눈다. 목록은 중복 없이 자식 범위 안의 번호를 하나 이상 담는다.\n`place:\"center\"`는 `fill`을 무시하고 가운데 배치한다.",
           "type": "object",
           "properties": {
             "type": {
@@ -2868,12 +3128,14 @@
               "default": "medium"
             },
             "fill": {
-              "type": [
-                "integer",
-                "null"
-              ],
-              "format": "uint32",
-              "minimum": 0
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/StackFill"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "wrap": {
               "type": [
@@ -3075,6 +3337,17 @@
               ]
             },
             "on_select": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Actions"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "on_remove": {
+              "description": "(블록 세트 36판) 항목 끝의 빼기 단추가 실행하는 동작.",
               "anyOf": [
                 {
                   "$ref": "#/$defs/Actions"
@@ -3322,12 +3595,30 @@
           ]
         },
         {
-          "description": "(4판) 글 입력. `value`의 상태를 보이고, 입력이 멈추고 0.3초 뒤와 포커스를 잃을 때 `on_change`가 `$event`\n(입력한 글, `number`면 숫자나 null)로 돈다. 입력 중에는 상태가 바뀌어도 글을 덮지 않는다. `search`는 앞에\n돋보기, 글이 있으면 끝에 지우기 단추가 붙는다. `multiline`이면 한 줄로 시작해 글을 따라 자란다(최대 8줄).\nEnter는 `on_submit`이 있으면 그것을 부른다(`multiline`에서는 Ctrl+Enter). 한글 조합 중의 Enter는 보내지 않는다.\n(19판) `columns`는 보일 문자 수로 폭을 정하며, 양수여야 하고 지정한 폭보다 줄어들지 않는다.",
+          "description": "(4판) 글 입력. `value`의 상태를 보이고, 입력이 멈추고 0.3초 뒤와 포커스를 잃을 때 `on_change`가 `$event`\n(입력한 글, `number`면 숫자나 null)로 돈다. 입력 중에는 상태가 바뀌어도 글을 덮지 않는다. `search`는 앞에\n돋보기, 글이 있으면 끝에 지우기 단추가 붙는다. `multiline`이면 한 줄로 시작해 글을 따라 자란다(최대 8줄).\nEnter는 `on_submit`이 있으면 그것을 부른다(`multiline`에서는 Ctrl+Enter). 한글 조합 중의 Enter는 보내지 않는다.\n(19판) `columns`는 보일 문자 수로 폭을 정하며, 양수여야 하고 지정한 폭보다 줄어들지 않는다.\n(31판) `spin`은 숫자 입력에 위아래 단추를 보인다.",
           "type": "object",
           "properties": {
             "type": {
               "type": "string",
               "const": "input"
+            },
+            "options": {
+              "description": "(33판) 입력하면서 거를 문자열 선택지 바인딩.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Binding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "options_only": {
+              "description": "(33판) 참이면 선택지 값만 확정한다.",
+              "type": [
+                "boolean",
+                "null"
+              ]
             },
             "read_only": {
               "description": "(25판) 참이면 편집을 막고 글 선택과 복사는 허용한다.",
@@ -3338,6 +3629,12 @@
                 {
                   "type": "null"
                 }
+              ]
+            },
+            "spin": {
+              "type": [
+                "boolean",
+                "null"
               ]
             },
             "min": {
@@ -3644,6 +3941,16 @@
             "label": {
               "$ref": "#/$defs/Binding"
             },
+            "description": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Binding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "icon": {
               "anyOf": [
                 {
@@ -3659,7 +3966,7 @@
               "default": false
             },
             "variant": {
-              "$ref": "#/$defs/ButtonVariant",
+              "$ref": "#/$defs/Binding",
               "default": "default"
             },
             "on_click": {
@@ -3969,6 +4276,16 @@
         }
       ]
     },
+    "Gap": {
+      "description": "`stack`의 자식 사이 간격. 쉘의 간격 토큰 가운데 하나다.",
+      "type": "string",
+      "enum": [
+        "none",
+        "small",
+        "medium",
+        "large"
+      ]
+    },
     "RepeatLayout": {
       "type": "string",
       "enum": [
@@ -4101,6 +4418,21 @@
       "enum": [
         "contain",
         "cover"
+      ]
+    },
+    "TimelineScale": {
+      "type": "string",
+      "enum": [
+        "seconds",
+        "dates"
+      ]
+    },
+    "TimelineLanes": {
+      "type": "string",
+      "enum": [
+        "single",
+        "pack",
+        "each"
       ]
     },
     "FileRef": {
@@ -4329,14 +4661,22 @@
         "permission"
       ]
     },
-    "Gap": {
-      "description": "`stack`의 자식 사이 간격. 쉘의 간격 토큰 가운데 하나다.",
-      "type": "string",
-      "enum": [
-        "none",
-        "small",
-        "medium",
-        "large"
+    "StackFill": {
+      "description": "쌓기에서 남은 공간을 차지할 자식 번호 또는 번호 목록.",
+      "anyOf": [
+        {
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0
+          }
+        }
       ]
     },
     "StackPlace": {
@@ -4383,6 +4723,11 @@
           "description": "그림 칸의 격자.",
           "type": "string",
           "const": "grid"
+        },
+        {
+          "description": "작은 아이콘과 이름의 격자.",
+          "type": "string",
+          "const": "icons"
         }
       ]
     },
@@ -4634,7 +4979,9 @@
       "enum": [
         "text",
         "search",
-        "number"
+        "number",
+        "date",
+        "time"
       ]
     },
     "SelectStyle": {
@@ -4666,32 +5013,6 @@
       "required": [
         "label",
         "on_click"
-      ]
-    },
-    "ButtonVariant": {
-      "oneOf": [
-        {
-          "type": "string",
-          "enum": [
-            "default",
-            "chip"
-          ]
-        },
-        {
-          "description": "강조. 한 화면에 하나만 쓴다.",
-          "type": "string",
-          "const": "primary"
-        },
-        {
-          "description": "지우기처럼 되돌리기 어려운 것.",
-          "type": "string",
-          "const": "danger"
-        },
-        {
-          "description": "테두리 없는 가벼운 단추.",
-          "type": "string",
-          "const": "ghost"
-        }
       ]
     },
     "CodeLanguage": {

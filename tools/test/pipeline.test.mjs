@@ -58,6 +58,20 @@ test('정상 새 앱과 --head 및 --all 검사', t => {
   assert.equal(allCheck(dir).status,0);
 });
 
+test('큰 블록 트리의 앱 정의를 수 초 안에 검사한다', t => {
+  const dir=setup(t), base=git(dir,'rev-parse','HEAD'), a=app(dir);
+  const leaf=()=>structuredClone(template.ui.children[0]);
+  const stack=children=>({type:'stack',direction:'column',children});
+  a.definition.ui=stack(Array.from({length:8},()=>
+    stack(Array.from({length:8},()=>stack(Array.from({length:8},leaf))))));
+  for(let i=0;i<6;i++)a.definition.ui={type:'when',child:a.definition.ui};
+  json(join(a.folder,'app.json'),a.definition); commit(dir);
+  const result=spawnSync(process.execPath,[check,'--base',base,'--head','HEAD','--author','alice'],{cwd:dir,encoding:'utf8',timeout:8000});
+  assert.equal(result.error,undefined,`8초 안에 검사가 끝나지 않았습니다: ${result.error}`);
+  assert.equal(result.status,0,result.stdout+result.stderr);
+  assert.match(result.stdout,/검사 통과: 앱 1개/);
+});
+
 test('오래된 PR에서는 main에 나중에 추가된 다른 앱을 변경으로 보지 않는다',t=>{
   const dir=setup(t),fork=git(dir,'rev-parse','HEAD');git(dir,'checkout','-qb','pr',fork);app(dir,'hello');const head=commit(dir,'PR 앱');
   git(dir,'checkout','-qb','upstream',fork);app(dir,'other',{publisher:'bob'});const base=commit(dir,'다른 앱 추가');
@@ -79,14 +93,14 @@ test('규칙 2: 앱 크기, 스키마, id, 기본 앱', async t => {
     if(kind==='schema') {delete a.definition.ui; json(join(a.folder,'app.json'),a.definition);}
     if(kind==='id') {a.definition.id='other'; json(join(a.folder,'app.json'),a.definition);}
     if(kind==='size') writeFileSync(join(a.folder,'app.json'), ' '.repeat(1024*1024+1));
-    commit(dir); expectBad(runCheck(dir,base), /앱|스키마|id|크기/);
+    commit(dir); expectBad(runCheck(dir,base), kind==='schema'?/앱 스키마가 맞지 않습니다:/ : /앱|스키마|id|크기/);
   });
 });
 
 test('규칙 3: 메타 필드, 남의 앱과 게시자 변경, 소유자 관리자 권한 및 삭제', async t => {
   for(const kind of ['field','new-author','other','publisher','admin','delete']) await t.test(kind,t=>{
     const dir=setup(t); let base=git(dir,'rev-parse','HEAD');
-    if(kind==='field'||kind==='new-author') {const a=app(dir); if(kind==='field'){a.store.summary='';json(join(a.folder,'store.json'),a.store);} commit(dir); expectBad(runCheck(dir,base,kind==='new-author'?'bob':'alice'),/게시자|summary|형식/); return;}
+    if(kind==='field'||kind==='new-author') {const a=app(dir); if(kind==='field'){a.store.summary='';a.store.category='';json(join(a.folder,'store.json'),a.store);} commit(dir); const r=runCheck(dir,base,kind==='new-author'?'bob':'alice');expectBad(r,/게시자|summary|형식/);if(kind==='field'){assert.match(r.stderr,/summary/);assert.match(r.stderr,/category/);}return;}
     const a=app(dir); commit(dir,'app'); base=git(dir,'rev-parse','HEAD');
     if(kind==='delete') rmSync(a.folder,{recursive:true}); else {a.store.release=2; a.store.summary='바뀜'; if(kind==='publisher') a.store.publisher='bob'; json(join(a.folder,'store.json'),a.store);}
     commit(dir); const r=runCheck(dir,base,kind==='admin'?'eiaserinnys':'bob');
