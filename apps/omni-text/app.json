@@ -17,7 +17,7 @@
   "assets": [
     {
       "id": "omni-text-client",
-      "version": 1
+      "version": 2
     },
     {
       "id": "omni-text-icon",
@@ -183,7 +183,7 @@
     "runtime": "javascript",
     "entry": {
       "id": "omni-text-client",
-      "version": 1
+      "version": 2
     },
     "inputs": {
       "tool": {
@@ -214,6 +214,9 @@
       },
       "has_error": {
         "default": false
+      },
+      "no_error": {
+        "default": true
       },
       "no_result": {
         "default": true
@@ -2803,7 +2806,11 @@
                           "on_change": {
                             "set_state": "o_shuffle_length"
                           },
-                          "label": "길이"
+                          "label": "길이",
+                          "kind": "number",
+                          "spin": true,
+                          "min": 1,
+                          "step": 1
                         }
                       ]
                     }
@@ -3290,22 +3297,28 @@
                 {
                   "type": "when",
                   "value": {
-                    "expr": "$state.tool = \"Base64\" or $state.tool = \"bcrypt 해시\" or $state.tool = \"단어 가리기\" or $state.tool = \"회문 만들기\" or $state.tool = \"이메일 추출\" or $state.tool = \"부분 글 추출\" or $state.tool = \"숨은 문자 찾기\" or $state.tool = \"줄 합치기\" or $state.tool = \"회문 확인\" or $state.tool = \"비밀번호 만들기\" or $state.tool = \"인용 부호 붙이기\" or $state.tool = \"대소문자 섞기\" or $state.tool = \"중복 줄 제거\" or $state.tool = \"글 반복\" or $state.tool = \"글 뒤집기\" or $state.tool = \"ROT13\" or $state.tool = \"글 회전\" or $state.tool = \"슬러그 만들기\" or $state.tool = \"글 나누기\" or $state.tool = \"글 통계\" or $state.tool = \"표 형식 변환\" or $state.tool = \"글 찾아 바꾸기\" or $state.tool = \"모스 부호\" or $state.tool = \"글 자르기\" or $state.tool = \"유니코드 변환\" or $state.tool = \"대문자로 바꾸기\" or $state.tool = \"URL 디코딩\" or $state.tool = \"URL 편집\" or $state.tool = \"URL 인코딩\" or $state.tool = \"목록 복제\" or $state.tool = \"많이 나온 항목\" or $state.tool = \"고유 항목 찾기\" or $state.tool = \"목록 묶기\" or $state.tool = \"목록 뒤집기\" or $state.tool = \"목록 회전\" or $state.tool = \"목록 섞기\" or $state.tool = \"목록 정렬\" or $state.tool = \"목록 자르기\" or $state.tool = \"목록 감싸기 제거\" or $state.tool = \"목록 감싸기\""
+                    "client": "no_error"
                   },
                   "child": {
-                    "type": "input",
+                    "type": "when",
                     "value": {
-                      "client": "output"
+                      "expr": "$state.tool = \"Base64\" or $state.tool = \"bcrypt 해시\" or $state.tool = \"단어 가리기\" or $state.tool = \"회문 만들기\" or $state.tool = \"이메일 추출\" or $state.tool = \"부분 글 추출\" or $state.tool = \"숨은 문자 찾기\" or $state.tool = \"줄 합치기\" or $state.tool = \"회문 확인\" or $state.tool = \"비밀번호 만들기\" or $state.tool = \"인용 부호 붙이기\" or $state.tool = \"대소문자 섞기\" or $state.tool = \"중복 줄 제거\" or $state.tool = \"글 반복\" or $state.tool = \"글 뒤집기\" or $state.tool = \"ROT13\" or $state.tool = \"글 회전\" or $state.tool = \"슬러그 만들기\" or $state.tool = \"글 나누기\" or $state.tool = \"글 통계\" or $state.tool = \"표 형식 변환\" or $state.tool = \"글 찾아 바꾸기\" or $state.tool = \"모스 부호\" or $state.tool = \"글 자르기\" or $state.tool = \"유니코드 변환\" or $state.tool = \"대문자로 바꾸기\" or $state.tool = \"URL 디코딩\" or $state.tool = \"URL 편집\" or $state.tool = \"URL 인코딩\" or $state.tool = \"목록 복제\" or $state.tool = \"많이 나온 항목\" or $state.tool = \"고유 항목 찾기\" or $state.tool = \"목록 묶기\" or $state.tool = \"목록 뒤집기\" or $state.tool = \"목록 회전\" or $state.tool = \"목록 섞기\" or $state.tool = \"목록 정렬\" or $state.tool = \"목록 자르기\" or $state.tool = \"목록 감싸기 제거\" or $state.tool = \"목록 감싸기\""
                     },
-                    "on_change": {
-                      "client": "ignore_edit"
-                    },
-                    "label": "결과",
-                    "multiline": true,
-                    "rows": 6,
-                    "label_position": "hidden",
-                    "read_only": {
-                      "client": "result_locked"
+                    "child": {
+                      "type": "input",
+                      "value": {
+                        "client": "output"
+                      },
+                      "on_change": {
+                        "client": "ignore_edit"
+                      },
+                      "label": "결과",
+                      "multiline": true,
+                      "rows": 6,
+                      "label_position": "hidden",
+                      "read_only": {
+                        "client": "result_locked"
+                      }
                     }
                   }
                 },
