@@ -1,0 +1,51 @@
+{
+  "summary": "PDF를 합치고 나누거나 다른 형식으로 바꿉니다",
+  "description": "PDF를 합치고, 쪽을 추출하거나 회전하고, 그림과 EPUB으로 변환합니다.\n\n원작: omni-tools (https://github.com/iib0011/omni-tools), MIT License, Copyright (c) 2024 Ibrahima Gaye Coulibaly. kaleidoscope로 옮김: eiaserinnys",
+  "category": "도구",
+  "publisher": "eiaserinnys",
+  "release": 1,
+  "listed": true,
+  "icon": "assets/icon.svg",
+  "assets": [
+    {
+      "id": "omni-pdf-client",
+      "version": 1,
+      "file": "assets/client.javascript",
+      "format": "javascript",
+      "source": "PDF 도구 실행 진입점",
+      "license": "MIT"
+    },
+    {
+      "id": "omni-pdf-engine",
+      "version": 1,
+      "file": "assets/engine.javascript",
+      "format": "javascript",
+      "source": "omni-tools 및 PDF 처리 의존성",
+      "license": "MIT AND Apache-2.0"
+    },
+    {
+      "id": "omni-pdf-icon",
+      "version": 1,
+      "file": "assets/icon.svg",
+      "format": "svg",
+      "source": "유리 타일 app_icon.py",
+      "license": "MIT"
+    },
+    {
+      "id": "omni-pdf-worker",
+      "version": 1,
+      "file": "assets/worker.javascript",
+      "format": "javascript",
+      "source": "PDF.js 워커",
+      "license": "Apache-2.0"
+    },
+    {
+      "id": "omni-pdf-resources",
+      "version": 1,
+      "file": "assets/resources.javascript",
+      "format": "javascript",
+      "source": "PDF.js CMap, 표준 글꼴과 WASM",
+      "license": "Apache-2.0 AND BSD-2-Clause AND BSD-3-Clause"
+    }
+  ]
+}
