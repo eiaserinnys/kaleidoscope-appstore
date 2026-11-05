@@ -1,0 +1,1812 @@
+{
+  "id": "omni-media",
+  "name": "동영상과 소리",
+  "description": "동영상과 소리 파일을 고르고 변환합니다",
+  "icon": {
+    "asset": "omni-media-icon",
+    "version": 1
+  },
+  "requires": {
+    "blocks": 36,
+    "modules": {
+      "assets": 1,
+      "client": 4,
+      "files": 1,
+      "process": 2
+    }
+  },
+  "permissions": [
+    {
+      "module": "files",
+      "id": "media",
+      "access": "readwrite",
+      "label": "동영상과 소리 폴더"
+    },
+    {
+      "module": "process",
+      "id": "ffmpeg",
+      "label": "동영상과 소리 변환",
+      "command": "ffmpeg"
+    },
+    {
+      "module": "process",
+      "id": "winget",
+      "label": "ffmpeg 설치",
+      "command": "winget"
+    }
+  ],
+  "assets": [
+    {
+      "id": "omni-media-client",
+      "version": 1
+    },
+    {
+      "id": "omni-media-icon",
+      "version": 1
+    }
+  ],
+  "state": {
+    "tool": "동영상 자르기",
+    "o_video_trim_start": 0,
+    "o_video_trim_end": 100,
+    "o_video_rotate_rotation": 90,
+    "o_video_compress_width": 480,
+    "o_video_compress_crf": 23,
+    "o_video_loop_loops": 2,
+    "o_video_flip_orientation": "horizontal",
+    "o_video_crop_x": 0,
+    "o_video_crop_y": 0,
+    "o_video_crop_width": 100,
+    "o_video_crop_height": 100,
+    "o_video_speed_speed": 2,
+    "o_video_audio_mode": "replace",
+    "o_video_audio_volume": 100,
+    "o_video_audio_loop": true,
+    "o_video_audio_timingMode": "default",
+    "o_video_audio_startTime": 0,
+    "o_video_audio_endTime": 0,
+    "o_video_resize_mode": "preset",
+    "o_video_resize_presetWidth": 480,
+    "o_video_resize_width": 480,
+    "o_video_resize_height": 480,
+    "o_video_resize_maintainAspectRatio": true,
+    "o_gif_speed_speed": 2,
+    "o_images_gif_frameRateMode": "fps",
+    "o_images_gif_frameRateValue": 10,
+    "o_video_gif_quality": "mid",
+    "o_video_gif_start": 0,
+    "o_video_gif_end": 100,
+    "o_audio_extract_outputFormat": "aac",
+    "o_audio_speed_speed": 2,
+    "o_audio_speed_outputFormat": "mp3",
+    "o_audio_trim_startTime": 0,
+    "o_audio_trim_endTime": 60,
+    "o_audio_trim_outputFormat": "mp3",
+    "o_audio_merge_outputFormat": "mp3",
+    "o_audio_loop_loops": 2,
+    "o_audio_convert_outputFormat": "mp3"
+  },
+  "sources": {
+    "entries": {
+      "kind": "folder",
+      "permission": "media",
+      "recursive": false
+    }
+  },
+  "client": {
+    "runtime": "javascript",
+    "entry": {
+      "id": "omni-media-client",
+      "version": 1
+    },
+    "inputs": {
+      "tool": {
+        "state": "tool"
+      },
+      "options": {
+        "expr": "$state.tool = \"동영상 자르기\" ? {\"start\":$state.o_video_trim_start,\"end\":$state.o_video_trim_end} : ($state.tool = \"동영상 회전\" ? {\"rotation\":$state.o_video_rotate_rotation} : ($state.tool = \"동영상 압축\" ? {\"width\":$state.o_video_compress_width,\"crf\":$state.o_video_compress_crf} : ($state.tool = \"동영상 반복\" ? {\"loops\":$state.o_video_loop_loops} : ($state.tool = \"동영상 뒤집기\" ? {\"orientation\":$state.o_video_flip_orientation} : ($state.tool = \"화면 잘라내기\" ? {\"x\":$state.o_video_crop_x,\"y\":$state.o_video_crop_y,\"width\":$state.o_video_crop_width,\"height\":$state.o_video_crop_height} : ($state.tool = \"동영상 속도\" ? {\"speed\":$state.o_video_speed_speed} : ($state.tool = \"동영상 합치기\" ? {} : ($state.tool = \"소리 넣기\" ? {\"mode\":$state.o_video_audio_mode,\"volume\":$state.o_video_audio_volume,\"loop\":$state.o_video_audio_loop,\"timingMode\":$state.o_video_audio_timingMode,\"startTime\":$state.o_video_audio_startTime,\"endTime\":$state.o_video_audio_endTime} : ($state.tool = \"동영상 크기\" ? {\"mode\":$state.o_video_resize_mode,\"presetWidth\":$state.o_video_resize_presetWidth,\"width\":$state.o_video_resize_width,\"height\":$state.o_video_resize_height,\"maintainAspectRatio\":$state.o_video_resize_maintainAspectRatio} : ($state.tool = \"GIF 속도\" ? {\"speed\":$state.o_gif_speed_speed} : ($state.tool = \"그림을 GIF로\" ? {\"frameRateMode\":$state.o_images_gif_frameRateMode,\"frameRateValue\":$state.o_images_gif_frameRateValue} : ($state.tool = \"동영상을 GIF로\" ? {\"quality\":$state.o_video_gif_quality,\"start\":$state.o_video_gif_start,\"end\":$state.o_video_gif_end} : ($state.tool = \"소리 뽑기\" ? {\"outputFormat\":$state.o_audio_extract_outputFormat} : ($state.tool = \"소리 속도\" ? {\"speed\":$state.o_audio_speed_speed,\"outputFormat\":$state.o_audio_speed_outputFormat} : ($state.tool = \"소리 자르기\" ? {\"startTime\":$state.o_audio_trim_startTime,\"endTime\":$state.o_audio_trim_endTime,\"outputFormat\":$state.o_audio_trim_outputFormat} : ($state.tool = \"소리 합치기\" ? {\"outputFormat\":$state.o_audio_merge_outputFormat} : ($state.tool = \"소리 반복\" ? {\"loops\":$state.o_audio_loop_loops} : ($state.tool = \"소리 형식 바꾸기\" ? {\"outputFormat\":$state.o_audio_convert_outputFormat} : ({})))))))))))))))))))"
+      },
+      "entries": {
+        "expr": "$data.entries"
+      }
+    },
+    "outputs": {
+      "no_folder": {
+        "default": true
+      },
+      "has_folder": {
+        "default": false
+      },
+      "folder_label": {
+        "default": "폴더 고르기"
+      },
+      "no_files": {
+        "default": false
+      },
+      "empty_message": {
+        "default": ""
+      },
+      "single": {
+        "default": false
+      },
+      "dual": {
+        "default": false
+      },
+      "multiple": {
+        "default": false
+      },
+      "chosen": {
+        "default": ""
+      },
+      "audio_chosen": {
+        "default": ""
+      },
+      "add_value": {
+        "default": ""
+      },
+      "choices": {
+        "default": []
+      },
+      "audio_choices": {
+        "default": []
+      },
+      "rows": {
+        "default": []
+      },
+      "selected": {
+        "default": ""
+      },
+      "has_many": {
+        "default": false
+      },
+      "preview_src": {
+        "default": null
+      },
+      "preview_media": {
+        "default": false
+      },
+      "preview_image": {
+        "default": false
+      },
+      "disable_start": {
+        "default": true
+      },
+      "action_label": {
+        "default": "변환"
+      },
+      "running": {
+        "default": false
+      },
+      "progress": {
+        "default": null
+      },
+      "progress_label": {
+        "default": ""
+      },
+      "has_error": {
+        "default": false
+      },
+      "no_error": {
+        "default": true
+      },
+      "error": {
+        "default": ""
+      },
+      "has_notice": {
+        "default": false
+      },
+      "notice": {
+        "default": ""
+      },
+      "has_stderr": {
+        "default": false
+      },
+      "stderr": {
+        "default": ""
+      },
+      "missing_ffmpeg": {
+        "default": false
+      },
+      "result_src": {
+        "default": null
+      },
+      "result_media": {
+        "default": false
+      },
+      "result_image": {
+        "default": false
+      },
+      "has_result": {
+        "default": false
+      },
+      "result_label": {
+        "default": ""
+      },
+      "command": {
+        "default": ""
+      },
+      "lock_8_4": {
+        "default": true
+      },
+      "lock_8_5": {
+        "default": true
+      },
+      "lock_9_1": {
+        "default": false
+      },
+      "lock_9_2": {
+        "default": true
+      },
+      "lock_9_3": {
+        "default": true
+      },
+      "lock_9_4": {
+        "default": true
+      }
+    },
+    "actions": [
+      "pick_folder",
+      "choose",
+      "choose_audio",
+      "add",
+      "preview",
+      "remove",
+      "move_up",
+      "move_down",
+      "action",
+      "install"
+    ],
+    "commands": {
+      "refresh": [
+        {
+          "refresh": [
+            "entries"
+          ]
+        }
+      ]
+    },
+    "process_permissions": [
+      "ffmpeg",
+      "winget"
+    ]
+  },
+  "ui": {
+    "type": "stack",
+    "direction": "column",
+    "fill": 1,
+    "children": [
+      {
+        "type": "toolbar",
+        "start": [
+          {
+            "type": "input",
+            "label": "도구",
+            "value": {
+              "state": "tool"
+            },
+            "on_change": {
+              "set_state": "tool"
+            },
+            "options_only": true,
+            "options": [
+              {
+                "value": "동영상 자르기",
+                "label": "동영상 자르기",
+                "description": "동영상 자르기"
+              },
+              {
+                "value": "동영상 회전",
+                "label": "동영상 회전",
+                "description": "동영상 회전"
+              },
+              {
+                "value": "동영상 압축",
+                "label": "동영상 압축",
+                "description": "동영상 압축"
+              },
+              {
+                "value": "동영상 반복",
+                "label": "동영상 반복",
+                "description": "동영상 반복"
+              },
+              {
+                "value": "동영상 뒤집기",
+                "label": "동영상 뒤집기",
+                "description": "동영상 뒤집기"
+              },
+              {
+                "value": "화면 잘라내기",
+                "label": "화면 잘라내기",
+                "description": "화면 잘라내기"
+              },
+              {
+                "value": "동영상 속도",
+                "label": "동영상 속도",
+                "description": "동영상 속도"
+              },
+              {
+                "value": "동영상 합치기",
+                "label": "동영상 합치기",
+                "description": "동영상 합치기"
+              },
+              {
+                "value": "소리 넣기",
+                "label": "소리 넣기",
+                "description": "소리 넣기"
+              },
+              {
+                "value": "동영상 크기",
+                "label": "동영상 크기",
+                "description": "동영상 크기"
+              },
+              {
+                "value": "GIF 속도",
+                "label": "GIF 속도",
+                "description": "GIF 속도"
+              },
+              {
+                "value": "그림을 GIF로",
+                "label": "그림을 GIF로",
+                "description": "그림을 GIF로"
+              },
+              {
+                "value": "동영상을 GIF로",
+                "label": "동영상을 GIF로",
+                "description": "동영상을 GIF로"
+              },
+              {
+                "value": "소리 뽑기",
+                "label": "소리 뽑기",
+                "description": "소리 뽑기"
+              },
+              {
+                "value": "소리 속도",
+                "label": "소리 속도",
+                "description": "소리 속도"
+              },
+              {
+                "value": "소리 자르기",
+                "label": "소리 자르기",
+                "description": "소리 자르기"
+              },
+              {
+                "value": "소리 합치기",
+                "label": "소리 합치기",
+                "description": "소리 합치기"
+              },
+              {
+                "value": "소리 반복",
+                "label": "소리 반복",
+                "description": "소리 반복"
+              },
+              {
+                "value": "소리 형식 바꾸기",
+                "label": "소리 형식 바꾸기",
+                "description": "소리 형식 바꾸기"
+              }
+            ]
+          },
+          {
+            "type": "button",
+            "icon": "folder",
+            "label": {
+              "client": "folder_label"
+            },
+            "on_click": {
+              "client": "pick_folder"
+            }
+          }
+        ],
+        "end": [
+          {
+            "type": "button",
+            "label": {
+              "client": "action_label"
+            },
+            "variant": "primary",
+            "disabled": {
+              "client": "disable_start"
+            },
+            "on_click": {
+              "client": "action"
+            }
+          }
+        ]
+      },
+      {
+        "type": "split",
+        "direction": "row",
+        "column_below": 640,
+        "sizes": [
+          1,
+          1
+        ],
+        "children": [
+          {
+            "type": "section",
+            "title": "입력",
+            "child": {
+              "type": "stack",
+              "direction": "column",
+              "children": [
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "no_folder"
+                  },
+                  "child": {
+                    "type": "notice",
+                    "kind": "info",
+                    "message": "동영상과 소리 파일이 든 폴더를 고르세요",
+                    "actions": [
+                      {
+                        "label": "폴더 고르기",
+                        "on_click": {
+                          "client": "pick_folder"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "has_folder"
+                  },
+                  "child": {
+                    "type": "stack",
+                    "direction": "column",
+                    "children": [
+                      {
+                        "type": "when",
+                        "value": {
+                          "client": "no_files"
+                        },
+                        "child": {
+                          "type": "notice",
+                          "kind": "info",
+                          "message": {
+                            "client": "empty_message"
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "client": "single"
+                        },
+                        "child": {
+                          "type": "select",
+                          "label": "파일",
+                          "label_position": "top",
+                          "style": "dropdown",
+                          "value": {
+                            "client": "chosen"
+                          },
+                          "options": {
+                            "client": "choices"
+                          },
+                          "on_change": {
+                            "client": "choose"
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "client": "dual"
+                        },
+                        "child": {
+                          "type": "stack",
+                          "direction": "column",
+                          "children": [
+                            {
+                              "type": "select",
+                              "label": "동영상",
+                              "label_position": "top",
+                              "style": "dropdown",
+                              "value": {
+                                "client": "chosen"
+                              },
+                              "options": {
+                                "client": "choices"
+                              },
+                              "on_change": {
+                                "client": "choose"
+                              }
+                            },
+                            {
+                              "type": "select",
+                              "label": "소리",
+                              "label_position": "top",
+                              "style": "dropdown",
+                              "value": {
+                                "client": "audio_chosen"
+                              },
+                              "options": {
+                                "client": "audio_choices"
+                              },
+                              "on_change": {
+                                "client": "choose_audio"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "client": "multiple"
+                        },
+                        "child": {
+                          "type": "stack",
+                          "direction": "column",
+                          "children": [
+                            {
+                              "type": "when",
+                              "value": {
+                                "client": "has_many"
+                              },
+                              "child": {
+                                "type": "list",
+                                "layout": "rows",
+                                "items": {
+                                  "client": "rows"
+                                },
+                                "selected": {
+                                  "client": "selected"
+                                },
+                                "on_select": {
+                                  "client": "preview"
+                                },
+                                "on_remove": {
+                                  "client": "remove"
+                                },
+                                "item_menu": [
+                                  {
+                                    "label": "위로",
+                                    "on_select": {
+                                      "client": "move_up"
+                                    }
+                                  },
+                                  {
+                                    "label": "아래로",
+                                    "on_select": {
+                                      "client": "move_down"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "select",
+                              "label": "더하기",
+                              "label_position": "top",
+                              "style": "dropdown",
+                              "value": {
+                                "client": "add_value"
+                              },
+                              "options": {
+                                "client": "choices"
+                              },
+                              "on_change": {
+                                "client": "add"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "client": "preview_media"
+                        },
+                        "child": {
+                          "type": "media",
+                          "src": {
+                            "client": "preview_src"
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "client": "preview_image"
+                        },
+                        "child": {
+                          "type": "image",
+                          "src": {
+                            "client": "preview_src"
+                          },
+                          "zoom": true
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"동영상 자르기\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_trim_start"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_trim_start"
+                                },
+                                "label": "시작 (초)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0,
+                                "step": 1
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_trim_end"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_trim_end"
+                                },
+                                "label": "끝 (초)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0,
+                                "step": 1
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"동영상 회전\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_video_rotate_rotation"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_rotate_rotation"
+                                },
+                                "label": "각도",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": 90,
+                                    "label": "90°"
+                                  },
+                                  {
+                                    "value": 180,
+                                    "label": "180°"
+                                  },
+                                  {
+                                    "value": 270,
+                                    "label": "270°"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"동영상 압축\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_video_compress_width"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_compress_width"
+                                },
+                                "label": "너비",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": 240,
+                                    "label": "240"
+                                  },
+                                  {
+                                    "value": 360,
+                                    "label": "360"
+                                  },
+                                  {
+                                    "value": 480,
+                                    "label": "480"
+                                  },
+                                  {
+                                    "value": 720,
+                                    "label": "720"
+                                  },
+                                  {
+                                    "value": 1080,
+                                    "label": "1080"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_compress_crf"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_compress_crf"
+                                },
+                                "label": "압축률",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0,
+                                "step": 1,
+                                "max": 51
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"동영상 반복\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_loop_loops"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_loop_loops"
+                                },
+                                "label": "반복 횟수",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 1,
+                                "step": 1
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"동영상 뒤집기\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_video_flip_orientation"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_flip_orientation"
+                                },
+                                "label": "방향",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": "horizontal",
+                                    "label": "좌우"
+                                  },
+                                  {
+                                    "value": "vertical",
+                                    "label": "상하"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"화면 잘라내기\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_crop_x"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_crop_x"
+                                },
+                                "label": "왼쪽 (px)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0,
+                                "step": 1
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_crop_y"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_crop_y"
+                                },
+                                "label": "위쪽 (px)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0,
+                                "step": 1
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_crop_width"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_crop_width"
+                                },
+                                "label": "너비 (px)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 1,
+                                "step": 1
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_crop_height"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_crop_height"
+                                },
+                                "label": "높이 (px)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 1,
+                                "step": 1
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"동영상 속도\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_speed_speed"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_speed_speed"
+                                },
+                                "label": "속도 배율",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0.25,
+                                "step": 0.25,
+                                "max": 4
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"소리 넣기\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_video_audio_mode"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_audio_mode"
+                                },
+                                "label": "방식",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": "replace",
+                                    "label": "바꾸기"
+                                  },
+                                  {
+                                    "value": "mix",
+                                    "label": "섞기"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_audio_volume"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_audio_volume"
+                                },
+                                "label": "소리 크기 (%)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0,
+                                "step": 1,
+                                "max": 200
+                              },
+                              {
+                                "type": "toggle",
+                                "value": {
+                                  "state": "o_video_audio_loop"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_audio_loop"
+                                },
+                                "label": "소리 반복"
+                              },
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_video_audio_timingMode"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_audio_timingMode"
+                                },
+                                "label": "시점",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": "default",
+                                    "label": "전체"
+                                  },
+                                  {
+                                    "value": "start",
+                                    "label": "시작"
+                                  },
+                                  {
+                                    "value": "end",
+                                    "label": "끝"
+                                  },
+                                  {
+                                    "value": "startEnd",
+                                    "label": "시작과 끝"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_audio_startTime"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_audio_startTime"
+                                },
+                                "label": "시작 (초)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0,
+                                "step": 1,
+                                "read_only": {
+                                  "client": "lock_8_4"
+                                }
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_audio_endTime"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_audio_endTime"
+                                },
+                                "label": "끝 (초)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0,
+                                "step": 1,
+                                "read_only": {
+                                  "client": "lock_8_5"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"동영상 크기\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_video_resize_mode"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_resize_mode"
+                                },
+                                "label": "방식",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": "preset",
+                                    "label": "규격"
+                                  },
+                                  {
+                                    "value": "custom",
+                                    "label": "직접 입력"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_video_resize_presetWidth"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_resize_presetWidth"
+                                },
+                                "label": "너비",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": 240,
+                                    "label": "240"
+                                  },
+                                  {
+                                    "value": 360,
+                                    "label": "360"
+                                  },
+                                  {
+                                    "value": 480,
+                                    "label": "480"
+                                  },
+                                  {
+                                    "value": 720,
+                                    "label": "720"
+                                  },
+                                  {
+                                    "value": 1080,
+                                    "label": "1080"
+                                  }
+                                ],
+                                "disabled": {
+                                  "client": "lock_9_1"
+                                }
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_resize_width"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_resize_width"
+                                },
+                                "label": "너비 (px)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 1,
+                                "step": 1,
+                                "read_only": {
+                                  "client": "lock_9_2"
+                                }
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_resize_height"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_resize_height"
+                                },
+                                "label": "높이 (px)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 1,
+                                "step": 1,
+                                "read_only": {
+                                  "client": "lock_9_3"
+                                }
+                              },
+                              {
+                                "type": "toggle",
+                                "value": {
+                                  "state": "o_video_resize_maintainAspectRatio"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_resize_maintainAspectRatio"
+                                },
+                                "label": "비율 유지",
+                                "disabled": {
+                                  "client": "lock_9_4"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"GIF 속도\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_gif_speed_speed"
+                                },
+                                "on_change": {
+                                  "set_state": "o_gif_speed_speed"
+                                },
+                                "label": "속도 배율",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0.25,
+                                "step": 0.25,
+                                "max": 4
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"그림을 GIF로\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_images_gif_frameRateMode"
+                                },
+                                "on_change": {
+                                  "set_state": "o_images_gif_frameRateMode"
+                                },
+                                "label": "속도 기준",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": "fps",
+                                    "label": "초당 그림"
+                                  },
+                                  {
+                                    "value": "delay",
+                                    "label": "그림당 시간 (ms)"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_images_gif_frameRateValue"
+                                },
+                                "on_change": {
+                                  "set_state": "o_images_gif_frameRateValue"
+                                },
+                                "label": "값",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 1,
+                                "step": 1
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"동영상을 GIF로\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_video_gif_quality"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_gif_quality"
+                                },
+                                "label": "품질",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": "low",
+                                    "label": "낮음"
+                                  },
+                                  {
+                                    "value": "mid",
+                                    "label": "보통"
+                                  },
+                                  {
+                                    "value": "high",
+                                    "label": "높음"
+                                  },
+                                  {
+                                    "value": "ultra",
+                                    "label": "매우 높음"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_gif_start"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_gif_start"
+                                },
+                                "label": "시작 (초)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0,
+                                "step": 1
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_video_gif_end"
+                                },
+                                "on_change": {
+                                  "set_state": "o_video_gif_end"
+                                },
+                                "label": "끝 (초)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0,
+                                "step": 1
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"소리 뽑기\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_audio_extract_outputFormat"
+                                },
+                                "on_change": {
+                                  "set_state": "o_audio_extract_outputFormat"
+                                },
+                                "label": "형식",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": "mp3",
+                                    "label": "MP3"
+                                  },
+                                  {
+                                    "value": "aac",
+                                    "label": "AAC"
+                                  },
+                                  {
+                                    "value": "wav",
+                                    "label": "WAV"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"소리 속도\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_audio_speed_speed"
+                                },
+                                "on_change": {
+                                  "set_state": "o_audio_speed_speed"
+                                },
+                                "label": "속도 배율",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0.25,
+                                "step": 0.25,
+                                "max": 4
+                              },
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_audio_speed_outputFormat"
+                                },
+                                "on_change": {
+                                  "set_state": "o_audio_speed_outputFormat"
+                                },
+                                "label": "형식",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": "mp3",
+                                    "label": "MP3"
+                                  },
+                                  {
+                                    "value": "aac",
+                                    "label": "AAC"
+                                  },
+                                  {
+                                    "value": "wav",
+                                    "label": "WAV"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"소리 자르기\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_audio_trim_startTime"
+                                },
+                                "on_change": {
+                                  "set_state": "o_audio_trim_startTime"
+                                },
+                                "label": "시작 (초)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0,
+                                "step": 1
+                              },
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_audio_trim_endTime"
+                                },
+                                "on_change": {
+                                  "set_state": "o_audio_trim_endTime"
+                                },
+                                "label": "끝 (초)",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 0,
+                                "step": 1
+                              },
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_audio_trim_outputFormat"
+                                },
+                                "on_change": {
+                                  "set_state": "o_audio_trim_outputFormat"
+                                },
+                                "label": "형식",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": "mp3",
+                                    "label": "MP3"
+                                  },
+                                  {
+                                    "value": "aac",
+                                    "label": "AAC"
+                                  },
+                                  {
+                                    "value": "wav",
+                                    "label": "WAV"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"소리 합치기\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_audio_merge_outputFormat"
+                                },
+                                "on_change": {
+                                  "set_state": "o_audio_merge_outputFormat"
+                                },
+                                "label": "형식",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": "mp3",
+                                    "label": "MP3"
+                                  },
+                                  {
+                                    "value": "aac",
+                                    "label": "AAC"
+                                  },
+                                  {
+                                    "value": "wav",
+                                    "label": "WAV"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"소리 반복\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "input",
+                                "value": {
+                                  "state": "o_audio_loop_loops"
+                                },
+                                "on_change": {
+                                  "set_state": "o_audio_loop_loops"
+                                },
+                                "label": "반복 횟수",
+                                "kind": "number",
+                                "spin": true,
+                                "min": 1,
+                                "step": 1
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "$state.tool = \"소리 형식 바꾸기\""
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": "옵션",
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "select",
+                                "value": {
+                                  "state": "o_audio_convert_outputFormat"
+                                },
+                                "on_change": {
+                                  "set_state": "o_audio_convert_outputFormat"
+                                },
+                                "label": "형식",
+                                "style": "segmented",
+                                "options": [
+                                  {
+                                    "value": "mp3",
+                                    "label": "MP3"
+                                  },
+                                  {
+                                    "value": "aac",
+                                    "label": "AAC"
+                                  },
+                                  {
+                                    "value": "ogg",
+                                    "label": "OGG"
+                                  },
+                                  {
+                                    "value": "wav",
+                                    "label": "WAV"
+                                  },
+                                  {
+                                    "value": "flac",
+                                    "label": "FLAC"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": "section",
+            "title": "결과",
+            "child": {
+              "type": "stack",
+              "direction": "column",
+              "children": [
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "has_error"
+                  },
+                  "child": {
+                    "type": "notice",
+                    "kind": "error",
+                    "message": {
+                      "client": "error"
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "missing_ffmpeg"
+                  },
+                  "child": {
+                    "type": "notice",
+                    "kind": "info",
+                    "message": "이 PC에서 ffmpeg를 찾지 못했습니다. 설치하면 쉘을 다시 켜지 않고 바로 쓸 수 있습니다.",
+                    "actions": [
+                      {
+                        "label": "ffmpeg 설치",
+                        "on_click": {
+                          "client": "install"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "has_notice"
+                  },
+                  "child": {
+                    "type": "notice",
+                    "kind": "info",
+                    "message": {
+                      "client": "notice"
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "has_stderr"
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "ffmpeg 메시지",
+                    "collapsible": true,
+                    "collapsed": true,
+                    "child": {
+                      "type": "code",
+                      "value": {
+                        "client": "stderr"
+                      },
+                      "read_only": true
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "running"
+                  },
+                  "child": {
+                    "type": "stack",
+                    "direction": "column",
+                    "children": [
+                      {
+                        "type": "progress",
+                        "value": {
+                          "client": "progress"
+                        },
+                        "max": 1
+                      },
+                      {
+                        "type": "text",
+                        "value": {
+                          "client": "progress_label"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "result_media"
+                  },
+                  "child": {
+                    "type": "media",
+                    "src": {
+                      "client": "result_src"
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "result_image"
+                  },
+                  "child": {
+                    "type": "image",
+                    "src": {
+                      "client": "result_src"
+                    },
+                    "zoom": true
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "has_result"
+                  },
+                  "child": {
+                    "type": "stack",
+                    "direction": "column",
+                    "children": [
+                      {
+                        "type": "text",
+                        "value": {
+                          "client": "result_label"
+                        }
+                      },
+                      {
+                        "type": "section",
+                        "title": "실행한 명령",
+                        "collapsible": true,
+                        "collapsed": true,
+                        "child": {
+                          "type": "code",
+                          "value": {
+                            "client": "command"
+                          },
+                          "read_only": true
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
