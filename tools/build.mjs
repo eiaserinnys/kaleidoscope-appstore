@@ -21,6 +21,7 @@ for(const id of (existsSync(appDir)?readdirSync(appDir,{withFileTypes:true}).fil
  const iconAsset=store.assets.find(a=>a.file===store.icon);const icon=iconAsset?`${prefix}/assets/${iconAsset.id}/${iconAsset.version}`:null;
  const badges=[];if(app.permissions?.some(p=>p.module==='process'))badges.push('process');if(Object.hasOwn(app,'worker'))badges.push('worker');
  const manifest={format:1,store_app_id:id,release:store.release,name:app.name,summary:store.summary,description:store.description,category:store.category,publisher:store.publisher,icon,screenshots,requires:app.requires,permissions:app.permissions??[],badges,files,published_at:now};
+ if(store.connections!==undefined)manifest.connections=store.connections;
  writeJson(join(target,prefix,'manifest.json'),manifest);
  const detail={format:1,id,name:app.name,summary:store.summary,description:store.description,category:store.category,publisher:store.publisher,release:store.release,icon,screenshots,releases:[{release:store.release,published_at:now,manifest:`${prefix}/manifest.json`}]};
  writeJson(join(target,'apps',id,'index.json'),detail);

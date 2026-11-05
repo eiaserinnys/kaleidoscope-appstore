@@ -42,6 +42,30 @@ function allCheck(dir, keys=[]) {
   return spawnSync(process.execPath,[check,'--all'],{cwd:dir,encoding:'utf8',env});
 }
 function expectBad(result, pattern) { assert.notEqual(result.status,0, result.stdout + result.stderr); assert.match(result.stdout + result.stderr, pattern); }
+const oauth = {name:'fixture',kind:'oauth',base_url:'https://example.com',resource:'https://example.com/mcp',paths:['/api/'],writable:false,description:'시험'};
+test('연결 권한과 OAuth 정의는 일치해야 하며 매니페스트에 실린다', async t => {
+  for (const kind of ['valid','missing','extra','relay','headers','name','url','path']) await t.test(kind,t=>{
+    const dir=setup(t),base=git(dir,'rev-parse','HEAD'),a=app(dir);
+    a.definition.requires.modules.connection=1;
+    a.definition.permissions=[{module:'connection',id:'api',connection:'fixture',access:'read',label:'연결'}];
+    a.store.connections=[structuredClone(oauth)];
+    if(kind==='missing')delete a.store.connections;
+    if(kind==='extra')a.store.connections[0].name='other';
+    if(kind==='relay')a.store.connections[0].kind='relay';
+    if(kind==='headers')a.store.connections[0].headers={Authorization:'secret'};
+    if(kind==='name')a.store.connections[0].name='Bad_Name';
+    if(kind==='url')a.store.connections[0].base_url='https://example.com/?key=secret';
+    if(kind==='path')a.store.connections[0].paths=['/../private'];
+    json(join(a.folder,'app.json'),a.definition);json(join(a.folder,'store.json'),a.store);commit(dir);
+    const result=runCheck(dir,base);
+    if(kind==='valid'){
+      assert.equal(result.status,0,result.stdout+result.stderr);
+      const out=join(dir,'dist');const built=spawnSync(process.execPath,[build,'--out',out],{cwd:dir,encoding:'utf8'});assert.equal(built.status,0,built.stderr);
+      const manifest=JSON.parse(readFileSync(join(out,'appstore/apps/hello/1/manifest.json')));
+      assert.deepEqual(manifest.connections,[oauth]);
+    } else expectBad(result,/연결|형식/);
+  });
+});
 function prepareWorkflow(dir,base,head,destination,eventBase=base){
   const workflow=readFileSync(join(root,'.github/workflows/check.yml'),'utf8');
   const block=/      - name: base 검사 코드 준비\n[\s\S]*?        run: \|\n((?:          .*\n)+)/.exec(workflow);
