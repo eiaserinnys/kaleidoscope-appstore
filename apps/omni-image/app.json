@@ -193,6 +193,12 @@
       "loading": {
         "default": false
       },
+      "show_result": {
+        "default": false
+      },
+      "selected": {
+        "default": "0"
+      },
       "input_rows": {
         "default": []
       },
@@ -303,7 +309,8 @@
       "set_input",
       "load",
       "save",
-      "ignore_edit"
+      "ignore_edit",
+      "select_preview"
     ],
     "state_keys": [
       "o_change_opacity_areaWidth",
@@ -1100,8 +1107,10 @@
                     "on_change": {
                       "client": "set_input"
                     },
-                    "label": "입력",
-                    "label_position": "hidden",
+                    "label": {
+                      "expr": "$lookup({\"Text\":\"글\",\"URL\":\"주소\",\"WiFi\":\"네트워크 이름\",\"vCard\":\"이름\",\"Email\":\"받는 주소\",\"Phone\":\"전화번호\",\"SMS\":\"전화번호\"}, $state.o_qr_code_qrCodeType)"
+                    },
+                    "label_position": "top",
                     "multiline": true,
                     "rows": 4
                   }
@@ -1130,6 +1139,12 @@
                             "layout": "rows",
                             "items": {
                               "client": "input_rows"
+                            },
+                            "selected": {
+                              "client": "selected"
+                            },
+                            "on_select": {
+                              "client": "select_preview"
                             }
                           }
                         }
@@ -1151,9 +1166,713 @@
                           "client": "no_input"
                         },
                         "child": {
-                          "type": "notice",
-                          "kind": "info",
-                          "message": "그림을 열어 주세요"
+                          "type": "stack",
+                          "direction": "column",
+                          "children": [
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"크기 바꾸기\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/webp",
+                                            "extensions": [
+                                              "webp"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/svg+xml",
+                                            "extensions": [
+                                              "svg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/gif",
+                                            "extensions": [
+                                              "gif"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": true,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"회전\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/webp",
+                                            "extensions": [
+                                              "webp"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/svg+xml",
+                                            "extensions": [
+                                              "svg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/gif",
+                                            "extensions": [
+                                              "gif"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": false,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"자르기\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/webp",
+                                            "extensions": [
+                                              "webp"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/svg+xml",
+                                            "extensions": [
+                                              "svg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/gif",
+                                            "extensions": [
+                                              "gif"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": false,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"그림 압축\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/webp",
+                                            "extensions": [
+                                              "webp"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/svg+xml",
+                                            "extensions": [
+                                              "svg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/gif",
+                                            "extensions": [
+                                              "gif"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": true,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"PNG 압축\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": true,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"JPG로 바꾸기\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/webp",
+                                            "extensions": [
+                                              "webp"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/svg+xml",
+                                            "extensions": [
+                                              "svg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/gif",
+                                            "extensions": [
+                                              "gif"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": true,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"WebP로 바꾸기\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/webp",
+                                            "extensions": [
+                                              "webp"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/svg+xml",
+                                            "extensions": [
+                                              "svg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/gif",
+                                            "extensions": [
+                                              "gif"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": true,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"JPG를 PNG로\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": false,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"색 바꾸기\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/webp",
+                                            "extensions": [
+                                              "webp"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/svg+xml",
+                                            "extensions": [
+                                              "svg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/gif",
+                                            "extensions": [
+                                              "gif"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": false,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"색 채우기\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/webp",
+                                            "extensions": [
+                                              "webp"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/svg+xml",
+                                            "extensions": [
+                                              "svg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/gif",
+                                            "extensions": [
+                                              "gif"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": false,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"불투명도 바꾸기\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/webp",
+                                            "extensions": [
+                                              "webp"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/svg+xml",
+                                            "extensions": [
+                                              "svg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/gif",
+                                            "extensions": [
+                                              "gif"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": false,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"워터마크\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/webp",
+                                            "extensions": [
+                                              "webp"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/svg+xml",
+                                            "extensions": [
+                                              "svg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/gif",
+                                            "extensions": [
+                                              "gif"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": true,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"그림 나누기\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/webp",
+                                            "extensions": [
+                                              "webp"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/svg+xml",
+                                            "extensions": [
+                                              "svg"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/gif",
+                                            "extensions": [
+                                              "gif"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": false,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "type": "when",
+                              "value": {
+                                "expr": "$state.tool = \"글자 읽기\""
+                              },
+                              "child": {
+                                "type": "notice",
+                                "kind": "info",
+                                "message": "그림을 열어 주세요",
+                                "actions": [
+                                  {
+                                    "label": "열기",
+                                    "on_click": {
+                                      "pick_files": {
+                                        "accept": [
+                                          {
+                                            "mime": "image/png",
+                                            "extensions": [
+                                              "png"
+                                            ]
+                                          },
+                                          {
+                                            "mime": "image/jpeg",
+                                            "extensions": [
+                                              "jpg",
+                                              "jpeg"
+                                            ]
+                                          }
+                                        ],
+                                        "multiple": false,
+                                        "client": "load"
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
                         }
                       }
                     ]
@@ -1900,7 +2619,7 @@
                             "set_state": "o_change_opacity_gradientDirection"
                           },
                           "label": "방향",
-                          "style": "segmented",
+                          "style": "dropdown",
                           "options": [
                             {
                               "value": "left-to-right",
@@ -2100,7 +2819,7 @@
                             "set_state": "o_watermark_position"
                           },
                           "label": "위치",
-                          "style": "segmented",
+                          "style": "dropdown",
                           "options": [
                             {
                               "value": "bottom-right",
@@ -3156,11 +3875,17 @@
                     "expr": "($t := [{\"id\":\"resize\",\"name\":\"크기 바꾸기\",\"description\":\"그림의 크기를 바꿉니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"rotate\",\"name\":\"회전\",\"description\":\"그림을 회전합니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"crop\",\"name\":\"자르기\",\"description\":\"그림의 일부를 자릅니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"compress\",\"name\":\"그림 압축\",\"description\":\"여러 그림의 파일 크기를 줄입니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"compress-png\",\"name\":\"PNG 압축\",\"description\":\"색상을 줄여 PNG 크기를 줄입니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"convert-to-jpg\",\"name\":\"JPG로 바꾸기\",\"description\":\"그림을 JPG로 바꿉니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"convert-to-webp\",\"name\":\"WebP로 바꾸기\",\"description\":\"그림을 WebP로 바꿉니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"convert-jgp-to-png\",\"name\":\"JPG를 PNG로\",\"description\":\"JPG를 PNG로 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"change-colors\",\"name\":\"색 바꾸기\",\"description\":\"그림의 한 색을 다른 색으로 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"create-transparent\",\"name\":\"색 채우기\",\"description\":\"비슷한 색을 지정한 배경색으로 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"change-opacity\",\"name\":\"불투명도 바꾸기\",\"description\":\"그림의 불투명도를 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"watermark\",\"name\":\"워터마크\",\"description\":\"그림에 글을 넣습니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"split\",\"name\":\"그림 나누기\",\"description\":\"그림을 여러 페이지 PDF로 나눕니다\",\"input\":\"image\",\"result\":\"file\"},{\"id\":\"image-to-text\",\"name\":\"글자 읽기\",\"description\":\"그림 속 글자를 읽습니다\",\"input\":\"image\",\"result\":\"text\"},{\"id\":\"qr-code\",\"name\":\"QR 코드\",\"description\":\"글과 주소 등을 QR 코드로 만듭니다\",\"input\":\"text\",\"result\":\"image\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).result = 'image'"
                   },
                   "child": {
-                    "type": "canvas",
-                    "surface": "result",
-                    "description": "결과 그림",
-                    "loading": {
-                      "client": "loading"
+                    "type": "when",
+                    "value": {
+                      "client": "show_result"
+                    },
+                    "child": {
+                      "type": "canvas",
+                      "surface": "result",
+                      "description": "결과 그림",
+                      "loading": {
+                        "client": "loading"
+                      }
                     }
                   }
                 },
@@ -3174,6 +3899,12 @@
                     "layout": "rows",
                     "items": {
                       "client": "result_rows"
+                    },
+                    "selected": {
+                      "client": "selected"
+                    },
+                    "on_select": {
+                      "client": "select_preview"
                     }
                   }
                 },
@@ -3193,6 +3924,24 @@
                       "items": {
                         "client": "result_rows"
                       }
+                    }
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "expr": "($t := [{\"id\":\"resize\",\"name\":\"크기 바꾸기\",\"description\":\"그림의 크기를 바꿉니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"rotate\",\"name\":\"회전\",\"description\":\"그림을 회전합니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"crop\",\"name\":\"자르기\",\"description\":\"그림의 일부를 자릅니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"compress\",\"name\":\"그림 압축\",\"description\":\"여러 그림의 파일 크기를 줄입니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"compress-png\",\"name\":\"PNG 압축\",\"description\":\"색상을 줄여 PNG 크기를 줄입니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"convert-to-jpg\",\"name\":\"JPG로 바꾸기\",\"description\":\"그림을 JPG로 바꿉니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"convert-to-webp\",\"name\":\"WebP로 바꾸기\",\"description\":\"그림을 WebP로 바꿉니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"convert-jgp-to-png\",\"name\":\"JPG를 PNG로\",\"description\":\"JPG를 PNG로 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"change-colors\",\"name\":\"색 바꾸기\",\"description\":\"그림의 한 색을 다른 색으로 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"create-transparent\",\"name\":\"색 채우기\",\"description\":\"비슷한 색을 지정한 배경색으로 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"change-opacity\",\"name\":\"불투명도 바꾸기\",\"description\":\"그림의 불투명도를 바꿉니다\",\"input\":\"image\",\"result\":\"image\"},{\"id\":\"watermark\",\"name\":\"워터마크\",\"description\":\"그림에 글을 넣습니다\",\"input\":\"images\",\"result\":\"image\"},{\"id\":\"split\",\"name\":\"그림 나누기\",\"description\":\"그림을 여러 페이지 PDF로 나눕니다\",\"input\":\"image\",\"result\":\"file\"},{\"id\":\"image-to-text\",\"name\":\"글자 읽기\",\"description\":\"그림 속 글자를 읽습니다\",\"input\":\"image\",\"result\":\"text\"},{\"id\":\"qr-code\",\"name\":\"QR 코드\",\"description\":\"글과 주소 등을 QR 코드로 만듭니다\",\"input\":\"text\",\"result\":\"image\"}]; $s := $t[name = $state.tool][0]; $exists($s) ? $s : $t[0]).result = 'file'"
+                  },
+                  "child": {
+                    "type": "when",
+                    "value": {
+                      "client": "loading"
+                    },
+                    "child": {
+                      "type": "progress",
+                      "value": null,
+                      "max": 1,
+                      "label": "그림을 나누는 중입니다"
                     }
                   }
                 }
