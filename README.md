@@ -10,6 +10,8 @@
 
 `store.json`에는 `summary`, `description`, `category`, `publisher`, `release`, `listed`, `icon`, `assets`를 적습니다. `icon`은 자산 파일 경로 또는 `null`입니다. 각 자산에는 `id`, `version`, `file`, `format`, `source`, `license`를 적고, `id`와 `version`은 `app.json`의 `assets`와 맞춥니다. 파일은 `assets/` 아래에 두고 스크린샷은 `screenshots/1.png`처럼 1부터 5까지 번호를 붙입니다.
 
+연결 권한을 사용하는 앱은 `store.json`의 `connections` 배열에 권한의 연결 이름마다 OAuth 연결 정의를 적습니다. `name`, `kind: "oauth"`, `base_url`, `paths`, `writable`, `description`이 필요하며 `issuer`, `resource`, `scopes`는 선택입니다. `name`은 소문자·숫자·하이픈으로 1~64자입니다. 주소는 HTTPS 또는 로컬 HTTP이며 인증정보·쿼리·조각을 넣지 않습니다. `paths`는 `/`로 시작하는 허용 경로입니다. relay와 헤더는 올릴 수 없습니다. 연결은 설치할 때 없으면 생성되고, 이미 같은 이름이 있으면 그대로 유지됩니다.
+
 검사는 앱 정의와 자산의 일치, 크기와 스크린샷 형식, 비밀값 모양, 기본 앱 id와 게시자를 확인합니다. 스크린샷은 PNG 또는 WebP 다섯 장까지이고 장당 2 MiB 이하여야 합니다. 자산 합계는 10 MiB 이하여야 합니다.
 
 새 앱의 `release`는 1입니다. 앱 정의, 스토어 정보, 자산 또는 스크린샷을 바꿀 때마다 정확히 1씩 올립니다. 내용 없이 판만 올릴 수 없습니다. 한 번 배포한 판은 고칠 수 없습니다.

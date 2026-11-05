@@ -20,7 +20,18 @@ const formats=['html','svg','png','webp','jpeg','gif','javascript','woff2','ttf'
 const validateStore=ajv.compile({type:'object',additionalProperties:false,required:['summary','description','category','publisher','release','listed','icon','assets'],properties:{
   summary:{type:'string',minLength:1,maxLength:80},description:{type:'string',maxLength:4000},category:{type:'string',minLength:1,maxLength:24},publisher:{type:'string',minLength:1},release:{type:'integer',minimum:1},listed:{type:'boolean'},icon:{type:['string','null']},
   assets:{type:'array',items:{type:'object',additionalProperties:false,required:['id','version','file','format','source','license'],properties:{id:{type:'string',pattern:'^[a-zA-Z0-9][a-zA-Z0-9._-]*$'},version:{type:'integer',minimum:1},file:{type:'string',pattern:'^assets/(?!.*(?:^|/)\\.\\.?/)[^\\\\]+$'},format:{enum:formats},source:{type:'string'},license:{type:'string'}}}}
+  ,connections:{type:'array',items:{type:'object',additionalProperties:false,required:['name','kind','base_url','paths','writable','description'],properties:{name:{type:'string',pattern:'^[a-z0-9-]{1,64}$'},kind:{const:'oauth'},base_url:{type:'string'},issuer:{type:['string','null']},resource:{type:['string','null']},scopes:{type:['string','null']},paths:{type:'array',items:{type:'string'}},writable:{type:'boolean'},description:{type:'string'}}}}
 }});
+function validBaseUrl(value){
+ try{const url=new URL(value);return (url.protocol==='https:'||(url.protocol==='http:'&&['127.0.0.1','localhost'].includes(url.hostname)))&&!value.includes('?')&&!value.includes('#')&&!url.username&&!url.password;}
+ catch{return false;}
+}
+function validPath(path){
+ if(path==='/')return true;
+ if(!path.startsWith('/')||/[?#\\\\\s]/u.test(path)||/%00/i.test(path))return false;
+ const rest=path.slice(1).replace(/\/$/,'');
+ return !!rest&&rest.split('/').every(part=>part!==''&&part.toLowerCase().replace(/%2e/g,'.').replace(/%2f|%5c/g,'/').split('/').every(piece=>piece!=='.'&&piece!=='..'));
+}
 const secret=/sk-ant-[A-Za-z0-9_-]*|sk-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]*|xox[abpr]-[A-Za-z0-9-]*|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----/g;
 const maskSecrets=value=>value.replace(secret,match=>`${match.slice(0,4)}…`);
 const args=process.argv.slice(2); const flag=k=>args[args.indexOf(k)+1];
@@ -44,6 +55,13 @@ function checkApp(ref,id,errors){
  if(app){if(!validateApp(app))errors.push(recordError(appPath,`앱 스키마가 맞지 않습니다: ${appAjv.errorsText(validateApp.errors)}`));if(app.id!==id)errors.push(recordError(appPath,'앱 id와 폴더 이름이 다릅니다'));scrub(app,appPath,errors);}
  let assets=[];
  if(store){if(!validateStore(store))errors.push(recordError(storePath,`스토어 형식이 맞지 않습니다: ${ajv.errorsText(validateStore.errors)}`));scrub(store,storePath,errors); if(Array.isArray(store.assets))assets=store.assets.filter(a=>a&&typeof a==='object');}
+ const connections=Array.isArray(store?.connections)?store.connections:[];
+ for(const connection of connections){
+  if(connection&&typeof connection==='object'&&(!validBaseUrl(connection.base_url)||!Array.isArray(connection.paths)||connection.paths.some(path=>typeof path!=='string'||!validPath(path))))errors.push(recordError(storePath,'연결 주소 또는 경로가 올바르지 않습니다'));
+ }
+ const names=connections.map(connection=>connection?.name);
+ const required=[...new Set((Array.isArray(app?.permissions)?app.permissions:[]).filter(p=>p?.module==='connection').map(p=>p.connection))];
+ if(new Set(names).size!==names.length||required.some(name=>!names.includes(name))||names.some(name=>!required.includes(name)))errors.push(recordError(storePath,'연결 정의 이름은 앱의 연결 권한과 같아야 합니다'));
  const allowed=new Set([appPath,storePath]);let bytes=0;
  const keys=[];
  for(const a of assets){if(typeof a.id==='string'&&Number.isInteger(a.version))keys.push(`${a.id}@${a.version}`);if(typeof a.file!=='string'||!safeFile(a.file)){errors.push(recordError(storePath,'자산 파일은 assets/ 아래에 있어야 합니다'));continue;}const path=`${dir}/${a.file}`;allowed.add(path);const content=blob(ref,path);if(!content)errors.push(recordError(path,'자산 파일이 없습니다'));else bytes+=content.length;}
