@@ -31,7 +31,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: node tools/check.mjs --all
       - name: 정적 파일 빌드
-        run: node tools/build.mjs --out dist
+        run: node tools/build.mjs --out dist --publish-pr-url https://github.com/eiaserinnys/kaleidoscope-appstore
       - name: R2에 올리기
         env:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}

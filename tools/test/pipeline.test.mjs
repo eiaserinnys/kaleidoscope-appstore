@@ -216,6 +216,33 @@ test('빌드: 공개 색인, 비공개 상세, 해시 및 선택적인 사이트
   for(const [path,meta] of Object.entries(manifest.files)){const bytes=readFileSync(join(out,'appstore',path));assert.equal(meta.sha256,createHash('sha256').update(bytes).digest('hex'));assert.equal(meta.bytes,bytes.length);}
 });
 
+test('빌드와 업로드는 올리기 선언을 선택적으로 보존한다',async t=>{
+  const dir=setup(t);app(dir);const without=join(dir,'without'),withPr=join(dir,'dist');
+  const url='https://github.com/eiaserinnys/kaleidoscope-appstore';
+  const readIndex=out=>JSON.parse(readFileSync(join(out,'appstore/index.json')));
+  let result=spawnSync(process.execPath,[build,'--out',without],{cwd:dir,encoding:'utf8'});
+  assert.equal(result.status,0,result.stderr);
+  const plain=readIndex(without);assert.equal(Object.hasOwn(plain,'publish'),false);
+  result=spawnSync(process.execPath,[build,'--publish-pr-url',url],{cwd:dir,encoding:'utf8'});
+  assert.equal(result.status,0,result.stderr);
+  const declared=readIndex(withPr);assert.deepEqual(declared.publish,{method:'pull_request',url});
+  assert.equal(declared.format,1);
+  const custom=join(dir,'custom');
+  result=spawnSync(process.execPath,[build,'--out',custom,'--publish-pr-url',url],{cwd:dir,encoding:'utf8'});
+  assert.equal(result.status,0,result.stderr);assert.deepEqual(readIndex(custom).publish,{method:'pull_request',url});
+  const normalize=index=>({...index,generated_at:'시간',items:index.items.map(item=>({...item,updated_at:'시간'}))});
+  const {publish,...other}=declared;assert.deepEqual(normalize(other),normalize(plain));
+  const mod=await import(pathToFileURL(upload));let uploaded;
+  await mod.runUpload(withPr,{list:async()=>[],get:async()=>null,put:p=>{if(p.key==='appstore/index.json')uploaded=JSON.parse(readFileSync(p.file));},remove:()=>assert.fail('삭제할 파일 없음')},{log:()=>{}});
+  assert.deepEqual(uploaded,declared);
+});
+
+test('빌드는 HTTPS가 아닌 올리기 주소를 거부한다',t=>{
+  const dir=setup(t),out=join(dir,'dist');
+  const result=spawnSync(process.execPath,[build,'--out',out,'--publish-pr-url','http://example.com'],{cwd:dir,encoding:'utf8'});
+  expectBad(result,/https/i);
+});
+
 test('업로드 계획: 불변 판 건너뛰기와 내려진 앱 상세 삭제',async t=>{
   const dir=setup(t);app(dir);const out=join(dir,'dist');const r=spawnSync(process.execPath,[build,'--out',out],{cwd:dir,encoding:'utf8'});assert.equal(r.status,0,r.stderr);
   const mod=await import(pathToFileURL(upload));const old=JSON.parse(readFileSync(join(out,'appstore/apps/hello/1/manifest.json')));
