@@ -362,6 +362,13 @@
             },
             "label": {
               "type": "string"
+            },
+            "command": {
+              "description": "(모듈 process 2판) 이 권한으로 실행할 프로그램. 선언하면 이 기기에서 허용을 (앱, 권한, 프로그램, 환경 변수)마다 한 번 받고 인자는 앱이 실행마다 정한다. 실행 명세의 command는 이 값과 정확히 같아야 한다. 없으면 실행 명세(이름, 프로그램, 인자, 환경 변수)마다 허용을 묻는다(1판의 뜻).",
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           "additionalProperties": false,
