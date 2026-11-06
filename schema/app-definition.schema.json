@@ -351,6 +351,17 @@
             "scope": {
               "description": "(모듈 `files` 2판) 없으면 `folder`다.",
               "$ref": "#/$defs/FilesScope"
+            },
+            "default_folder": {
+              "description": "기기에서 한 번 허용하면 새 창에 적용할 알려진 폴더.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/KnownFolder"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "additionalProperties": false,
@@ -532,6 +543,17 @@
           "type": "string",
           "const": "pc"
         }
+      ]
+    },
+    "KnownFolder": {
+      "type": "string",
+      "enum": [
+        "desktop",
+        "documents",
+        "downloads",
+        "pictures",
+        "music",
+        "videos"
       ]
     },
     "OpensDecl": {
@@ -729,6 +751,26 @@
                 "permission",
                 "server",
                 "id"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "store": {
+                  "type": "string",
+                  "const": "indexes"
+                },
+                "permission": {
+                  "type": "string"
+                },
+                "servers": {
+                  "$ref": "#/$defs/Binding"
+                }
+              },
+              "required": [
+                "store",
+                "permission",
+                "servers"
               ]
             }
           ],
@@ -1664,6 +1706,9 @@
           "$ref": "#/$defs/WorkerAction"
         },
         {
+          "$ref": "#/$defs/StoreAllowServerAction"
+        },
+        {
           "$ref": "#/$defs/StoreInstallAction"
         },
         {
@@ -1874,6 +1919,34 @@
       "additionalProperties": false,
       "required": [
         "action"
+      ]
+    },
+    "StoreAllowServerAction": {
+      "type": "object",
+      "properties": {
+        "store.allow_server": {
+          "$ref": "#/$defs/StoreAllowServerSpec"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "store.allow_server"
+      ]
+    },
+    "StoreAllowServerSpec": {
+      "type": "object",
+      "properties": {
+        "permission": {
+          "type": "string"
+        },
+        "server": {
+          "$ref": "#/$defs/Binding"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "permission",
+        "server"
       ]
     },
     "StoreInstallAction": {
@@ -3209,6 +3282,17 @@
             "direction": {
               "$ref": "#/$defs/SplitDirection"
             },
+            "scroll_reset": {
+              "description": "(50판) 값이 바뀌면 가장 가까운 세로 스크롤을 처음으로 돌린다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Binding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "gap": {
               "$ref": "#/$defs/Gap",
               "default": "medium"
@@ -3394,7 +3478,7 @@
           ]
         },
         {
-          "description": "(4판) 목록. `items`는 [`data::ListItem`] 배열이고, `grouped`면 [`data::Group`]`<ListItem>` 배열이다.\n`layout`이 `grid`면 그림 칸의 격자다(그림이 없는 항목은 빈 칸에 제목만). 항목을 누르면 `on_select`가\n`$event`(항목의 `key`)와 `$item`(항목)으로 돈다. `selected`의 값과 `key`가 같은 항목을 고른 것으로 보인다.\n화살표 키로 옮겨 다니고 Enter로 고른다. 긴 목록은 보이는 줄만 그린다.",
+          "description": "(4판) 목록. `items`는 [`data::ListItem`] 배열이고, `grouped`면 [`data::ListGroup`]`<ListItem>` 배열이다.\n`layout`이 `grid`면 그림 칸의 격자다(그림이 없는 항목은 빈 칸에 제목만). 항목을 누르면 `on_select`가\n`$event`(항목의 `key`)와 `$item`(항목)으로 돈다. `selected`의 값과 `key`가 같은 항목을 고른 것으로 보인다.\n화살표 키로 옮겨 다니고 Enter로 고른다. 긴 목록은 보이는 줄만 그린다.",
           "type": "object",
           "properties": {
             "type": {
@@ -3408,9 +3492,38 @@
               "$ref": "#/$defs/ListLayout",
               "default": "rows"
             },
+            "item_width": {
+              "description": "격자 칸의 최소 폭. 생략하면 medium이다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/RepeatGridItemWidth"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "grouped": {
               "type": "boolean",
               "default": false
+            },
+            "select_on_focus": {
+              "description": "(44판) 키보드로 다른 항목에 초점을 옮길 때 on_select를 실행한다.",
+              "type": "boolean"
+            },
+            "selection": {
+              "$ref": "#/$defs/ListSelection"
+            },
+            "current": {
+              "description": "(50판) 다중 선택에서 현재 칸의 키. 선택된 키 안에서만 쓴다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Binding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "selected": {
               "anyOf": [
@@ -3432,6 +3545,16 @@
                 }
               ]
             },
+            "on_activate": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Actions"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "on_remove": {
               "description": "(블록 세트 36판) 항목 끝의 빼기 단추가 실행하는 동작.",
               "anyOf": [
@@ -3442,6 +3565,16 @@
                   "type": "null"
                 }
               ]
+            },
+            "group_actions": {
+              "description": "(43판) 묶음 자료의 action이 고를 수 있는 정적 동작 자리.",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/$defs/GroupAction"
+              }
             },
             "item_menu": {
               "type": [
@@ -3719,6 +3852,17 @@
             },
             "read_only": {
               "description": "(25판) 참이면 편집을 막고 글 선택과 복사는 허용한다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Binding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "disabled": {
+              "description": "(48판) 참이면 입력과 부속 조작을 잠근다.",
               "anyOf": [
                 {
                   "$ref": "#/$defs/Binding"
@@ -4826,6 +4970,34 @@
           "type": "string",
           "const": "icons"
         }
+      ]
+    },
+    "ListSelection": {
+      "type": "string",
+      "enum": [
+        "single",
+        "multiple"
+      ]
+    },
+    "GroupAction": {
+      "description": "묶음 자료가 고를 수 있는 앱 정의의 동작 자리.",
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "on_click": {
+          "$ref": "#/$defs/Actions"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "label",
+        "on_click"
       ]
     },
     "TableColumns": {
