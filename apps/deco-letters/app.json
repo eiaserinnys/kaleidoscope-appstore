@@ -3,7 +3,7 @@
   "name": "장식 영문자",
   "description": "영문을 치면 여섯 모양으로 바꿔 복사합니다",
   "requires": {
-    "blocks": 42,
+    "blocks": 51,
     "modules": {
       "assets": 1
     }
@@ -27,6 +27,7 @@
         {
           "type": "input",
           "multiline": true,
+          "max_rows": 4,
           "placeholder": "영문 입력",
           "focus": true,
           "value": {
