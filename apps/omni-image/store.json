@@ -3,13 +3,13 @@
   "description": "그림의 크기와 색을 바꾸고 압축하거나 변환합니다. 글자 읽기(OCR)는 처음 쓸 때 언어 자료를 jsDelivr에서 받습니다.\n\n원작: omni-tools (https://github.com/iib0011/omni-tools), MIT License, Copyright (c) 2024 Ibrahima Gaye Coulibaly. kaleidoscope로 옮김: eiaserinnys",
   "category": "도구",
   "publisher": "eiaserinnys",
-  "release": 2,
+  "release": 3,
   "listed": true,
   "icon": "assets/icon.svg",
   "assets": [
     {
       "id": "omni-image-client",
-      "version": 2,
+      "version": 3,
       "file": "assets/omni-image-client.javascript",
       "format": "javascript",
       "source": "omni-tools와 의존성 처리 코드",
