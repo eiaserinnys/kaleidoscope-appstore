@@ -3825,7 +3825,7 @@
           ]
         },
         {
-          "description": "(4판) 글 입력. `value`의 상태를 보이고, 입력이 멈추고 0.3초 뒤와 포커스를 잃을 때 `on_change`가 `$event`\n(입력한 글, `number`면 숫자나 null)로 돈다. 입력 중에는 상태가 바뀌어도 글을 덮지 않는다. `search`는 앞에\n돋보기, 글이 있으면 끝에 지우기 단추가 붙는다. `multiline`이면 한 줄로 시작해 글을 따라 자란다(최대 8줄).\nEnter는 `on_submit`이 있으면 그것을 부른다(`multiline`에서는 Ctrl+Enter). 한글 조합 중의 Enter는 보내지 않는다.\n(19판) `columns`는 보일 문자 수로 폭을 정하며, 양수여야 하고 지정한 폭보다 줄어들지 않는다.\n(31판) `spin`은 숫자 입력에 위아래 단추를 보인다.",
+          "description": "(4판) 글 입력. `value`의 상태를 보이고, 입력이 멈추고 0.3초 뒤와 포커스를 잃을 때 `on_change`가 `$event`\n(입력한 글, `number`면 숫자나 null)로 돈다. 입력 중에는 상태가 바뀌어도 글을 덮지 않는다. `search`는 앞에\n돋보기, 글이 있으면 끝에 지우기 단추가 붙는다. `multiline`이면 한 줄로 시작해 글을 따라 자란다.\nEnter는 `on_submit`이 있으면 그것을 부른다(`multiline`에서는 Ctrl+Enter). 한글 조합 중의 Enter는 보내지 않는다.\n(19판) `columns`는 보일 문자 수로 폭을 정하며, 양수여야 하고 지정한 폭보다 줄어들지 않는다.\n(31판) `spin`은 숫자 입력에 위아래 단추를 보인다.",
           "type": "object",
           "properties": {
             "type": {
@@ -3976,6 +3976,16 @@
               "default": false
             },
             "rows": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint8",
+              "minimum": 0,
+              "maximum": 255
+            },
+            "max_rows": {
+              "description": "(51판) 자동으로 늘어나는 여러 줄 입력의 최대 줄 수(기본 8, 1~20). `multiline`이 아니거나 `rows`가 2 이상이면 효과가 없다.",
               "type": [
                 "integer",
                 "null"
