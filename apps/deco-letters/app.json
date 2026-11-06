@@ -1,7 +1,7 @@
 {
   "id": "deco-letters",
   "name": "장식 영문자",
-  "description": "글을 치면 여섯 모양으로 바꿔 복사합니다",
+  "description": "영문을 치면 여섯 모양으로 바꿔 복사합니다",
   "requires": {
     "blocks": 42,
     "modules": {
