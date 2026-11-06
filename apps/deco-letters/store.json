@@ -1,0 +1,19 @@
+{
+  "summary": "영문을 치면 여섯 모양으로 바꿔 복사합니다",
+  "description": "영문을 입력하고 마음에 드는 모양을 눌러 복사합니다. 모든 처리는 기기 안에서 이뤄집니다.",
+  "category": "도구",
+  "publisher": "eiaserinnys",
+  "release": 1,
+  "listed": true,
+  "icon": "assets/icon.svg",
+  "assets": [
+    {
+      "id": "deco-letters-icon",
+      "version": 1,
+      "file": "assets/icon.svg",
+      "format": "svg",
+      "source": "세라피엘 작성(유리 타일 app_icon.py)",
+      "license": "MIT"
+    }
+  ]
+}
