@@ -1,0 +1,155 @@
+{
+  "id": "deco-letters",
+  "name": "장식 영문자",
+  "description": "글을 치면 여섯 모양으로 바꿔 복사합니다",
+  "requires": {
+    "blocks": 42,
+    "modules": {
+      "assets": 1
+    }
+  },
+  "permissions": [],
+  "state": {
+    "text": ""
+  },
+  "window_size": {
+    "width": 480,
+    "height": 361
+  },
+  "ui": {
+    "type": "section",
+    "title": null,
+    "child": {
+      "type": "stack",
+      "direction": "column",
+      "gap": "medium",
+      "children": [
+        {
+          "type": "input",
+          "multiline": true,
+          "placeholder": "영문 입력",
+          "focus": true,
+          "value": {
+            "state": "text"
+          },
+          "on_change": {
+            "set_state": "text"
+          }
+        },
+        {
+          "type": "stack",
+          "direction": "column",
+          "gap": "none",
+          "children": [
+            {
+              "type": "button",
+              "label": {
+                "expr": "( $t := $state.text ? $state.text : ''; $trim($t) = '' ? '𝐁𝐨𝐥𝐝' : ( $from := $split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', ''); $to := '𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳𝟎𝟏𝟐𝟑𝟒𝟓𝟔𝟕𝟖𝟗'; $m := $merge($map($from, function($c, $i) { {$c: $substring($to, $i, 1)} })); $join($map($split($t, ''), function($c) { ( $v := $lookup($m, $c); $exists($v) ? $v : $c ) })) ) )"
+              },
+              "icon": "copy",
+              "variant": "row",
+              "disabled": {
+                "expr": "$trim($state.text ? $state.text : '') = ''"
+              },
+              "on_click": {
+                "copy_text": {
+                  "expr": "( $t := $state.text ? $state.text : ''; $trim($t) = '' ? '𝐁𝐨𝐥𝐝' : ( $from := $split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', ''); $to := '𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳𝟎𝟏𝟐𝟑𝟒𝟓𝟔𝟕𝟖𝟗'; $m := $merge($map($from, function($c, $i) { {$c: $substring($to, $i, 1)} })); $join($map($split($t, ''), function($c) { ( $v := $lookup($m, $c); $exists($v) ? $v : $c ) })) ) )"
+                }
+              }
+            },
+            {
+              "type": "button",
+              "label": {
+                "expr": "( $t := $state.text ? $state.text : ''; $trim($t) = '' ? '𝘐𝘵𝘢𝘭𝘪𝘤' : ( $from := $split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', ''); $to := '𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻'; $m := $merge($map($from, function($c, $i) { {$c: $substring($to, $i, 1)} })); $join($map($split($t, ''), function($c) { ( $v := $lookup($m, $c); $exists($v) ? $v : $c ) })) ) )"
+              },
+              "icon": "copy",
+              "variant": "row",
+              "disabled": {
+                "expr": "$trim($state.text ? $state.text : '') = ''"
+              },
+              "on_click": {
+                "copy_text": {
+                  "expr": "( $t := $state.text ? $state.text : ''; $trim($t) = '' ? '𝘐𝘵𝘢𝘭𝘪𝘤' : ( $from := $split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', ''); $to := '𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻'; $m := $merge($map($from, function($c, $i) { {$c: $substring($to, $i, 1)} })); $join($map($split($t, ''), function($c) { ( $v := $lookup($m, $c); $exists($v) ? $v : $c ) })) ) )"
+                }
+              }
+            },
+            {
+              "type": "button",
+              "label": {
+                "expr": "( $t := $state.text ? $state.text : ''; $trim($t) = '' ? '𝑩𝒐𝒍𝒅 𝑰𝒕𝒂𝒍𝒊𝒄' : ( $from := $split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', ''); $to := '𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶𝑷𝑸𝑹𝑺𝑻𝑼𝑽𝑾𝑿𝒀𝒁𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛'; $m := $merge($map($from, function($c, $i) { {$c: $substring($to, $i, 1)} })); $join($map($split($t, ''), function($c) { ( $v := $lookup($m, $c); $exists($v) ? $v : $c ) })) ) )"
+              },
+              "icon": "copy",
+              "variant": "row",
+              "disabled": {
+                "expr": "$trim($state.text ? $state.text : '') = ''"
+              },
+              "on_click": {
+                "copy_text": {
+                  "expr": "( $t := $state.text ? $state.text : ''; $trim($t) = '' ? '𝑩𝒐𝒍𝒅 𝑰𝒕𝒂𝒍𝒊𝒄' : ( $from := $split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', ''); $to := '𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶𝑷𝑸𝑹𝑺𝑻𝑼𝑽𝑾𝑿𝒀𝒁𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛'; $m := $merge($map($from, function($c, $i) { {$c: $substring($to, $i, 1)} })); $join($map($split($t, ''), function($c) { ( $v := $lookup($m, $c); $exists($v) ? $v : $c ) })) ) )"
+                }
+              }
+            },
+            {
+              "type": "button",
+              "label": {
+                "expr": "( $t := $state.text ? $state.text : ''; $trim($t) = '' ? '𝒮𝒸𝓇𝒾𝓅𝓉' : ( $from := $split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', ''); $to := '𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏'; $m := $merge($map($from, function($c, $i) { {$c: $substring($to, $i, 1)} })); $join($map($split($t, ''), function($c) { ( $v := $lookup($m, $c); $exists($v) ? $v : $c ) })) ) )"
+              },
+              "icon": "copy",
+              "variant": "row",
+              "disabled": {
+                "expr": "$trim($state.text ? $state.text : '') = ''"
+              },
+              "on_click": {
+                "copy_text": {
+                  "expr": "( $t := $state.text ? $state.text : ''; $trim($t) = '' ? '𝒮𝒸𝓇𝒾𝓅𝓉' : ( $from := $split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', ''); $to := '𝒜ℬ𝒞𝒟ℰℱ𝒢ℋℐ𝒥𝒦ℒℳ𝒩𝒪𝒫𝒬ℛ𝒮𝒯𝒰𝒱𝒲𝒳𝒴𝒵𝒶𝒷𝒸𝒹ℯ𝒻ℊ𝒽𝒾𝒿𝓀𝓁𝓂𝓃ℴ𝓅𝓆𝓇𝓈𝓉𝓊𝓋𝓌𝓍𝓎𝓏'; $m := $merge($map($from, function($c, $i) { {$c: $substring($to, $i, 1)} })); $join($map($split($t, ''), function($c) { ( $v := $lookup($m, $c); $exists($v) ? $v : $c ) })) ) )"
+                }
+              }
+            },
+            {
+              "type": "button",
+              "label": {
+                "expr": "( $t := $state.text ? $state.text : ''; $trim($t) = '' ? '𝓑𝓸𝓵𝓭 𝓢𝓬𝓻𝓲𝓹𝓽' : ( $from := $split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', ''); $to := '𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃'; $m := $merge($map($from, function($c, $i) { {$c: $substring($to, $i, 1)} })); $join($map($split($t, ''), function($c) { ( $v := $lookup($m, $c); $exists($v) ? $v : $c ) })) ) )"
+              },
+              "icon": "copy",
+              "variant": "row",
+              "disabled": {
+                "expr": "$trim($state.text ? $state.text : '') = ''"
+              },
+              "on_click": {
+                "copy_text": {
+                  "expr": "( $t := $state.text ? $state.text : ''; $trim($t) = '' ? '𝓑𝓸𝓵𝓭 𝓢𝓬𝓻𝓲𝓹𝓽' : ( $from := $split('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', ''); $to := '𝓐𝓑𝓒𝓓𝓔𝓕𝓖𝓗𝓘𝓙𝓚𝓛𝓜𝓝𝓞𝓟𝓠𝓡𝓢𝓣𝓤𝓥𝓦𝓧𝓨𝓩𝓪𝓫𝓬𝓭𝓮𝓯𝓰𝓱𝓲𝓳𝓴𝓵𝓶𝓷𝓸𝓹𝓺𝓻𝓼𝓽𝓾𝓿𝔀𝔁𝔂𝔃'; $m := $merge($map($from, function($c, $i) { {$c: $substring($to, $i, 1)} })); $join($map($split($t, ''), function($c) { ( $v := $lookup($m, $c); $exists($v) ? $v : $c ) })) ) )"
+                }
+              }
+            },
+            {
+              "type": "button",
+              "label": {
+                "expr": "( $t := $state.text ? $state.text : ''; $trim($t) = '' ? \"D̳o̳u̳b̳l̳e̳ ̳U̳n̳d̳e̳r̳l̳i̳n̳e̳\" : $join($map($split($t, ''), function($c) { $contains(\" !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\", $c) ? $c & '̳' : $c })) )"
+              },
+              "icon": "copy",
+              "variant": "row",
+              "disabled": {
+                "expr": "$trim($state.text ? $state.text : '') = ''"
+              },
+              "on_click": {
+                "copy_text": {
+                  "expr": "( $t := $state.text ? $state.text : ''; $trim($t) = '' ? \"D̳o̳u̳b̳l̳e̳ ̳U̳n̳d̳e̳r̳l̳i̳n̳e̳\" : $join($map($split($t, ''), function($c) { $contains(\" !\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\", $c) ? $c & '̳' : $c })) )"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "icon": {
+    "asset": "deco-letters-icon",
+    "version": 1
+  },
+  "assets": [
+    {
+      "id": "deco-letters-icon",
+      "version": 1
+    }
+  ]
+}
