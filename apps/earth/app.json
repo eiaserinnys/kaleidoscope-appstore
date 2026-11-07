@@ -7,7 +7,7 @@
     "version": 2
   },
   "requires": {
-    "blocks": 26,
+    "blocks": 37,
     "modules": {
       "http": 1,
       "assets": 1
@@ -329,10 +329,37 @@
         "direction": "column",
         "children": [
           {
-            "type": "metrics",
-            "columns": 4,
-            "items": {
-              "expr": "($fs := $data.quakes.features[$state.min_mag = 'all' or properties.mag >= $number($state.min_mag)]; $m := $fs[id = $state.selected_quake]; $q := $exists($m) ? $m[0] : $fs[0]; $not($exists($q)) ? [] : [\n{'key':'quake','label':$q.properties.place,'value':'M' & $formatNumber($q.properties.mag,'0.0'),'unit':'깊이 ' & $string($round($q.geometry.coordinates[2],1)) & 'km','badge':$q.properties.tsunami = 1 ? {'text':'쓰나미 경보','color':'#c94a4a'} : ($q.properties.alert ? '경보 ' & $q.properties.alert : null),'subtext':$fromMillis($q.properties.time,'[M01]-[D01] [H01]:[m01] UTC') & ($exists($q.properties.felt) and $q.properties.felt != null ? ' · 체감 ' & $string($q.properties.felt) & '건' : ''),'tone':$q.properties.mag >= 6 ? 'negative' : ($q.properties.mag >= 5 ? 'warning' : 'default'),'featured':true},\n{'key':'weather','label':'진앙 현지 기상','value':$data.weather.current.temperature_2m,'unit':'°C','badge':$data.weather.current.weather_code = 0 ? '맑음' : ($data.weather.current.weather_code <= 3 ? '흐림' : ($data.weather.current.weather_code <= 48 ? '안개' : ($data.weather.current.weather_code <= 67 ? '비' : ($data.weather.current.weather_code <= 77 ? '눈' : '소나기')))),'subtext':'풍속 ' & $string($data.weather.current.wind_speed_10m) & ' · 돌풍 ' & $string($data.weather.current.wind_gusts_10m) & ' km/h'},\n{'key':'air','label':'진앙 대기질','value':$exists($data.air.current.us_aqi) and $data.air.current.us_aqi != null ? $data.air.current.us_aqi : $data.air.current.pm2_5,'unit':$exists($data.air.current.us_aqi) and $data.air.current.us_aqi != null ? 'US AQI' : 'μg/m³','badge':$exists($data.air.current.us_aqi) and $data.air.current.us_aqi != null ? ($data.air.current.us_aqi <= 50 ? '좋음' : ($data.air.current.us_aqi <= 100 ? '보통' : ($data.air.current.us_aqi <= 150 ? '주의' : '나쁨'))) : null,'subtext':'PM2.5 ' & $string($data.air.current.pm2_5) & ' · PM10 ' & $string($data.air.current.pm10) & ' μg/m³'},\n{'key':'land','label':'쓰나미 · 지형 고도','value':$q.properties.tsunami = 1 ? '쓰나미 경보' : '쓰나미 없음','badge':'고도 ' & $string($round($data.weather.elevation,0)) & 'm','subtext':'10km 내 지형 ' & $string($count($data.wiki.query.geosearch)) & '곳 · 지질 문서 ' & $string($count($data.wiki.query.search)) & '건'}])"
+            "type": "when",
+            "min_width": 716,
+            "child": {
+              "type": "metrics",
+              "columns": 4,
+              "items": {
+                "expr": "($fs := $data.quakes.features[$state.min_mag = 'all' or properties.mag >= $number($state.min_mag)]; $m := $fs[id = $state.selected_quake]; $q := $exists($m) ? $m[0] : $fs[0]; $not($exists($q)) ? [] : [\n{'key':'quake','label':$q.properties.place,'value':'M' & $formatNumber($q.properties.mag,'0.0'),'unit':'깊이 ' & $string($round($q.geometry.coordinates[2],1)) & 'km','badge':$q.properties.tsunami = 1 ? {'text':'쓰나미 경보','color':'#c94a4a'} : ($q.properties.alert ? '경보 ' & $q.properties.alert : null),'subtext':$fromMillis($q.properties.time,'[M01]-[D01] [H01]:[m01] UTC') & ($exists($q.properties.felt) and $q.properties.felt != null ? ' · 체감 ' & $string($q.properties.felt) & '건' : ''),'tone':$q.properties.mag >= 6 ? 'negative' : ($q.properties.mag >= 5 ? 'warning' : 'default'),'featured':true},\n{'key':'weather','label':'진앙 현지 기상','value':$data.weather.current.temperature_2m,'unit':'°C','badge':$data.weather.current.weather_code = 0 ? '맑음' : ($data.weather.current.weather_code <= 3 ? '흐림' : ($data.weather.current.weather_code <= 48 ? '안개' : ($data.weather.current.weather_code <= 67 ? '비' : ($data.weather.current.weather_code <= 77 ? '눈' : '소나기')))),'subtext':'풍속 ' & $string($data.weather.current.wind_speed_10m) & ' · 돌풍 ' & $string($data.weather.current.wind_gusts_10m) & ' km/h'},\n{'key':'air','label':'진앙 대기질','value':$exists($data.air.current.us_aqi) and $data.air.current.us_aqi != null ? $data.air.current.us_aqi : $data.air.current.pm2_5,'unit':$exists($data.air.current.us_aqi) and $data.air.current.us_aqi != null ? 'US AQI' : 'μg/m³','badge':$exists($data.air.current.us_aqi) and $data.air.current.us_aqi != null ? ($data.air.current.us_aqi <= 50 ? '좋음' : ($data.air.current.us_aqi <= 100 ? '보통' : ($data.air.current.us_aqi <= 150 ? '주의' : '나쁨'))) : null,'subtext':'PM2.5 ' & $string($data.air.current.pm2_5) & ' · PM10 ' & $string($data.air.current.pm10) & ' μg/m³'},\n{'key':'land','label':'쓰나미 · 지형 고도','value':$q.properties.tsunami = 1 ? '쓰나미 경보' : '쓰나미 없음','badge':'고도 ' & $string($round($data.weather.elevation,0)) & 'm','subtext':'10km 내 지형 ' & $string($count($data.wiki.query.geosearch)) & '곳 · 지질 문서 ' & $string($count($data.wiki.query.search)) & '건'}])"
+              }
+            }
+          },
+          {
+            "type": "when",
+            "min_width": 400,
+            "max_width": 715,
+            "child": {
+              "type": "metrics",
+              "columns": 2,
+              "items": {
+                "expr": "($fs := $data.quakes.features[$state.min_mag = 'all' or properties.mag >= $number($state.min_mag)]; $m := $fs[id = $state.selected_quake]; $q := $exists($m) ? $m[0] : $fs[0]; $not($exists($q)) ? [] : [\n{'key':'quake','label':$q.properties.place,'value':'M' & $formatNumber($q.properties.mag,'0.0'),'unit':'깊이 ' & $string($round($q.geometry.coordinates[2],1)) & 'km','badge':$q.properties.tsunami = 1 ? {'text':'쓰나미 경보','color':'#c94a4a'} : ($q.properties.alert ? '경보 ' & $q.properties.alert : null),'subtext':$fromMillis($q.properties.time,'[M01]-[D01] [H01]:[m01] UTC') & ($exists($q.properties.felt) and $q.properties.felt != null ? ' · 체감 ' & $string($q.properties.felt) & '건' : ''),'tone':$q.properties.mag >= 6 ? 'negative' : ($q.properties.mag >= 5 ? 'warning' : 'default'),'featured':true},\n{'key':'weather','label':'진앙 현지 기상','value':$data.weather.current.temperature_2m,'unit':'°C','badge':$data.weather.current.weather_code = 0 ? '맑음' : ($data.weather.current.weather_code <= 3 ? '흐림' : ($data.weather.current.weather_code <= 48 ? '안개' : ($data.weather.current.weather_code <= 67 ? '비' : ($data.weather.current.weather_code <= 77 ? '눈' : '소나기')))),'subtext':'풍속 ' & $string($data.weather.current.wind_speed_10m) & ' · 돌풍 ' & $string($data.weather.current.wind_gusts_10m) & ' km/h'},\n{'key':'air','label':'진앙 대기질','value':$exists($data.air.current.us_aqi) and $data.air.current.us_aqi != null ? $data.air.current.us_aqi : $data.air.current.pm2_5,'unit':$exists($data.air.current.us_aqi) and $data.air.current.us_aqi != null ? 'US AQI' : 'μg/m³','badge':$exists($data.air.current.us_aqi) and $data.air.current.us_aqi != null ? ($data.air.current.us_aqi <= 50 ? '좋음' : ($data.air.current.us_aqi <= 100 ? '보통' : ($data.air.current.us_aqi <= 150 ? '주의' : '나쁨'))) : null,'subtext':'PM2.5 ' & $string($data.air.current.pm2_5) & ' · PM10 ' & $string($data.air.current.pm10) & ' μg/m³'},\n{'key':'land','label':'쓰나미 · 지형 고도','value':$q.properties.tsunami = 1 ? '쓰나미 경보' : '쓰나미 없음','badge':'고도 ' & $string($round($data.weather.elevation,0)) & 'm','subtext':'10km 내 지형 ' & $string($count($data.wiki.query.geosearch)) & '곳 · 지질 문서 ' & $string($count($data.wiki.query.search)) & '건'}])"
+              }
+            }
+          },
+          {
+            "type": "when",
+            "max_width": 399,
+            "child": {
+              "type": "metrics",
+              "columns": 1,
+              "items": {
+                "expr": "($fs := $data.quakes.features[$state.min_mag = 'all' or properties.mag >= $number($state.min_mag)]; $m := $fs[id = $state.selected_quake]; $q := $exists($m) ? $m[0] : $fs[0]; $not($exists($q)) ? [] : [\n{'key':'quake','label':$q.properties.place,'value':'M' & $formatNumber($q.properties.mag,'0.0'),'unit':'깊이 ' & $string($round($q.geometry.coordinates[2],1)) & 'km','badge':$q.properties.tsunami = 1 ? {'text':'쓰나미 경보','color':'#c94a4a'} : ($q.properties.alert ? '경보 ' & $q.properties.alert : null),'subtext':$fromMillis($q.properties.time,'[M01]-[D01] [H01]:[m01] UTC') & ($exists($q.properties.felt) and $q.properties.felt != null ? ' · 체감 ' & $string($q.properties.felt) & '건' : ''),'tone':$q.properties.mag >= 6 ? 'negative' : ($q.properties.mag >= 5 ? 'warning' : 'default'),'featured':true},\n{'key':'weather','label':'진앙 현지 기상','value':$data.weather.current.temperature_2m,'unit':'°C','badge':$data.weather.current.weather_code = 0 ? '맑음' : ($data.weather.current.weather_code <= 3 ? '흐림' : ($data.weather.current.weather_code <= 48 ? '안개' : ($data.weather.current.weather_code <= 67 ? '비' : ($data.weather.current.weather_code <= 77 ? '눈' : '소나기')))),'subtext':'풍속 ' & $string($data.weather.current.wind_speed_10m) & ' · 돌풍 ' & $string($data.weather.current.wind_gusts_10m) & ' km/h'},\n{'key':'air','label':'진앙 대기질','value':$exists($data.air.current.us_aqi) and $data.air.current.us_aqi != null ? $data.air.current.us_aqi : $data.air.current.pm2_5,'unit':$exists($data.air.current.us_aqi) and $data.air.current.us_aqi != null ? 'US AQI' : 'μg/m³','badge':$exists($data.air.current.us_aqi) and $data.air.current.us_aqi != null ? ($data.air.current.us_aqi <= 50 ? '좋음' : ($data.air.current.us_aqi <= 100 ? '보통' : ($data.air.current.us_aqi <= 150 ? '주의' : '나쁨'))) : null,'subtext':'PM2.5 ' & $string($data.air.current.pm2_5) & ' · PM10 ' & $string($data.air.current.pm10) & ' μg/m³'},\n{'key':'land','label':'쓰나미 · 지형 고도','value':$q.properties.tsunami = 1 ? '쓰나미 경보' : '쓰나미 없음','badge':'고도 ' & $string($round($data.weather.elevation,0)) & 'm','subtext':'10km 내 지형 ' & $string($count($data.wiki.query.geosearch)) & '곳 · 지질 문서 ' & $string($count($data.wiki.query.search)) & '건'}])"
+              }
             }
           },
           {
@@ -372,46 +399,100 @@
                 "type": "section",
                 "title": "감지 지진 목록",
                 "child": {
-                  "type": "table",
-                  "rows": {
-                    "expr": "($fs := $data.quakes.features[$state.min_mag = 'all' or properties.mag >= $number($state.min_mag)]; $m := $fs[id = $state.selected_quake]; $q := $exists($m) ? $m[0] : $fs[0]; $append([], $map($fs, function($f,$i) { {'id':$f.id,'key':($i = 0 and $state.selected_quake = 'latest' ? 'latest' : $f.id),'mag':'M' & $formatNumber($f.properties.mag,'0.0'),'place':$f.properties.place,'depth':$string($round($f.geometry.coordinates[2],1)) & 'km','time':$fromMillis($f.properties.time,'[M01]-[D01] [H01]:[m01]')} })))"
-                  },
-                  "columns": [
-                    {
-                      "field": "mag",
-                      "label": "규모",
-                      "width": "narrow",
-                      "format": "badge"
-                    },
-                    {
-                      "field": "place",
-                      "label": "진앙지"
-                    },
-                    {
-                      "field": "depth",
-                      "label": "깊이",
-                      "width": "narrow"
-                    },
-                    {
-                      "field": "time",
-                      "label": "시각 (UTC)",
-                      "width": "medium"
-                    }
+                  "type": "stack",
+                  "direction": "column",
+                  "gap": "none",
+                  "fill": [
+                    0,
+                    1
                   ],
-                  "selected": {
-                    "state": "selected_quake"
-                  },
-                  "on_select": [
+                  "children": [
                     {
-                      "set_state": "selected_quake",
-                      "value": {
-                        "expr": "$item.id"
+                      "type": "when",
+                      "min_width": 470,
+                      "child": {
+                        "type": "table",
+                        "rows": {
+                          "expr": "($fs := $data.quakes.features[$state.min_mag = 'all' or properties.mag >= $number($state.min_mag)]; $m := $fs[id = $state.selected_quake]; $q := $exists($m) ? $m[0] : $fs[0]; $append([], $map($fs, function($f,$i) { {'id':$f.id,'key':($i = 0 and $state.selected_quake = 'latest' ? 'latest' : $f.id),'mag':'M' & $formatNumber($f.properties.mag,'0.0'),'place':$f.properties.place,'depth':$string($round($f.geometry.coordinates[2],1)) & 'km','time':$fromMillis($f.properties.time,'[M01]-[D01] [H01]:[m01]')} })))"
+                        },
+                        "columns": [
+                          {
+                            "field": "mag",
+                            "label": "규모",
+                            "width": "narrow",
+                            "format": "badge"
+                          },
+                          {
+                            "field": "place",
+                            "label": "진앙지"
+                          },
+                          {
+                            "field": "depth",
+                            "label": "깊이",
+                            "width": "narrow"
+                          },
+                          {
+                            "field": "time",
+                            "label": "시각 (UTC)",
+                            "width": "medium"
+                          }
+                        ],
+                        "selected": {
+                          "state": "selected_quake"
+                        },
+                        "on_select": [
+                          {
+                            "set_state": "selected_quake",
+                            "value": {
+                              "expr": "$item.id"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "max_width": 469,
+                      "child": {
+                        "type": "table",
+                        "rows": {
+                          "expr": "($fs := $data.quakes.features[$state.min_mag = 'all' or properties.mag >= $number($state.min_mag)]; $m := $fs[id = $state.selected_quake]; $q := $exists($m) ? $m[0] : $fs[0]; $append([], $map($fs, function($f,$i) { {'id':$f.id,'key':($i = 0 and $state.selected_quake = 'latest' ? 'latest' : $f.id),'mag':'M' & $formatNumber($f.properties.mag,'0.0'),'place':$f.properties.place,'depth':$string($round($f.geometry.coordinates[2],1)) & 'km','time':$fromMillis($f.properties.time,'[M01]-[D01] [H01]:[m01]')} })))"
+                        },
+                        "columns": [
+                          {
+                            "field": "mag",
+                            "label": "규모",
+                            "width": "narrow",
+                            "format": "badge"
+                          },
+                          {
+                            "field": "place",
+                            "label": "진앙지"
+                          },
+                          {
+                            "field": "time",
+                            "label": "시각 (UTC)",
+                            "width": "narrow"
+                          }
+                        ],
+                        "selected": {
+                          "state": "selected_quake"
+                        },
+                        "on_select": [
+                          {
+                            "set_state": "selected_quake",
+                            "value": {
+                              "expr": "$item.id"
+                            }
+                          }
+                        ]
                       }
                     }
                   ]
                 }
               }
-            ]
+            ],
+            "column_below": 1160
           },
           {
             "type": "tabs",
@@ -504,7 +585,8 @@
                         ]
                       }
                     }
-                  ]
+                  ],
+                  "column_below": 640
                 }
               },
               {
@@ -543,7 +625,8 @@
                         }
                       }
                     }
-                  ]
+                  ],
+                  "column_below": 640
                 }
               }
             ]

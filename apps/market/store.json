@@ -3,7 +3,7 @@
   "description": "암호화폐 시세와 캔들, 유럽중앙은행 기준 환율, 세계은행 물가와 구매력 지표를 함께 봅니다.\n\n- 자산과 통화를 고르면 시세를 그 통화로 바꿔 보입니다\n- 금액을 넣으면 구매력 기준으로 환산합니다\n\n자료: Binance, Frankfurter, World Bank 공개 API",
   "category": "자료",
   "publisher": "eiaserinnys",
-  "release": 2,
+  "release": 3,
   "listed": true,
   "icon": "assets/icon.svg",
   "assets": [
