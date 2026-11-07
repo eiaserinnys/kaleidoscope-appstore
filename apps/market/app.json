@@ -630,7 +630,7 @@
         "type": "stack",
         "direction": "column",
         "gap": "none",
-        "fill": 3,
+        "fill": 4,
         "children": [
           {
             "type": "when",
