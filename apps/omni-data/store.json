@@ -3,13 +3,13 @@
   "description": "omni-tools의 데이터 도구를 한 창에서 사용합니다.\n\n원작: omni-tools (https://github.com/iib0011/omni-tools), MIT License, Copyright (c) 2024 Ibrahima Gaye Coulibaly. kaleidoscope로 옮김: eiaserinnys",
   "category": "도구",
   "publisher": "eiaserinnys",
-  "release": 1,
+  "release": 2,
   "listed": true,
   "icon": "assets/icon.svg",
   "assets": [
     {
       "id": "omni-data-client",
-      "version": 1,
+      "version": 2,
       "file": "assets/omni-data-client.javascript",
       "format": "javascript",
       "source": "omni-tools 처리 코드와 의존성 라이선스 원문을 포함한 묶음",
