@@ -17,7 +17,7 @@
   "assets": [
     {
       "id": "omni-text-client",
-      "version": 2
+      "version": 3
     },
     {
       "id": "omni-text-icon",
@@ -183,7 +183,7 @@
     "runtime": "javascript",
     "entry": {
       "id": "omni-text-client",
-      "version": 2
+      "version": 3
     },
     "inputs": {
       "tool": {
