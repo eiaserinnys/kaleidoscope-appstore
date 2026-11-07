@@ -7,7 +7,7 @@
     "version": 2
   },
   "requires": {
-    "blocks": 26,
+    "blocks": 27,
     "modules": {
       "http": 1,
       "assets": 1
@@ -309,6 +309,7 @@
       {
         "type": "split",
         "direction": "row",
+        "column_below": 700,
         "sizes": [
           40,
           60
@@ -360,7 +361,7 @@
             "child": {
               "type": "feed",
               "entries": {
-                "expr": "($clean := function($s) {(\n  $text := ($contains($s, '<') ? $replace($s, /<[^>]+>/g, function($m) {(\n    $tag := $lowercase($m.match);\n    $substring($tag,0,4) = '<pre' ? '\\n\\n```\\n' :\n    $tag = '</pre>' ? '\\n```\\n' :\n    ($tag = '<p>' or $substring($tag,0,3) = '<p ' or $tag = '</p>' or $substring($tag,0,4) = '</p ') ? '\\n\\n' : ''\n  )}) : $s);\n  $contains($text, '&') ? $replace($text, /&(quot|#x27|#39|#039|gt|lt|amp);/ig, function($m) {(\n    $entity := $lowercase($m.groups[0]);\n    $entity = 'quot' ? '\"' :\n    ($entity = '#x27' or $entity = '#39' or $entity = '#039') ? \"'\" :\n    $entity = 'gt' ? '>' : $entity = 'lt' ? '<' : $entity = 'amp' ? '&' : $m.match\n  )}) : $text\n)};\n$node := function($c,$depth) {(\n  $children := $c.children[author != null and text != null and text != '' and $not($exists(deleted) and deleted = true)];\n  {'key':$string($c.id),'name':$c.author,'meta':$exists($c.created_at) ? $replace($substring($c.created_at, 0, 16), 'T', ' ') : '',\n   'badges':[],\n   'depth':$depth,'body':$clean($c.text),\n   'children':$append([], $map($children, function($child) {$node($child,$depth+1)}))}\n)};\n$roots := $data.item.children[author != null and text != null and text != '' and $not($exists(deleted) and deleted = true)];\n$story := $data.item.text != null and $data.item.text != '' ? [{'key':'story-body','name':'본문','badges':[],'depth':0,'body':$clean($data.item.text)}] : [];\n$append($story,$append([], $map($roots,function($root){$node($root,0)}))))"
+                "expr": "($clean := function($s) {(\n  $a := $replace($replace($replace($s, '<pre><code>', '\\n\\n```\\n'), '</code></pre>', '\\n```\\n'), '<p>', '\\n\\n');\n  $b := $replace($replace($a, '</p>', '\\n\\n'), /<[^>]+>/, '');\n  $c := $replace($replace($b, '&quot;', '\"'), '&#x27;', \"'\");\n  $d := $replace($replace($c, '&#39;', \"'\"), '&#039;', \"'\");\n  $e := $replace($replace($d, '&gt;', '>'), '&lt;', '<');\n  $replace($e, '&amp;', '&')\n)};\n$keep := function($c) {($c.author != null and $c.text != null and $c.text != '' and $not($exists($c.deleted) and $c.deleted = true))};\n$raw := $data.item.**.text[$ != null];\n$parts := $split($clean($join($raw, '\\u0001')), '\\u0001');\n$bodies := $merge($map($zip($raw, $parts), function($p) { {($p[0]): $p[1]} }));\n$node := function($c, $depth) {(\n  {'key':$string($c.id),'name':$c.author,'meta':$exists($c.created_at) ? $replace($substring($c.created_at, 0, 16), 'T', ' ') : '',\n   'badges':[],\n   'depth':$depth,'body':$lookup($bodies, $c.text),\n   'children':$append([], $map($c.children[$keep($)], function($child) {$node($child, $depth+1)}))}\n)};\n$roots := $data.item.children[$keep($)];\n$story := $data.item.text != null and $data.item.text != '' ? [{'key':'story-body','name':'본문','badges':[],'depth':0,'body':$lookup($bodies, $data.item.text)}] : [];\n$append($story, $append([], $map($roots, function($root) {$node($root, 0)}))))"
               },
               "format": "markdown",
               "collapsible": true,

@@ -3,7 +3,7 @@
   "description": "해커 뉴스 첫 화면과 최신 글, 검색 결과를 끝까지 이어 읽고, 고른 글의 댓글 토론을 스레드로 봅니다.\n\n자료: Hacker News 검색 API(Algolia)",
   "category": "뉴스",
   "publisher": "eiaserinnys",
-  "release": 2,
+  "release": 3,
   "listed": true,
   "icon": "assets/icon.svg",
   "assets": [
