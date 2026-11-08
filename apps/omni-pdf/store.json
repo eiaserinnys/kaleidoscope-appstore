@@ -3,7 +3,7 @@
   "description": "PDF를 합치고, 쪽을 추출하거나 회전하고, 그림과 EPUB으로 변환합니다.\n\n원작: omni-tools (https://github.com/iib0011/omni-tools), MIT License, Copyright (c) 2024 Ibrahima Gaye Coulibaly. kaleidoscope로 옮김: eiaserinnys",
   "category": "도구",
   "publisher": "eiaserinnys",
-  "release": 3,
+  "release": 4,
   "listed": true,
   "icon": "assets/icon.svg",
   "assets": [
@@ -17,7 +17,7 @@
     },
     {
       "id": "omni-pdf-engine",
-      "version": 4,
+      "version": 5,
       "file": "assets/engine.javascript",
       "format": "javascript",
       "source": "omni-tools 및 PDF 처리 의존성",
