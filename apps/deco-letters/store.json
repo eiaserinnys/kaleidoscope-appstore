@@ -3,7 +3,7 @@
   "description": "영문을 입력하고 마음에 드는 모양을 눌러 복사합니다. 모든 처리는 기기 안에서 이뤄집니다.",
   "category": "도구",
   "publisher": "eiaserinnys",
-  "release": 2,
+  "release": 3,
   "listed": true,
   "icon": "assets/icon.svg",
   "assets": [

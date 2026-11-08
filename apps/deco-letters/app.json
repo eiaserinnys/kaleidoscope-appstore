@@ -2,8 +2,9 @@
   "id": "deco-letters",
   "name": "장식 영문자",
   "description": "영문을 치면 여섯 모양으로 바꿔 복사합니다",
+  "single_window": true,
   "requires": {
-    "blocks": 51,
+    "blocks": 54,
     "modules": {
       "assets": 1
     }
