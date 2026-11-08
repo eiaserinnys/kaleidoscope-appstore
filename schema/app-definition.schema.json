@@ -51,6 +51,10 @@
         }
       ]
     },
+    "single_window": {
+      "description": "(블록 세트 54판) 데스크톱마다 창을 하나만 여는 앱인가. `true`이면 이미 열린 창이 있을 때 새 창을 만들지 않고\n그 창을 맨 위로 올린다(최소화된 창은 푼다).",
+      "type": "boolean"
+    },
     "requires": {
       "$ref": "#/$defs/Requires"
     },
@@ -1715,6 +1719,12 @@
           "$ref": "#/$defs/StoreRemoveAction"
         },
         {
+          "$ref": "#/$defs/ShellOpenAction"
+        },
+        {
+          "$ref": "#/$defs/ShellAddShortcutAction"
+        },
+        {
           "$ref": "#/$defs/ClientAction"
         },
         {
@@ -2011,6 +2021,42 @@
       "required": [
         "permission",
         "id"
+      ]
+    },
+    "ShellOpenAction": {
+      "type": "object",
+      "properties": {
+        "shell.open": {
+          "$ref": "#/$defs/ShellAppSpec"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "shell.open"
+      ]
+    },
+    "ShellAppSpec": {
+      "type": "object",
+      "properties": {
+        "app_id": {
+          "$ref": "#/$defs/Binding"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "app_id"
+      ]
+    },
+    "ShellAddShortcutAction": {
+      "type": "object",
+      "properties": {
+        "shell.add_shortcut": {
+          "$ref": "#/$defs/ShellAppSpec"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "shell.add_shortcut"
       ]
     },
     "CopyTextAction": {
