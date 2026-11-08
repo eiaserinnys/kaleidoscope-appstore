@@ -6,8 +6,9 @@
     "asset": "market-icon",
     "version": 2
   },
+  "single_window": true,
   "requires": {
-    "blocks": 26,
+    "blocks": 54,
     "modules": {
       "http": 1,
       "assets": 1

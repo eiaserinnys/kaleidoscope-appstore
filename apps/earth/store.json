@@ -3,7 +3,7 @@
   "description": "USGS 실시간 지진 목록에서 지진을 고르면 진앙의 날씨와 대기질, 주변 지형 설명을 이어서 불러옵니다.\n\n자료: USGS, Open-Meteo, Wikipedia 공개 API",
   "category": "자료",
   "publisher": "eiaserinnys",
-  "release": 3,
+  "release": 4,
   "listed": true,
   "icon": "assets/icon.svg",
   "assets": [
