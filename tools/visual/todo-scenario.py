@@ -172,6 +172,24 @@ def window_box():
     return box
 
 
+# 메모 칸과 결정 줄의 자리를 잰다. 상세 칸의 「메모」 section과 그 아래 toolbar를
+# 고르는 방식은 카드 87b15ec1 실측(run3/after/measure.json)과 같다.
+MEASURE_DECISION_JS = """() => {
+  const root = document.querySelector('[data-testid="app-window-todo"]');
+  const rect = (el) => {
+    if (!el) return null;
+    const box = el.getBoundingClientRect();
+    return {top: +box.top.toFixed(1), bottom: +box.bottom.toFixed(1), height: +box.height.toFixed(1)};
+  };
+  const headers = [...root.querySelectorAll('section.ks-data-section > .ks-data-section-header')];
+  const memoHeader = headers.find((header) => header.textContent.trim() === "메모");
+  const memo = memoHeader ? memoHeader.parentElement : null;
+  const toolbar = [...root.querySelectorAll(".ks-data-toolbar")]
+    .find((item) => item.textContent.includes("지우기")) || null;
+  return {memo: rect(memo), toolbar: rect(toolbar)};
+}"""
+
+
 def set_size(width, height):
     sb.core({"op": "window.set_rect", "window_id": wid,
              "rect": {"x": 40, "y": 60, "width": width, "height": height}})
@@ -214,6 +232,16 @@ expect(win.locator(".ks-data-window")).to_contain_text("초안 구성")
 expect(win.get_by_role("button", name="지우기", exact=True)).to_be_visible()
 expect(win.get_by_role("button", name="보류", exact=True)).to_be_visible()
 
+measured = win.evaluate(MEASURE_DECISION_JS)
+assert measured["memo"] and measured["toolbar"], f"메모 칸이나 결정 줄을 찾지 못했습니다: {measured}"
+memo_gap = abs(measured["memo"]["bottom"] - measured["toolbar"]["top"])
+assert memo_gap <= 1, (
+    f"넓은 창에서 메모 칸 bottom {measured['memo']['bottom']}과 "
+    f"결정 줄 top {measured['toolbar']['top']}의 차가 {memo_gap}px입니다")
+results["wide_memo_decision_gap"] = memo_gap
+log("넓은 창 메모 칸 bottom", measured["memo"]["bottom"],
+    "결정 줄 top", measured["toolbar"]["top"], "차", memo_gap)
+
 sb.shot("wide-light.png", "todo", settle=0.5)
 shutil.copyfile(OUT / "wide-light.png", APP_DIR / "screenshots" / "1.png")
 results["wide"] = "ok"
@@ -233,6 +261,12 @@ expect(row("t-draft")).to_be_visible()
 expect(row("t-collect").locator(".ks-tree-name")).to_have_class(re.compile("is-checked"))
 expect(row("t-quote").locator(".ks-badge")).to_have_text("보류")
 expect(row("t-room").locator(".ks-view-meta")).to_have_text("내일")
+time.sleep(0.3)
+narrow_measured = win.evaluate(MEASURE_DECISION_JS)
+assert narrow_measured["toolbar"] and narrow_measured["toolbar"]["height"] > 0, (
+    f"좁은 창에서 결정 줄 높이가 0입니다: {narrow_measured}")
+results["narrow_decision_height"] = narrow_measured["toolbar"]["height"]
+log("좁은 창 결정 줄 높이", narrow_measured["toolbar"]["height"])
 sb.shot("narrow-open.png", "todo", settle=0.5)
 results["narrow_first_screen"] = "ok"
 set_size(1040, 700)
@@ -418,6 +452,33 @@ sb.shot("narrow-bottom.png", "todo", settle=0.3)
 results["narrow_bottom_row"] = "ok"
 
 set_size(1040, 700)
+
+# ── 11. 메모가 없는 항목: 오류 안내 없이 빈 편집기가 열리고, 처음 고치면 문서가 생긴다 ──
+
+memo_editor = win.get_by_role("textbox", name="마크다운 편집기")
+row("t-draft").click()
+expect(win.get_by_label("제목", exact=True)).to_have_value("초안 쓰기", timeout=10000)
+wait_for(lambda: "초안 구성" in memo_editor.inner_text(), "t-draft 메모 표시", timeout=15)
+row("t-milk").click()
+expect(win.get_by_label("제목", exact=True)).to_have_value("우유", timeout=10000)
+wait_for(lambda: memo_editor.inner_text().strip() == "", "빈 메모 편집기", timeout=15)
+assert read_storage("memos", doc="t-milk") is None, "t-milk에 이미 메모 문서가 있습니다"
+alert_count = win.locator('[role="alert"]').count()
+assert alert_count == 0, f"메모가 없는 항목에서 오류 안내가 보입니다: {win.locator('[role=\"alert\"]').all_inner_texts()}"
+memo_text = memo_editor.inner_text()
+assert memo_text.strip() == "", f"빈 메모가 아닙니다: {memo_text!r}"
+memo_editor.click()
+page.keyboard.insert_text("새로 쓴 메모")
+saved = wait_for(lambda: read_storage("memos", doc="t-milk"), "처음 쓴 메모 문서 생성", timeout=15)
+assert saved.get("content") == "새로 쓴 메모", saved
+results["missing_memo"] = {
+    "alert_count": alert_count,
+    "editor_text": memo_text,
+    "document_content": saved.get("content"),
+    "document_revision": saved.get("revision"),
+}
+log("메모 없는 항목", json.dumps(results["missing_memo"], ensure_ascii=False))
+
 results["window_size"] = {"width": definition["window_size"]["width"], "height": definition["window_size"]["height"]}
 results["today"] = TODAY.isoformat()
 (OUT / "todo-scenario.json").write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")

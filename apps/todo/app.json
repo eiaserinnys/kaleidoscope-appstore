@@ -12,7 +12,7 @@
   },
   "single_window": true,
   "requires": {
-    "blocks": 56,
+    "blocks": 57,
     "modules": {
       "assets": 1,
       "client": 1,
