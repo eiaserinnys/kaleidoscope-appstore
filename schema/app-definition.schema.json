@@ -2975,6 +2975,21 @@
                 }
               ]
             },
+            "on_check": {
+              "description": "(55판) 항목의 확인 상자를 누르거나 초점을 둔 행에서 Space를 누를 때 실행한다.\n`$event`는 새 확인 값(참/거짓), `$item`은 그 항목이다. 동작 문맥은 `on_select`와 같다.\n없으면 확인 상자는 보이기만 한다. 폴더 트리 모드와 함께 쓰지 않는다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Actions"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "default_expanded": {
+              "description": "(55판) 참이면 자식이 있는 항목을 처음부터 펼친다. 거짓이면 지금처럼 접힌 채로 시작한다.\n폴더 트리 모드와 함께 쓰지 않는다.",
+              "type": "boolean"
+            },
             "item_menu": {
               "description": "(20판) 데이터 항목의 메뉴. 동작 문맥은 `on_select`와 같다.",
               "type": [
