@@ -1,0 +1,1129 @@
+{
+  "id": "rss-board",
+  "name": "RSS 리더",
+  "description": "RSS와 Atom 피드를 모아 안 읽은 글을 한곳에서 읽습니다",
+  "icon": {
+    "asset": "rss-board-icon",
+    "version": 1
+  },
+  "assets": [
+    {
+      "id": "rss-board-icon",
+      "version": 1
+    }
+  ],
+  "requires": {
+    "blocks": 54,
+    "modules": {
+      "assets": 1,
+      "storage": 2,
+      "worker": 1
+    }
+  },
+  "single_window": true,
+  "state": {
+    "feed": "all",
+    "entry": null,
+    "unread_only": false,
+    "adding": false,
+    "new_url": "",
+    "new_name": "",
+    "renaming": null,
+    "rename_value": "",
+    "importing": false,
+    "opml": "",
+    "query": ""
+  },
+  "state_migrate": {
+    "feed": "\"all\"",
+    "entry": "null",
+    "unread_only": "false",
+    "adding": "false",
+    "new_url": "\"\"",
+    "new_name": "\"\"",
+    "renaming": "null",
+    "rename_value": "\"\"",
+    "importing": "false",
+    "opml": "\"\"",
+    "query": "\"\""
+  },
+  "storage": {
+    "entries": [
+      {
+        "id": "feeds",
+        "key": "feeds",
+        "kind": "json",
+        "label": "피드 목록",
+        "presentation": "hidden",
+        "default": [],
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "url",
+              "name"
+            ],
+            "properties": {
+              "url": {
+                "type": "string",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "items",
+        "key": "items",
+        "kind": "json",
+        "label": "글 목록",
+        "presentation": "hidden",
+        "default": {
+          "entries": [],
+          "feeds": {},
+          "updated_at": null
+        },
+        "schema": {
+          "type": "object",
+          "properties": {
+            "entries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "feed": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "link": {
+                    "type": "string"
+                  },
+                  "date": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "feeds": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "error": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "checked_at": {
+                    "type": "string"
+                  },
+                  "ok_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "retry_after": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "count": {
+                    "type": "integer"
+                  },
+                  "etag": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "last_modified": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "resolved": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "updated_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "starred",
+        "key": "starred",
+        "kind": "json",
+        "label": "북마크",
+        "presentation": "hidden",
+        "default": [],
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "feed": {
+                "type": "string"
+              },
+              "feed_title": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "link": {
+                "type": "string"
+              },
+              "date": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "summary": {
+                "type": "string"
+              },
+              "starred_at": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "read",
+        "key": "read",
+        "kind": "json",
+        "label": "읽은 글",
+        "presentation": "hidden",
+        "default": [],
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "id": "auto_refresh",
+        "key": "auto_refresh",
+        "kind": "json",
+        "label": "30분마다 자동 새로고침",
+        "description": "켜면 창을 닫아 두어도 30분마다 모든 피드를 새로 받습니다",
+        "presentation": "settings",
+        "default": false,
+        "schema": {
+          "type": "boolean"
+        }
+      }
+    ]
+  },
+  "worker": {
+    "runtime": "python3",
+    "code": "\"\"\"RSS 리더 워커.\n\nstdin으로 {trigger, action, args, storage, now, ...}를 받고, feeds의 각 주소를 받아 RSS 2.0(과 RSS 1.0)·Atom을\n파싱해 items 항목 하나를 통째로 다시 쓴다. 외부 패키지를 쓰지 않는다.\n\n동작\n- refresh(기본): 모든 피드를 새로 받는다.\n- import_opml: args.opml(OPML 글)의 피드를 목록에 더하고 곧바로 모두 받는다.\n\n받기 규칙\n- 새로 받은 글을 전에 받은 글에 덧쌓아 피드마다 최근 PER_FEED개까지 남기고, 저장 항목 한도(STORAGE_BUDGET)를 넘으면 피드마다 같은 개수씩 줄인다.\n- ETag와 Last-Modified를 피드 상태에 남겨 조건부로 요청한다. 304면 전에 받은 글을 그대로 둔다.\n- 피드 주소 대신 사이트 주소를 넣으면 HTML의 <link rel=\"alternate\">에서 피드를 찾아 resolved에 남긴다.\n- 실패한 피드는 오류를 상태에 남기고 전에 받은 글은 그대로 둔다. 나머지 피드는 계속한다.\n- 429/503의 Retry-After는 호스트 단위로 지킨다. 그 시각까지 같은 호스트의 피드는 부르지 않는다.\n  쉬는 피드는 error 없이 retry_after만 남긴다(화면이 기기 시각으로 안내한다).\n- 피드 목록에서 빠진 피드의 글과 상태는 버린다.\n\"\"\"\nimport hashlib\nimport html\nimport json\nimport re\nimport sys\nimport threading\nimport urllib.error\nimport urllib.request\nimport xml.etree.ElementTree as ET\nfrom datetime import datetime, timedelta, timezone\nfrom email.utils import parsedate_to_datetime\nfrom html.parser import HTMLParser\nfrom urllib.parse import urljoin, urlsplit\n\nPER_FEED = 200  # 피드가 내주는 글(보통 10~50개)에 지난 글을 덧쌓아 이만큼까지 남긴다.\nSTORAGE_BUDGET = 900 * 1024  # 저장 항목 하나는 1MiB까지다. 상태와 여유를 남긴다.\nREQUEST_TIMEOUT = 15\nRUN_DEADLINE = 45  # 워커 한 번은 60초까지다. 남는 시간으로 결과를 쓴다.\nPARALLEL = 6\nMAX_BYTES = 5 * 1024 * 1024\nSUMMARY_LEN = 300\nDEFAULT_RETRY_SECS = 3600\nUSER_AGENT = \"KaleidoscopeRSSReader/1.1\"\nFEED_TYPES = (\"application/rss+xml\", \"application/atom+xml\", \"application/rdf+xml\", \"application/feed+json\")\n\nTAG = re.compile(r\"<[^>]*>\")\nSPACE = re.compile(r\"\\s+\")\nURL = re.compile(r\"https?://\\S+\")\n\n\ndef iso(dt):\n    return dt.astimezone(timezone.utc).strftime(\"%Y-%m-%dT%H:%M:%SZ\")\n\n\ndef local(tag):\n    return tag.rsplit(\"}\", 1)[-1] if isinstance(tag, str) else \"\"\n\n\ndef child(el, *names):\n    if el is None:\n        return None\n    for c in el:\n        if local(c.tag) in names:\n            return c\n    return None\n\n\ndef text(el, *names):\n    c = child(el, *names)\n    return \"\" if c is None else \"\".join(c.itertext()).strip()\n\n\ndef parse_date(value):\n    value = (value or \"\").strip()\n    if not value:\n        return None\n    try:\n        dt = parsedate_to_datetime(value)  # RFC 822 (RSS pubDate)\n    except (TypeError, ValueError, IndexError):\n        try:\n            dt = datetime.fromisoformat(value.replace(\"Z\", \"+00:00\"))  # RFC 3339 (Atom, dc:date)\n        except ValueError:\n            return None\n    if dt.tzinfo is None:\n        dt = dt.replace(tzinfo=timezone.utc)\n    return iso(dt)\n\n\ndef summarize(value):\n    # 본문은 HTML이거나 한 번 더 이스케이프된 HTML이다. 태그를 벗기고 한 줄로 줄인다.\n    plain = TAG.sub(\" \", html.unescape(TAG.sub(\" \", value or \"\")))\n    plain = SPACE.sub(\" \", plain).strip()\n    # 링크가 글의 절반을 넘으면 요약이 아니라 링크 목록이다(예: \"Article URL: … Comments URL: …\").\n    if sum(len(u) for u in URL.findall(plain)) * 2 > len(plain):\n        return \"\"\n    return plain if len(plain) <= SUMMARY_LEN else plain[: SUMMARY_LEN - 1].rstrip() + \"…\"\n\n\ndef link_of(el):\n    \"\"\"RSS의 <link>글</link>와 Atom의 <link rel href/>를 모두 읽는다. alternate를 먼저 고른다.\"\"\"\n    fallback = \"\"\n    for c in el:\n        if local(c.tag) != \"link\":\n            continue\n        href = (c.get(\"href\") or \"\".join(c.itertext())).strip()\n        if not href:\n            continue\n        if c.get(\"rel\", \"alternate\") == \"alternate\":\n            return href\n        fallback = fallback or href\n    return fallback\n\n\ndef rss_fields(item):\n    guid = text(item, \"guid\")\n    link = link_of(item)\n    if not link and guid.startswith((\"http://\", \"https://\")):\n        link = guid\n    return {\n        \"title\": text(item, \"title\"),\n        \"link\": link,\n        \"guid\": guid,\n        \"date\": parse_date(text(item, \"pubDate\", \"date\", \"published\", \"updated\")),\n        \"summary\": text(item, \"description\", \"summary\", \"encoded\"),\n    }\n\n\ndef atom_fields(entry):\n    return {\n        \"title\": text(entry, \"title\"),\n        \"link\": link_of(entry),\n        \"guid\": text(entry, \"id\"),\n        \"date\": parse_date(text(entry, \"published\", \"updated\")),\n        \"summary\": text(entry, \"summary\", \"content\"),\n    }\n\n\nclass NotAFeed(ValueError):\n    pass\n\n\ndef parse(data, feed_url, base_url):\n    \"\"\"feed_url은 글 id의 이름공간(사용자가 넣은 주소), base_url은 상대 링크를 풀 실제 피드 주소다.\"\"\"\n    try:\n        root = ET.fromstring(data)\n    except ET.ParseError as error:\n        raise NotAFeed(\"XML을 읽지 못했습니다: %s\" % error)\n    kind = local(root.tag)\n    if kind == \"feed\":\n        title, nodes, fields = text(root, \"title\"), [c for c in root if local(c.tag) == \"entry\"], atom_fields\n    elif kind in (\"rss\", \"RDF\"):\n        channel = child(root, \"channel\")\n        scope = channel if kind == \"rss\" and channel is not None else root\n        title, nodes, fields = text(channel, \"title\"), [c for c in scope if local(c.tag) == \"item\"], rss_fields\n    else:\n        raise NotAFeed(\"RSS나 Atom 문서가 아닙니다 (뿌리 요소: %s)\" % kind)\n\n    items = []\n    for node in nodes:\n        f = fields(node)\n        link = urljoin(base_url, f[\"link\"]) if f[\"link\"] else \"\"\n        identity = f[\"guid\"] or link or f[\"title\"]\n        if not identity:\n            continue\n        items.append({\n            \"id\": hashlib.sha1((feed_url + \"\\n\" + identity).encode(\"utf-8\")).hexdigest()[:16],\n            \"feed\": feed_url,\n            \"title\": f[\"title\"] or \"(제목 없음)\",\n            \"link\": link,\n            \"date\": f[\"date\"],\n            \"summary\": summarize(f[\"summary\"]),\n        })\n    # 날짜가 있는 글을 최근순으로, 날짜가 없는 글은 문서 순서대로 뒤에 둔다(정렬은 안정적이다).\n    items.sort(key=lambda e: e[\"date\"] or \"\", reverse=True)\n    return title, items\n\n\nclass FeedLinks(HTMLParser):\n    \"\"\"HTML 문서의 <link rel=\"alternate\" type=\"application/rss+xml\" href>를 모은다.\"\"\"\n\n    def __init__(self):\n        super().__init__()\n        self.found = []\n\n    def handle_starttag(self, tag, attrs):\n        if tag != \"link\":\n            return\n        a = {k.lower(): (v or \"\") for k, v in attrs}\n        rels = a.get(\"rel\", \"\").lower().split()\n        if \"alternate\" in rels and a.get(\"type\", \"\").lower().split(\";\")[0].strip() in FEED_TYPES and a.get(\"href\"):\n            self.found.append(a[\"href\"].strip())\n\n\ndef discover(data, page_url):\n    finder = FeedLinks()\n    try:\n        finder.feed(data.decode(\"utf-8\", errors=\"replace\"))\n    except Exception:\n        return None\n    return urljoin(page_url, finder.found[0]) if finder.found else None\n\n\nclass NotModified(Exception):\n    pass\n\n\ndef fetch(url, etag=None, last_modified=None):\n    headers = {\n        \"User-Agent\": USER_AGENT,\n        \"Accept\": \"application/rss+xml, application/atom+xml, application/xml;q=0.9, text/xml;q=0.9, */*;q=0.5\",\n    }\n    if etag:\n        headers[\"If-None-Match\"] = etag\n    if last_modified:\n        headers[\"If-Modified-Since\"] = last_modified\n    try:\n        with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=REQUEST_TIMEOUT) as response:\n            data = response.read(MAX_BYTES + 1)\n            validators = (response.headers.get(\"ETag\"), response.headers.get(\"Last-Modified\"))\n            final = response.geturl()\n    except urllib.error.HTTPError as error:\n        if error.code == 304:\n            raise NotModified()\n        raise\n    if len(data) > MAX_BYTES:\n        raise ValueError(\"피드가 %dMB를 넘습니다\" % (MAX_BYTES // (1024 * 1024)))\n    return data, validators, final\n\n\ndef load(url, before):\n    \"\"\"피드 하나를 받는다. 돌려주는 값: ('ok', 제목, 글들, 상태 갱신) 또는 ('same', 상태 갱신).\"\"\"\n    target = before.get(\"resolved\") or url\n    conditional = before.get(\"count\")  # 남은 글이 없으면 304를 받아도 보일 것이 없다.\n    try:\n        data, (etag, modified), final = fetch(\n            target, before.get(\"etag\") if conditional else None, before.get(\"last_modified\") if conditional else None)\n    except NotModified:\n        return (\"same\", {})\n    try:\n        title, items = parse(data, url, final)\n        resolved = target if target != url else None\n    except NotAFeed as not_feed:\n        # 사이트 주소일 수 있다. 피드 링크를 찾아 한 번만 따라간다.\n        found = discover(data, final)\n        if not found or found == target:\n            raise not_feed\n        data, (etag, modified), final = fetch(found)\n        title, items = parse(data, url, final)\n        resolved = found\n    return (\"ok\", title, items, {\"etag\": etag, \"last_modified\": modified, \"resolved\": resolved})\n\n\ndef fit(entries):\n    \"\"\"저장 항목 한도 안에 들도록 피드마다 같은 개수(가장 최근 것부터)만 남긴다.\"\"\"\n    def size(e):\n        return len(json.dumps(e, ensure_ascii=False).encode(\"utf-8\")) + 1\n\n    by_feed = {}\n    for e in entries:\n        by_feed.setdefault(e[\"feed\"], []).append(e)\n    if sum(size(e) for e in entries) <= STORAGE_BUDGET:\n        return entries\n    sizes = {f: [size(e) for e in es] for f, es in by_feed.items()}\n\n    def total(k):\n        return sum(sum(s[:k]) for s in sizes.values())\n\n    lo, hi = 0, max(len(s) for s in sizes.values())\n    while lo < hi:  # total(k) ≤ 예산인 가장 큰 k\n        mid = (lo + hi + 1) // 2\n        lo, hi = (mid, hi) if total(mid) <= STORAGE_BUDGET else (lo, mid - 1)\n    kept = {id(e) for es in by_feed.values() for e in es[:lo]}\n    return [e for e in entries if id(e) in kept]\n\n\ndef retry_at(header, now):\n    header = (header or \"\").strip()\n    if header.isdigit():\n        return now + timedelta(seconds=int(header))\n    try:\n        dt = parsedate_to_datetime(header)\n        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)\n    except (TypeError, ValueError, IndexError):\n        return now + timedelta(seconds=DEFAULT_RETRY_SECS)\n\n\ndef host(url):\n    return urlsplit(url).hostname or url\n\n\ndef describe(error):\n    if isinstance(error, urllib.error.HTTPError):\n        return \"HTTP %d %s\" % (error.code, error.reason)\n    if isinstance(error, urllib.error.URLError):\n        reason = error.reason\n        if isinstance(reason, TimeoutError):\n            return \"시간 초과(%d초)\" % REQUEST_TIMEOUT\n        return \"연결 실패: %s\" % reason\n    if isinstance(error, TimeoutError):\n        return \"시간 초과(%d초)\" % REQUEST_TIMEOUT\n    if isinstance(error, NotAFeed):\n        return \"%s. 피드 링크도 찾지 못했습니다\" % error\n    return \"%s: %s\" % (type(error).__name__, error)\n\n\ndef opml_feeds(source):\n    \"\"\"OPML의 outline[xmlUrl]을 {url, name}으로 읽는다. 폴더(중첩 outline)는 펼친다.\"\"\"\n    try:\n        root = ET.fromstring(source.encode(\"utf-8\"))\n    except ET.ParseError as error:\n        raise ValueError(\"OPML을 읽지 못했습니다: %s\" % error)\n    feeds = []\n    for node in root.iter():\n        if local(node.tag) != \"outline\":\n            continue\n        url = (node.get(\"xmlUrl\") or node.get(\"xmlurl\") or \"\").strip()\n        if url.startswith((\"http://\", \"https://\")):\n            feeds.append({\"url\": url, \"name\": (node.get(\"title\") or node.get(\"text\") or \"\").strip()})\n    if not feeds:\n        raise ValueError(\"OPML에서 피드(xmlUrl)를 찾지 못했습니다\")\n    return feeds\n\n\ndef refresh(feed_list, previous, now):\n    old_entries = previous.get(\"entries\") or []\n    old_status = previous.get(\"feeds\") or {}\n    urls = list(dict.fromkeys(f[\"url\"] for f in feed_list if f.get(\"url\")))\n\n    # 지난 실행이 남긴 Retry-After를 호스트 단위로 모은다.\n    blocked = {}\n    for url, status in old_status.items():\n        until = status.get(\"retry_after\")\n        if until and until > iso(now):\n            blocked[host(url)] = max(until, blocked.get(host(url), \"\"))\n\n    results = {}\n    gate = threading.Semaphore(PARALLEL)\n\n    def run(url):\n        with gate:\n            before = old_status.get(url) or {}\n            if host(before.get(\"resolved\") or url) in blocked:\n                results[url] = (\"blocked\",)\n                return\n            try:\n                results[url] = load(url, before)\n            except Exception as error:  # 한 피드의 실패가 다른 피드를 막지 않는다.\n                if isinstance(error, urllib.error.HTTPError) and error.code in (429, 503):\n                    until = iso(retry_at(error.headers.get(\"Retry-After\"), now))\n                    blocked[host(before.get(\"resolved\") or url)] = until\n                    results[url] = (\"blocked\",)\n                else:\n                    results[url] = (\"error\", describe(error))\n\n    threads = [threading.Thread(target=run, args=(u,), daemon=True) for u in urls]\n    for t in threads:\n        t.start()\n    deadline = datetime.now(timezone.utc) + timedelta(seconds=RUN_DEADLINE)\n    for t in threads:\n        t.join(max(0.0, (deadline - datetime.now(timezone.utc)).total_seconds()))\n\n    entries, status, ok, failed = [], {}, 0, 0\n    for url in urls:\n        before = old_status.get(url) or {}\n        kept = [e for e in old_entries if e.get(\"feed\") == url]\n        result = results.get(url, (\"timeout\",))\n        base = {\"title\": before.get(\"title\"), \"checked_at\": iso(now), \"ok_at\": before.get(\"ok_at\"),\n                \"error\": None, \"retry_after\": None, \"etag\": before.get(\"etag\"),\n                \"last_modified\": before.get(\"last_modified\"), \"resolved\": before.get(\"resolved\")}\n        if result[0] == \"ok\":\n            _, title, items, validators = result\n            # 피드에서 밀려난 지난 글도 남긴다. 같은 글은 새로 받은 쪽을 쓴다.\n            fresh = {e[\"id\"] for e in items}\n            items = sorted(items + [e for e in kept if e[\"id\"] not in fresh],\n                           key=lambda e: e[\"date\"] or \"\", reverse=True)[:PER_FEED]\n            entries += items\n            status[url] = {**base, **validators, \"title\": title or before.get(\"title\"), \"ok_at\": iso(now),\n                           \"count\": len(items)}\n            ok += 1\n        elif result[0] == \"same\":\n            entries += kept\n            status[url] = {**base, \"ok_at\": iso(now), \"count\": len(kept)}\n            ok += 1\n        else:\n            entries += kept\n            if result[0] == \"blocked\":\n                base[\"retry_after\"] = blocked.get(host(before.get(\"resolved\") or url))\n            else:\n                base[\"error\"] = result[1] if result[0] == \"error\" else \\\n                    \"이번 새로고침 시간(%d초) 안에 끝나지 않았습니다\" % RUN_DEADLINE\n            status[url] = {**base, \"count\": len(kept)}\n            failed += 1\n\n    entries.sort(key=lambda e: e[\"date\"] or \"\", reverse=True)\n    entries = fit(entries)\n    for url in urls:\n        status[url][\"count\"] = sum(1 for e in entries if e[\"feed\"] == url)\n    summary = {\"feeds\": len(urls), \"ok\": ok, \"failed\": failed, \"items\": len(entries)}\n    return summary, {\"entries\": entries, \"feeds\": status, \"updated_at\": iso(now)}\n\n\ndef main():\n    payload = json.loads(sys.stdin.buffer.read().decode(\"utf-8\"))\n    now = datetime.strptime(payload[\"now\"], \"%Y-%m-%dT%H:%M:%SZ\").replace(tzinfo=timezone.utc)\n    storage = payload.get(\"storage\") or {}\n    feeds = list(storage.get(\"feeds\") or [])\n    writes = {}\n    result = {}\n\n    if payload.get(\"action\") == \"import_opml\":\n        args = payload.get(\"args\") or {}\n        known = {f.get(\"url\") for f in feeds}\n        added = [f for f in opml_feeds(args.get(\"opml\") or \"\") if f[\"url\"] not in known]\n        added = list({f[\"url\"]: f for f in added}.values())\n        feeds += added\n        writes[\"feeds\"] = feeds\n        result[\"imported\"] = len(added)\n\n    summary, items = refresh(feeds, storage.get(\"items\") or {}, now)\n    writes[\"items\"] = items\n    result.update(summary)\n    sys.stdout.buffer.write(json.dumps({\"result\": result, \"set_storage\": writes}, ensure_ascii=False).encode(\"utf-8\"))\n    sys.stdout.flush()\n\n\nmain()\n",
+    "actions": [
+      "refresh",
+      "import_opml"
+    ],
+    "schedule": {
+      "interval_secs": 1800,
+      "jitter_secs": 60,
+      "enabled_entry": "auto_refresh"
+    },
+    "watch_entries": [
+      "feeds"
+    ],
+    "timeout_secs": 60
+  },
+  "ui": {
+    "type": "stack",
+    "direction": "column",
+    "gap": "none",
+    "fill": 0,
+    "children": [
+      {
+        "type": "split",
+        "direction": "row",
+        "sizes": [
+          24,
+          76
+        ],
+        "column_below": 560,
+        "children": [
+          {
+            "type": "stack",
+            "direction": "column",
+            "gap": "none",
+            "fill": 2,
+            "children": [
+              {
+                "type": "toolbar",
+                "start": [
+                  {
+                    "type": "text",
+                    "style": "title",
+                    "value": "구독"
+                  }
+                ],
+                "end": [
+                  {
+                    "type": "button",
+                    "label": "OPML 가져오기",
+                    "icon": "upload",
+                    "icon_only": true,
+                    "variant": "ghost",
+                    "on_click": [
+                      {
+                        "set_state": "importing",
+                        "value": true
+                      }
+                    ]
+                  },
+                  {
+                    "type": "button",
+                    "label": "OPML로 복사(내보내기)",
+                    "icon": "copy",
+                    "icon_only": true,
+                    "variant": "ghost",
+                    "disabled": {
+                      "expr": "$count($append([], $storage.feeds)) = 0"
+                    },
+                    "on_click": {
+                      "copy_text": {
+                        "expr": "($feeds := $append([], $storage.feeds); $st := $storage.items.feeds; $name := function($u){( $f := $feeds[url = $u][0]; $s := $lookup($st, $u); $f.name ? $f.name : ($s.title ? $s.title : $u) )}; $esc := function($v){ $replace($replace($replace($replace($string($v), '&', '&amp;'), '<', '&lt;'), '>', '&gt;'), '\"', '&quot;') }; '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\\n<opml version=\"2.0\">\\n<head><title>RSS 리더</title></head>\\n<body>\\n' & $join($map($feeds, function($f){(   $s := $lookup($st, $f.url); $n := $esc($name($f.url));   '  <outline type=\"rss\" text=\"' & $n & '\" title=\"' & $n & '\" xmlUrl=\"' & $esc($s.resolved ? $s.resolved : $f.url) & '\"/>' )}), '\\n') & '\\n</body>\\n</opml>\\n')"
+                      }
+                    }
+                  },
+                  {
+                    "type": "button",
+                    "label": "피드 추가",
+                    "icon": "plus",
+                    "icon_only": true,
+                    "variant": "ghost",
+                    "on_click": [
+                      {
+                        "set_state": "adding",
+                        "value": true
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "list",
+                "items": {
+                  "expr": "($feeds := $append([], $storage.feeds); $read := $append([], $storage.read); $starred := $append([], $storage.starred); $n := $count($append([], $storage.items.entries)[feed in $feeds.url and $not(id in $read)]); $b := $count($starred); [{'key': 'starred', 'title': '북마크', 'badges': $b > 0 ? [$string($b)] : []},  {'key': 'all', 'title': '모든 글', 'badges': $n > 0 ? [$string($n)] : []}])"
+                },
+                "selected": {
+                  "state": "feed"
+                },
+                "on_select": [
+                  {
+                    "set_state": "feed"
+                  },
+                  {
+                    "set_state": "entry",
+                    "value": null
+                  }
+                ]
+              },
+              {
+                "type": "list",
+                "items": {
+                  "expr": "($feeds := $append([], $storage.feeds); $st := $storage.items.feeds; $read := $append([], $storage.read); $name := function($u){( $f := $feeds[url = $u][0]; $s := $lookup($st, $u); $f.name ? $f.name : ($s.title ? $s.title : $u) )}; $entries := $append([], $storage.items.entries); $append([], $map($feeds, function($f){(   $s := $lookup($st, $f.url);   $unread := $count($entries[feed = $f.url and $not(id in $read)]);   {'key': $f.url, 'title': $name($f.url), 'feed_url': $s.resolved ? $s.resolved : $f.url,    'subtitle': $s.error ? '⚠ ' & $s.error :      ($s.retry_after and $ceil(($toMillis($s.retry_after) - $toMillis($now())) / 60000) > 0 ? '⏸ 요청 제한으로 쉬는 중 · 약 ' & $string($ceil(($toMillis($s.retry_after) - $toMillis($now())) / 60000)) & '분 뒤 다시' :      ($s.checked_at ? null : '받는 중…')),    'badges': $unread > 0 ? [$string($unread)] : []} )})))"
+                },
+                "selected": {
+                  "state": "feed"
+                },
+                "on_select": [
+                  {
+                    "set_state": "feed"
+                  },
+                  {
+                    "set_state": "entry",
+                    "value": null
+                  }
+                ],
+                "item_menu": [
+                  {
+                    "label": "이 피드 모두 읽음",
+                    "on_select": [
+                      {
+                        "set_storage": {
+                          "entry": "read",
+                          "value": {
+                            "expr": "($read := $append([], $storage.read); $ids := $append([], $storage.items.entries.id); $distinct($append($append([], $filter($read, function($v){ $v in $ids })), $append([], $append([], $storage.items.entries)[feed = $event].id))))"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "label": "이름 바꾸기",
+                    "on_select": [
+                      {
+                        "set_state": "rename_value",
+                        "value": {
+                          "expr": "$append([], $storage.feeds)[url = $event][0].name"
+                        }
+                      },
+                      {
+                        "set_state": "renaming"
+                      }
+                    ]
+                  },
+                  {
+                    "label": "피드 주소 복사",
+                    "on_select": {
+                      "copy_text": {
+                        "item": "feed_url"
+                      }
+                    }
+                  },
+                  {
+                    "label": "피드 삭제",
+                    "danger": true,
+                    "confirm": {
+                      "title": "피드를 삭제할까요?",
+                      "body": {
+                        "item": "title"
+                      },
+                      "ok": "삭제"
+                    },
+                    "on_select": [
+                      {
+                        "set_state": "feed",
+                        "value": {
+                          "expr": "$state.feed = $event ? 'all' : $state.feed"
+                        }
+                      },
+                      {
+                        "set_storage": {
+                          "entry": "feeds",
+                          "value": {
+                            "expr": "$append([], $append([], $storage.feeds)[url != $event])"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "stack",
+            "direction": "column",
+            "gap": "none",
+            "fill": 3,
+            "children": [
+              {
+                "type": "toolbar",
+                "start": [
+                  {
+                    "type": "text",
+                    "style": "title",
+                    "value": {
+                      "expr": "($feeds := $append([], $storage.feeds); $st := $storage.items.feeds; $name := function($u){( $f := $feeds[url = $u][0]; $s := $lookup($st, $u); $f.name ? $f.name : ($s.title ? $s.title : $u) )}; $sel := $state.feed in $feeds.url ? $state.feed : null; $state.feed = 'starred' ? '북마크' : ($sel ? $name($sel) : '모든 글'))"
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "style": "meta",
+                    "value": {
+                      "expr": "($feeds := $append([], $storage.feeds); $read := $append([], $storage.read); $sel := $state.feed in $feeds.url ? $state.feed : null; $all := $append([], $append([], $storage.items.entries)[feed in $feeds.url]); $n := $count(($sel ? $all[feed = $sel] : $all)[$not(id in $read)]); $state.feed != 'starred' and $n > 0 ? '안 읽음 ' & $string($n) : '')"
+                    }
+                  }
+                ],
+                "end": [
+                  {
+                    "type": "text",
+                    "style": "meta",
+                    "value": {
+                      "expr": "($u := $storage.items.updated_at; $m := $u ? $floor(($toMillis($now()) - $toMillis($u)) / 60000) : null; $not($exists($m)) ? '' : $m < 1 ? '방금 갱신' : $m < 60 ? $string($m) & '분 전 갱신' : $m < 1440 ? $string($floor($m / 60)) & '시간 전 갱신' : $string($floor($m / 1440)) & '일 전 갱신')"
+                    }
+                  },
+                  {
+                    "type": "button",
+                    "label": "모두 읽음",
+                    "icon": "check",
+                    "variant": "ghost",
+                    "on_click": [
+                      {
+                        "set_storage": {
+                          "entry": "read",
+                          "value": {
+                            "expr": "($read := $append([], $storage.read); $ids := $append([], $storage.items.entries.id); $distinct($append($append([], $filter($read, function($v){ $v in $ids })), ($feeds := $append([], $storage.feeds); $sel := $state.feed in $feeds.url ? $state.feed : null; $all := $append([], $append([], $storage.items.entries)[feed in $feeds.url]); $starred := $append([], $storage.starred); $base := $state.feed = 'starred' ? $reverse($starred) : $append([], ($sel ? $all[feed = $sel] : $all)[$not($state.unread_only) or $not(id in $read) or id = $state.entry]); $q := $lowercase($trim($string($state.query))); $shown := $append([], $base[$q = '' or $contains($lowercase(title & ' ' & summary), $q)]); $append([], $shown.id)))))"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "button",
+                    "label": "새로고침",
+                    "icon": "refresh-cw",
+                    "icon_only": true,
+                    "variant": "ghost",
+                    "on_click": [
+                      {
+                        "worker": {
+                          "action": "refresh"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "toolbar",
+                "start": [
+                  {
+                    "type": "input",
+                    "kind": "search",
+                    "value": {
+                      "state": "query"
+                    },
+                    "on_change": [
+                      {
+                        "set_state": "query"
+                      }
+                    ],
+                    "label": "검색",
+                    "label_position": "hidden",
+                    "placeholder": "제목과 요약에서 찾기"
+                  }
+                ],
+                "end": [
+                  {
+                    "type": "toggle",
+                    "label": "안 읽은 글만",
+                    "value": {
+                      "state": "unread_only"
+                    },
+                    "on_change": [
+                      {
+                        "set_state": "unread_only"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "when",
+                "value": {
+                  "expr": "$count($append([], $storage.feeds)) = 0"
+                },
+                "child": {
+                  "type": "notice",
+                  "message": "구독한 피드가 없습니다. 피드나 사이트 주소를 추가하거나 OPML을 가져오세요.",
+                  "actions": [
+                    {
+                      "label": "피드 추가",
+                      "on_click": [
+                        {
+                          "set_state": "adding",
+                          "value": true
+                        }
+                      ]
+                    },
+                    {
+                      "label": "OPML 가져오기",
+                      "on_click": [
+                        {
+                          "set_state": "importing",
+                          "value": true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "split",
+                "direction": "column",
+                "sizes": [
+                  58,
+                  42
+                ],
+                "children": [
+                  {
+                    "type": "table",
+                    "rows": {
+                      "expr": "($feeds := $append([], $storage.feeds); $st := $storage.items.feeds; $read := $append([], $storage.read); $name := function($u){( $f := $feeds[url = $u][0]; $s := $lookup($st, $u); $f.name ? $f.name : ($s.title ? $s.title : $u) )}; $source := function($e){ $e.feed in $feeds.url ? $name($e.feed) : ($e.feed_title ? $e.feed_title : $e.feed) }; $sel := $state.feed in $feeds.url ? $state.feed : null; $all := $append([], $append([], $storage.items.entries)[feed in $feeds.url]); $starred := $append([], $storage.starred); $base := $state.feed = 'starred' ? $reverse($starred) : $append([], ($sel ? $all[feed = $sel] : $all)[$not($state.unread_only) or $not(id in $read) or id = $state.entry]); $q := $lowercase($trim($string($state.query))); $shown := $append([], $base[$q = '' or $contains($lowercase(title & ' ' & summary), $q)]); $append([], $map($shown, function($e){   {'key': $e.id,    'title': ($state.feed = 'starred' or $e.id in $read ? '' : '● ') & ($e.id in $starred.id ? '★ ' : '') & $e.title,    'feed': $source($e), 'date': $e.date, 'link': $e.link} })))"
+                    },
+                    "columns": [
+                      {
+                        "field": "title",
+                        "label": "제목",
+                        "width": "fill"
+                      },
+                      {
+                        "field": "feed",
+                        "label": "피드",
+                        "width": "medium"
+                      },
+                      {
+                        "field": "date",
+                        "label": "날짜",
+                        "width": "medium",
+                        "format": "date"
+                      }
+                    ],
+                    "selected": {
+                      "state": "entry"
+                    },
+                    "on_select": [
+                      {
+                        "set_state": "entry"
+                      },
+                      {
+                        "set_storage": {
+                          "entry": "read",
+                          "value": {
+                            "expr": "($read := $append([], $storage.read); $ids := $append([], $storage.items.entries.id); $distinct($append($append([], $filter($read, function($v){ $v in $ids })), [$event])))"
+                          }
+                        }
+                      }
+                    ],
+                    "item_menu": [
+                      {
+                        "label": "브라우저에서 열기",
+                        "on_select": {
+                          "open_url": {
+                            "item": "link"
+                          }
+                        }
+                      },
+                      {
+                        "label": "북마크 / 북마크 해제",
+                        "on_select": [
+                          {
+                            "set_storage": {
+                              "entry": "starred",
+                              "value": {
+                                "expr": "($feeds := $append([], $storage.feeds); $st := $storage.items.feeds; $name := function($u){( $f := $feeds[url = $u][0]; $s := $lookup($st, $u); $f.name ? $f.name : ($s.title ? $s.title : $u) )}; $starred := $append([], $storage.starred); $id := $event; $id in $starred.id ? $append([], $starred[id != $id]) :  ($e := $append([], $storage.items.entries)[id = $id][0];   $exists($e) ? $append($starred, [$merge([$e, {'feed_title': $name($e.feed), 'starred_at': $now()}])]) : $starred))"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "label": "안 읽음으로 표시",
+                        "on_select": [
+                          {
+                            "set_storage": {
+                              "entry": "read",
+                              "value": {
+                                "expr": "($id := $event; $append([], $append([], $storage.read)[$ != $id]))"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "stack",
+                    "direction": "column",
+                    "gap": "none",
+                    "fill": 1,
+                    "children": [
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "($feeds := $append([], $storage.feeds); $all := $append([], $append([], $storage.items.entries)[feed in $feeds.url]); $starred := $append([], $storage.starred); $cur := $append($all[id = $state.entry], $starred[id = $state.entry])[0]; $not($exists($cur)))"
+                        },
+                        "child": {
+                          "type": "notice",
+                          "message": "글을 고르면 요약이 여기에 보입니다."
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "expr": "($feeds := $append([], $storage.feeds); $all := $append([], $append([], $storage.items.entries)[feed in $feeds.url]); $starred := $append([], $storage.starred); $cur := $append($all[id = $state.entry], $starred[id = $state.entry])[0]; $exists($cur))"
+                        },
+                        "child": {
+                          "type": "section",
+                          "title": {
+                            "expr": "($feeds := $append([], $storage.feeds); $all := $append([], $append([], $storage.items.entries)[feed in $feeds.url]); $starred := $append([], $storage.starred); $cur := $append($all[id = $state.entry], $starred[id = $state.entry])[0]; $cur.title)"
+                          },
+                          "meta": {
+                            "expr": "($feeds := $append([], $storage.feeds); $st := $storage.items.feeds; $name := function($u){( $f := $feeds[url = $u][0]; $s := $lookup($st, $u); $f.name ? $f.name : ($s.title ? $s.title : $u) )}; $source := function($e){ $e.feed in $feeds.url ? $name($e.feed) : ($e.feed_title ? $e.feed_title : $e.feed) }; $all := $append([], $append([], $storage.items.entries)[feed in $feeds.url]); $starred := $append([], $storage.starred); $cur := $append($all[id = $state.entry], $starred[id = $state.entry])[0]; $source($cur))"
+                          },
+                          "actions": [
+                            {
+                              "type": "button",
+                              "icon": "star",
+                              "variant": "ghost",
+                              "label": {
+                                "expr": "($starred := $append([], $storage.starred); $state.entry in $starred.id ? '북마크 해제' : '북마크')"
+                              },
+                              "pressed": {
+                                "expr": "($starred := $append([], $storage.starred); $state.entry in $starred.id)"
+                              },
+                              "on_click": [
+                                {
+                                  "set_storage": {
+                                    "entry": "starred",
+                                    "value": {
+                                      "expr": "($feeds := $append([], $storage.feeds); $st := $storage.items.feeds; $name := function($u){( $f := $feeds[url = $u][0]; $s := $lookup($st, $u); $f.name ? $f.name : ($s.title ? $s.title : $u) )}; $starred := $append([], $storage.starred); $id := $state.entry; $id in $starred.id ? $append([], $starred[id != $id]) :  ($e := $append([], $storage.items.entries)[id = $id][0];   $exists($e) ? $append($starred, [$merge([$e, {'feed_title': $name($e.feed), 'starred_at': $now()}])]) : $starred))"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "button",
+                              "label": "안 읽음으로 표시",
+                              "icon": "rotate-ccw",
+                              "variant": "ghost",
+                              "on_click": [
+                                {
+                                  "set_storage": {
+                                    "entry": "read",
+                                    "value": {
+                                      "expr": "($id := $state.entry; $append([], $append([], $storage.read)[$ != $id]))"
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "button",
+                              "label": "브라우저에서 열기",
+                              "icon": "external-link",
+                              "variant": "default",
+                              "disabled": {
+                                "expr": "($feeds := $append([], $storage.feeds); $all := $append([], $append([], $storage.items.entries)[feed in $feeds.url]); $starred := $append([], $storage.starred); $cur := $append($all[id = $state.entry], $starred[id = $state.entry])[0]; $not($boolean($cur.link)))"
+                              },
+                              "on_click": {
+                                "open_url": {
+                                  "expr": "($feeds := $append([], $storage.feeds); $all := $append([], $append([], $storage.items.entries)[feed in $feeds.url]); $starred := $append([], $storage.starred); $cur := $append($all[id = $state.entry], $starred[id = $state.entry])[0]; $cur.link)"
+                                }
+                              }
+                            }
+                          ],
+                          "child": {
+                            "type": "stack",
+                            "direction": "column",
+                            "gap": "small",
+                            "children": [
+                              {
+                                "type": "properties",
+                                "layout": "rows",
+                                "fields": [
+                                  {
+                                    "label": "날짜",
+                                    "format": "date",
+                                    "value": {
+                                      "expr": "($feeds := $append([], $storage.feeds); $all := $append([], $append([], $storage.items.entries)[feed in $feeds.url]); $starred := $append([], $storage.starred); $cur := $append($all[id = $state.entry], $starred[id = $state.entry])[0]; $cur.date)"
+                                    }
+                                  },
+                                  {
+                                    "label": "주소",
+                                    "format": "code",
+                                    "value": {
+                                      "expr": "($feeds := $append([], $storage.feeds); $all := $append([], $append([], $storage.items.entries)[feed in $feeds.url]); $starred := $append([], $storage.starred); $cur := $append($all[id = $state.entry], $starred[id = $state.entry])[0]; $cur.link)"
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "text",
+                                "value": {
+                                  "expr": "($feeds := $append([], $storage.feeds); $all := $append([], $append([], $storage.items.entries)[feed in $feeds.url]); $starred := $append([], $storage.starred); $cur := $append($all[id = $state.entry], $starred[id = $state.entry])[0]; $cur.summary ? $cur.summary : '이 글은 요약이 없습니다. 브라우저에서 열어 읽으세요.')"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "dialog",
+        "open": {
+          "state": "adding"
+        },
+        "title": "피드 추가",
+        "close_label": "추가",
+        "cancel_label": "취소",
+        "on_confirm": [
+          {
+            "set_state": "adding",
+            "value": {
+              "expr": "$not(($u := $trim($state.new_url); $contains($u, /^https?:\\/\\/\\S+$/) and $not($u in $append([], $storage.feeds).url)))"
+            }
+          },
+          {
+            "set_storage": {
+              "entry": "feeds",
+              "value": {
+                "expr": "$not($state.adding) ? $append($append([], $storage.feeds), [{'url': $trim($state.new_url), 'name': $trim($state.new_name)}]) : $append([], $storage.feeds)"
+              }
+            }
+          },
+          {
+            "set_state": "feed",
+            "value": {
+              "expr": "$not($state.adding) ? $trim($state.new_url) : $state.feed"
+            }
+          },
+          {
+            "set_state": "new_name",
+            "value": {
+              "expr": "$not($state.adding) ? '' : $state.new_name"
+            }
+          },
+          {
+            "set_state": "new_url",
+            "value": {
+              "expr": "$not($state.adding) ? '' : $state.new_url"
+            }
+          }
+        ],
+        "on_close": [
+          {
+            "set_state": "adding",
+            "value": false
+          },
+          {
+            "set_state": "new_url",
+            "value": ""
+          },
+          {
+            "set_state": "new_name",
+            "value": ""
+          }
+        ],
+        "child": {
+          "type": "stack",
+          "direction": "column",
+          "gap": "medium",
+          "children": [
+            {
+              "type": "input",
+              "value": {
+                "state": "new_url"
+              },
+              "on_change": [
+                {
+                  "set_state": "new_url"
+                }
+              ],
+              "label": "피드나 사이트 주소",
+              "label_position": "top",
+              "placeholder": "https://example.com",
+              "focus": {
+                "state": "adding"
+              },
+              "on_submit": [
+                {
+                  "set_state": "new_url"
+                },
+                {
+                  "set_state": "adding",
+                  "value": {
+                    "expr": "$not(($u := $trim($state.new_url); $contains($u, /^https?:\\/\\/\\S+$/) and $not($u in $append([], $storage.feeds).url)))"
+                  }
+                },
+                {
+                  "set_storage": {
+                    "entry": "feeds",
+                    "value": {
+                      "expr": "$not($state.adding) ? $append($append([], $storage.feeds), [{'url': $trim($state.new_url), 'name': $trim($state.new_name)}]) : $append([], $storage.feeds)"
+                    }
+                  }
+                },
+                {
+                  "set_state": "feed",
+                  "value": {
+                    "expr": "$not($state.adding) ? $trim($state.new_url) : $state.feed"
+                  }
+                },
+                {
+                  "set_state": "new_name",
+                  "value": {
+                    "expr": "$not($state.adding) ? '' : $state.new_name"
+                  }
+                },
+                {
+                  "set_state": "new_url",
+                  "value": {
+                    "expr": "$not($state.adding) ? '' : $state.new_url"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "input",
+              "value": {
+                "state": "new_name"
+              },
+              "on_change": [
+                {
+                  "set_state": "new_name"
+                }
+              ],
+              "label": "이름",
+              "label_position": "top",
+              "placeholder": "비우면 피드 제목을 씁니다",
+              "on_submit": [
+                {
+                  "set_state": "new_name"
+                },
+                {
+                  "set_state": "adding",
+                  "value": {
+                    "expr": "$not(($u := $trim($state.new_url); $contains($u, /^https?:\\/\\/\\S+$/) and $not($u in $append([], $storage.feeds).url)))"
+                  }
+                },
+                {
+                  "set_storage": {
+                    "entry": "feeds",
+                    "value": {
+                      "expr": "$not($state.adding) ? $append($append([], $storage.feeds), [{'url': $trim($state.new_url), 'name': $trim($state.new_name)}]) : $append([], $storage.feeds)"
+                    }
+                  }
+                },
+                {
+                  "set_state": "feed",
+                  "value": {
+                    "expr": "$not($state.adding) ? $trim($state.new_url) : $state.feed"
+                  }
+                },
+                {
+                  "set_state": "new_name",
+                  "value": {
+                    "expr": "$not($state.adding) ? '' : $state.new_name"
+                  }
+                },
+                {
+                  "set_state": "new_url",
+                  "value": {
+                    "expr": "$not($state.adding) ? '' : $state.new_url"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "style": "meta",
+              "value": {
+                "expr": "($u := $trim($state.new_url); $u = '' ? 'RSS·Atom 피드 주소를 넣으세요. 사이트 주소를 넣으면 피드를 찾아 봅니다.' : $not($contains($u, /^https?:\\/\\/\\S+$/)) ? 'http:// 또는 https://로 시작하는 주소여야 합니다.' : $u in $append([], $storage.feeds).url ? '이미 구독 중인 피드입니다.' : '추가하면 바로 받아 옵니다.')"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "dialog",
+        "open": {
+          "expr": "$boolean($state.renaming)"
+        },
+        "title": "피드 이름 바꾸기",
+        "close_label": "바꾸기",
+        "cancel_label": "취소",
+        "on_confirm": [
+          {
+            "set_storage": {
+              "entry": "feeds",
+              "value": {
+                "expr": "$append([], $map($append([], $storage.feeds), function($f){ $f.url = $state.renaming ? {'url': $f.url, 'name': $trim($state.rename_value)} : $f }))"
+              }
+            }
+          },
+          {
+            "set_state": "renaming",
+            "value": null
+          },
+          {
+            "set_state": "rename_value",
+            "value": ""
+          }
+        ],
+        "on_close": [
+          {
+            "set_state": "renaming",
+            "value": null
+          },
+          {
+            "set_state": "rename_value",
+            "value": ""
+          }
+        ],
+        "child": {
+          "type": "stack",
+          "direction": "column",
+          "gap": "medium",
+          "children": [
+            {
+              "type": "input",
+              "value": {
+                "state": "rename_value"
+              },
+              "on_change": [
+                {
+                  "set_state": "rename_value"
+                }
+              ],
+              "label": "이름",
+              "label_position": "top",
+              "placeholder": "비우면 피드 제목을 씁니다",
+              "focus": {
+                "expr": "$boolean($state.renaming)"
+              },
+              "on_submit": [
+                {
+                  "set_state": "rename_value"
+                },
+                {
+                  "set_storage": {
+                    "entry": "feeds",
+                    "value": {
+                      "expr": "$append([], $map($append([], $storage.feeds), function($f){ $f.url = $state.renaming ? {'url': $f.url, 'name': $trim($state.rename_value)} : $f }))"
+                    }
+                  }
+                },
+                {
+                  "set_state": "renaming",
+                  "value": null
+                },
+                {
+                  "set_state": "rename_value",
+                  "value": ""
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "style": "meta",
+              "value": {
+                "expr": "$state.renaming"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "dialog",
+        "open": {
+          "state": "importing"
+        },
+        "title": "OPML 가져오기",
+        "close_label": "가져오기",
+        "cancel_label": "취소",
+        "on_confirm": [
+          {
+            "worker": {
+              "action": "import_opml",
+              "args": {
+                "expr": "{'opml': $state.opml}"
+              }
+            }
+          },
+          {
+            "set_state": "importing",
+            "value": false
+          },
+          {
+            "set_state": "opml",
+            "value": ""
+          }
+        ],
+        "on_close": [
+          {
+            "set_state": "importing",
+            "value": false
+          },
+          {
+            "set_state": "opml",
+            "value": ""
+          }
+        ],
+        "child": {
+          "type": "stack",
+          "direction": "column",
+          "gap": "medium",
+          "children": [
+            {
+              "type": "text",
+              "style": "meta",
+              "value": "다른 RSS 리더에서 내보낸 OPML 파일의 내용을 붙여 넣으세요. 이미 구독 중인 피드는 건너뜁니다."
+            },
+            {
+              "type": "input",
+              "value": {
+                "state": "opml"
+              },
+              "on_change": [
+                {
+                  "set_state": "opml"
+                }
+              ],
+              "label": "OPML",
+              "label_position": "hidden",
+              "multiline": true,
+              "rows": 8,
+              "placeholder": "<opml version=\"2.0\"> …",
+              "focus": {
+                "state": "importing"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
