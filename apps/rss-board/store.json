@@ -3,16 +3,16 @@
   "description": "구독한 RSS·Atom 피드를 서버 워커가 받아 모아 두고, 안 읽은 글부터 읽습니다.\n\n- 피드 주소나 사이트 주소로 구독합니다(사이트 주소면 피드를 찾아 줍니다)\n- 제목과 요약 검색, 안 읽은 글만 보기, 북마크\n- 지난 글을 쌓아 두고, 조건부 요청(ETag)과 Retry-After를 지킵니다\n- OPML 가져오기와 클립보드로 내보내기\n- 설정에서 30분마다 자동 새로고침을 켤 수 있습니다",
   "category": "뉴스",
   "publisher": "senhyo",
-  "release": 1,
+  "release": 2,
   "listed": true,
   "icon": "assets/icon.svg",
   "assets": [
     {
       "id": "rss-board-icon",
-      "version": 1,
+      "version": 2,
       "file": "assets/icon.svg",
       "format": "svg",
-      "source": "rss-board/icon.svg 직접 그림",
+      "source": "rss-board/icon.svg 직접 그림(스토어 아이콘 틀에 맞춤)",
       "license": "CC0-1.0"
     }
   ]
