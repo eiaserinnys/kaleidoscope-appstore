@@ -301,9 +301,13 @@
                     "client": "list_empty"
                   },
                   "child": {
-                    "type": "text",
-                    "style": "meta",
-                    "value": "할 일이 없습니다. +로 더하세요"
+                    "type": "section",
+                    "title": null,
+                    "child": {
+                      "type": "text",
+                      "style": "meta",
+                      "value": "할 일이 없습니다. +로 더하세요"
+                    }
                   }
                 },
                 {

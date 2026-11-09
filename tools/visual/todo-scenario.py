@@ -718,12 +718,26 @@ EMPTY_MEASURE_JS = """() => {
     const b = el.getBoundingClientRect();
     return {top: +b.top.toFixed(1), bottom: +b.bottom.toFixed(1), left: +b.left.toFixed(1), right: +b.right.toFixed(1), width: +b.width.toFixed(1), height: +b.height.toFixed(1)};
   };
+  const glyph = (el) => {
+    if (!el) return null;
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const b = range.getBoundingClientRect();
+    return {top: +b.top.toFixed(1), bottom: +b.bottom.toFixed(1), left: +b.left.toFixed(1), right: +b.right.toFixed(1), width: +b.width.toFixed(1), height: +b.height.toFixed(1)};
+  };
+  const tokens = (el) => {
+    if (!el) return null;
+    const style = getComputedStyle(el);
+    return {paddingBlockStart: +parseFloat(style.paddingBlockStart).toFixed(1),
+            paddingInlineStart: +parseFloat(style.paddingInlineStart).toFixed(1)};
+  };
   const pane = root.querySelector(".ks-split-pane");
   const stack = pane ? pane.querySelector(".ks-data-stack") : null;
   const stackItems = stack ? [...stack.children].filter((el) => el.classList.contains("ks-data-stack-item")) : [];
   const repeat = pane ? pane.querySelector(".ks-data-view.ks-repeat") : null;
   const line = [...root.querySelectorAll(".ks-data-text")].find((el) => el.textContent.includes("할 일이 없습니다")) || null;
-  const header = (el) => {
+  const hintSection = line ? line.closest("section.ks-data-section") : null;
+  const headerText = (el) => {
     const node = el.querySelector(".ks-data-section-header");
     return node ? node.textContent.trim() : "";
   };
@@ -732,23 +746,63 @@ EMPTY_MEASURE_JS = """() => {
     toolbar: rect(root.querySelector(".ks-data-toolbar")),
     stackItems: stackItems.map((el) => ({cls: el.className, flex: getComputedStyle(el).flex, rect: rect(el)})),
     repeat: repeat ? {cls: repeat.className, rect: rect(repeat), scroll: repeat.scrollHeight, client: repeat.clientHeight} : null,
-    sections: [...root.querySelectorAll('section.ks-data-section[data-ks-block$="/template"]')].map((el) => ({
-      title: header(el),
-      rect: rect(el),
-      child: rect(el.querySelector(".ks-data-section-child")),
-      rows: el.querySelectorAll('button[role="treeitem"]').length,
-      noItems: el.querySelectorAll(".ks-no-items").length,
-    })),
+    hintSection: hintSection ? {rect: rect(hintSection), padding: tokens(hintSection)} : null,
+    sections: [...root.querySelectorAll('section.ks-data-section[data-ks-block$="/template"]')].map((el) => {
+      const toggle = el.querySelector(".ks-data-section-toggle");
+      const titleEl = el.querySelector(".ks-data-section-title");
+      const metaEl = el.querySelector(".ks-data-section-meta");
+      return {
+        title: headerText(el),
+        rect: rect(el),
+        header: rect(el.querySelector(".ks-data-section-header")),
+        toggle: rect(toggle),
+        chevron: rect(toggle ? toggle.querySelector("svg") : null),
+        titleEl: rect(titleEl),
+        titleGlyph: glyph(titleEl),
+        metaText: metaEl ? metaEl.textContent.trim() : null,
+        child: rect(el.querySelector(".ks-data-section-child")),
+        rows: el.querySelectorAll('button[role="treeitem"]').length,
+        noItems: el.querySelectorAll(".ks-no-items").length,
+      };
+    }),
     noItems: root.querySelectorAll(".ks-no-items").length,
-    line: line ? {text: line.textContent.trim(), cls: line.className, rect: rect(line)} : null,
+    line: line ? {text: line.textContent.trim(), cls: line.className, rect: rect(line), glyph: glyph(line)} : null,
   };
 }"""
+
+
+def empty_summary(measured):
+    """보고에 쓰는 값만 추린다: 구분선(도구 막대 아래)과 안내 글의 거리, 시작선. """
+    line = measured.get("line") or {}
+    toolbar = measured.get("toolbar") or {}
+    sections = measured.get("sections") or []
+    first = sections[0] if sections else {}
+    line_rect = line.get("rect")
+    line_glyph = line.get("glyph")
+    title_glyph = first.get("titleGlyph")
+    return {
+        "toolbar_bottom": toolbar.get("bottom"),
+        "hint_element_top": line_rect.get("top") if line_rect else None,
+        "hint_glyph_top": line_glyph.get("top") if line_glyph else None,
+        "divider_to_element": round(line_rect["top"] - toolbar["bottom"], 1) if line_rect and toolbar else None,
+        "divider_to_glyph": round(line_glyph["top"] - toolbar["bottom"], 1) if line_glyph and toolbar else None,
+        "hint_left": line_rect.get("left") if line_rect else None,
+        "hint_glyph_left": line_glyph.get("left") if line_glyph else None,
+        "hint_section": measured.get("hintSection"),
+        "first_group_title": first.get("title"),
+        "first_group_title_left": title_glyph.get("left") if title_glyph else None,
+        "first_group_title_top": title_glyph.get("top") if title_glyph else None,
+        "first_group_chevron": first.get("chevron"),
+        "first_group_child_left": (first.get("child") or {}).get("left"),
+        "hint_left_to_group_title_left": round(title_glyph["left"] - line_glyph["left"], 1) if title_glyph and line_glyph else None,
+        "group_count": len(sections),
+    }
 
 
 def empty_store_check():
     current_items = read_storage("items")
     snapshot = current_items["content"]
-    measured = None
+    measured = {}
     try:
         call("write_app_storage", {"app_id": "todo", "entry_id": "items",
                                    "content": [], "expected_revision": current_items["revision"]})
@@ -757,29 +811,68 @@ def empty_store_check():
         wait_for(lambda: win.locator('button[role="treeitem"]').count() == 0,
                  "빈 저장소에 트리 행 없음", timeout=10)
         time.sleep(0.6)
-        measured = win.evaluate(EMPTY_MEASURE_JS)
+        measured["wide"] = win.evaluate(EMPTY_MEASURE_JS)
         sb.shot("empty-wide.png", "todo", settle=0.3)
-        line = measured.get("line")
-        assert line is not None, f"빈 안내 줄을 찾지 못했습니다: {measured}"
-        assert line["text"] == "할 일이 없습니다. +로 더하세요", line
-        assert "is-meta" in line["cls"], line
-        assert measured["noItems"] == 0, f"빈 묶음마다 트리 기본 표시가 남습니다: {measured['noItems']}"
-        assert measured["pane"] is not None and measured["toolbar"] is not None, measured
-        assert line["rect"]["top"] >= measured["toolbar"]["bottom"] - 1, (
-            f"빈 안내가 도구 막대 아래가 아닙니다: {line} vs {measured['toolbar']}")
-        assert line["rect"]["left"] >= measured["pane"]["left"] - 1 and line["rect"]["right"] <= measured["pane"]["right"] + 1, (
-            "빈 안내가 목록 칸 가로 범위를 벗어납니다")
-        for sec in measured["sections"]:
-            assert sec["rows"] == 0, f"빈 묶음에 트리 행이 남습니다: {sec}"
-            assert sec["noItems"] == 0, f"빈 묶음에 기본 빈 표시가 남습니다: {sec}"
-        assert len(measured["sections"]) >= 2, f"빈 묶음 머리가 사라졌습니다: {measured['sections']}"
-        return measured
+        set_size(380, 700)
+        time.sleep(1.2)
+        measured["narrow"] = win.evaluate(EMPTY_MEASURE_JS)
+        sb.shot("empty-narrow.png", "todo", settle=0.3)
     finally:
+        set_size(1040, 700)
+        time.sleep(0.4)
         latest = read_storage("items")
         if latest is not None:
             call("write_app_storage", {"app_id": "todo", "entry_id": "items",
                                        "content": snapshot, "expected_revision": latest["revision"]})
         wait_for(lambda: win.locator('button[role="treeitem"]').count() > 0, "표본 되돌리기", timeout=20)
+    log("빈 안내 계측 넓은 창", json.dumps(empty_summary(measured["wide"]), ensure_ascii=False))
+    log("빈 안내 계측 좁은 창", json.dumps(empty_summary(measured["narrow"]), ensure_ascii=False))
+
+    wide = measured["wide"]
+    narrow = measured["narrow"]
+    line = wide.get("line")
+    assert line is not None, f"빈 안내 줄을 찾지 못했습니다: {wide}"
+    assert line["text"] == "할 일이 없습니다. +로 더하세요", line
+    assert "is-meta" in line["cls"], line
+    assert wide["noItems"] == 0, f"빈 묶음마다 트리 기본 표시가 남습니다: {wide['noItems']}"
+    assert wide["pane"] is not None and wide["toolbar"] is not None, wide
+    gap = round(line["rect"]["top"] - wide["toolbar"]["bottom"], 1)
+    assert 7 <= gap <= 9, (
+        f"구분선과 빈 안내 top의 거리가 표준 간격 단계(space-2 = 8)가 아닙니다: {gap}px, {line} vs {wide['toolbar']}")
+    section = wide.get("hintSection")
+    assert section is not None, f"빈 안내가 안쪽 여백을 주는 칸 안에 있지 않습니다: {line}"
+    inset = round(line["rect"]["left"] - section["rect"]["left"], 1)
+    assert abs(inset - section["padding"]["paddingInlineStart"]) <= 1, (
+        f"빈 안내가 칸의 안쪽 여백(space-3)을 받지 않았습니다: {inset} vs {section}")
+    block_inset = round(line["rect"]["top"] - section["rect"]["top"], 1)
+    assert abs(block_inset - section["padding"]["paddingBlockStart"]) <= 1, (
+        f"빈 안내 top이 칸의 위쪽 여백(space-2)과 다릅니다: {block_inset} vs {section}")
+    for sec in wide["sections"]:
+        assert sec["rows"] == 0, f"빈 묶음에 트리 행이 남습니다: {sec}"
+        assert sec["noItems"] == 0, f"빈 묶음에 기본 빈 표시가 남습니다: {sec}"
+    assert len(wide["sections"]) >= 2, f"빈 묶음 머리가 사라졌습니다: {wide['sections']}"
+    group = wide["sections"][0]
+    assert group["child"] is not None and abs(line["rect"]["left"] - group["child"]["left"]) <= 1, (
+        f"빈 안내 시작선이 묶음 내용의 시작선과 다릅니다: {line} vs {group}")
+    assert (line["rect"]["left"] >= wide["pane"]["left"] - 1
+            and line["rect"]["right"] <= wide["pane"]["right"] + 1), "빈 안내가 목록 칸 가로 범위를 벗어납니다"
+
+    narrow_line = narrow.get("line")
+    assert narrow_line is not None, f"좁은 창에서 빈 안내가 사라졌습니다: {narrow}"
+    narrow_gap = round(narrow_line["rect"]["top"] - narrow["toolbar"]["bottom"], 1)
+    assert 7 <= narrow_gap <= 9, (
+        f"좁은 창에서 구분선과 빈 안내 top의 거리가 표준 간격 단계가 아닙니다: {narrow_gap}px, {narrow_line} vs {narrow['toolbar']}")
+    narrow_section = narrow.get("hintSection")
+    assert narrow_section is not None, f"좁은 창에서 빈 안내가 칸의 안쪽 여백을 받지 않습니다: {narrow_line}"
+    assert abs((narrow_line["rect"]["left"] - narrow_section["rect"]["left"])
+               - narrow_section["padding"]["paddingInlineStart"]) <= 1, (
+        f"좁은 창에서 빈 안내가 칸의 안쪽 여백을 받지 않았습니다: {narrow_line} vs {narrow_section}")
+    assert (narrow_line["rect"]["left"] >= narrow["pane"]["left"] - 1
+            and narrow_line["rect"]["right"] <= narrow["pane"]["right"] + 1), "좁은 창에서 빈 안내가 목록 칸 가로 범위를 벗어납니다"
+    assert len(narrow["sections"]) >= 2, f"좁은 창에서 빈 묶음 머리가 사라졌습니다: {narrow['sections']}"
+    for sec in narrow["sections"]:
+        assert sec["rows"] == 0, f"좁은 창의 빈 묶음에 트리 행이 남습니다: {sec}"
+    return measured
 
 
 check("empty_store", empty_store_check)
