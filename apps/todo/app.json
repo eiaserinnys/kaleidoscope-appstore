@@ -180,6 +180,12 @@
       "list_empty": {
         "default": false
       },
+      "log_empty": {
+        "default": false
+      },
+      "log_has_items": {
+        "default": false
+      },
       "d_title": {
         "default": null
       },
@@ -210,6 +216,7 @@
     },
     "actions": [
       "check",
+      "select_log",
       "add",
       "edit",
       "toggle_hold",
@@ -398,21 +405,37 @@
               "client": "log_view"
             },
             "child": {
-              "type": "tree",
-              "items": {
-                "client": "log"
-              },
-              "by": "children",
-              "default_expanded": true,
-              "selected": {
-                "state": "selected"
-              },
-              "on_select": {
-                "set_state": "selected"
-              },
-              "on_check": {
-                "client": "check"
-              }
+              "type": "stack",
+              "direction": "column",
+              "gap": "none",
+              "fill": [0, 1],
+              "children": [
+                {
+                  "type": "when",
+                  "value": { "client": "log_empty" },
+                  "child": {
+                    "type": "stack",
+                    "direction": "column",
+                    "place": "center",
+                    "children": [
+                      { "type": "text", "style": "meta", "value": "끝낸 할 일이 없습니다" }
+                    ]
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": { "client": "log_has_items" },
+                  "child": {
+                    "type": "tree",
+                    "items": { "client": "log" },
+                    "by": "children",
+                    "default_expanded": true,
+                    "selected": { "state": "selected" },
+                    "on_select": { "client": "select_log" },
+                    "on_check": { "client": "check" }
+                  }
+                }
+              ]
             }
           }
         ]

@@ -469,16 +469,21 @@
   function publish() {
     var item = selectedItem();
     var sections = state.loaded ? buildSections(state.items, state.areas, today) : [];
+    var log = state.loaded ? buildLog(state.items, state.areas, today) : [];
+    var listEmpty = !sections.some(function (section) { return section.has_items; });
+    var logEmpty = log.length === 0;
     bridge.publish({
       loading: !state.loaded,
       open_view: state.loaded && state.view !== "log",
       log_view: state.loaded && state.view === "log",
       sections: sections,
-      list_empty: state.loaded && !sections.some(function (section) { return section.has_items; }),
-      log: state.loaded ? buildLog(state.items, state.areas, today) : [],
+      list_empty: state.loaded && listEmpty,
+      log_empty: state.loaded && logEmpty,
+      log_has_items: state.loaded && !logEmpty,
+      log: log,
       area_options: state.loaded ? areaOptionList(state.items, state.areas) : [],
       has_selection: state.loaded && item !== null,
-      show_hint: state.loaded && item === null,
+      show_hint: state.loaded && item === null && !(state.view === "log" ? logEmpty : listEmpty),
       d_title: item ? textOf(item.title) : null,
       d_area: item ? textOf(item.area) : null,
       d_date: item && typeof item.date === "string" && item.date ? item.date : null,
@@ -700,6 +705,12 @@
     var id = item && typeof item.key === "string" ? item.key : "";
     if (!id || id.indexOf(DAY_PREFIX) === 0) return;
     return enqueue({ kind: "check", id: id, checked: context.event === true, today: todayString() });
+  });
+
+  bridge.handle("select_log", function (context) {
+    var id = context && typeof context.event === "string" ? context.event : "";
+    if (!id || id.indexOf(DAY_PREFIX) === 0) return;
+    bridge.setState("selected", id);
   });
 
   bridge.handle("add", function () {

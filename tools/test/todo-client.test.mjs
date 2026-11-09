@@ -9,7 +9,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ASSET = resolve(HERE, "../../apps/todo/assets/todo-client.javascript");
 
 const ACTIONS = [
-  "check", "add", "edit", "toggle_hold", "remove",
+  "check", "select_log", "add", "edit", "toggle_hold", "remove",
   "open_add_area", "open_add_child", "dialog_title", "dialog_date", "dialog_close",
 ];
 
@@ -780,7 +780,7 @@ test("저장소 읽기가 실패하면 불러오기를 끝내고 쉘에 알린�
   await app.settle();
 
   assert.equal(app.output("loading"), false);
-  assert.equal(app.output("show_hint"), true);
+  assert.equal(app.output("show_hint"), false);
   assert.deepEqual(app.output("sections"), []);
   assert.equal(app.reads.items, 1);
   assert.ok(app.notices.some(message => message.includes("저장소 읽기 실패")));
@@ -813,6 +813,45 @@ test("보이는 항목이 하나도 없으면 list_empty를 참으로 알린다"
 
   await app.externalItems([item("done", { title: "끝난 일", status: "done", done_on: "2026-11-06" })]);
   assert.equal(app.output("list_empty"), true);
+});
+
+test("기록 빈 상태는 불러온 뒤 끝낸 항목의 유무를 따른다", async () => {
+  const app = boot({ items: [], hold: true });
+  await app.settle();
+  assert.equal(app.output("log_empty"), false);
+  await app.release();
+  assert.equal(app.output("log_empty"), true);
+  await app.externalItems([item("a")]);
+  assert.equal(app.output("log_empty"), true);
+  await app.externalItems([item("done", { status: "done", done_on: "2026-11-06" })]);
+  assert.equal(app.output("log_empty"), false);
+});
+
+test("상세 안내는 현재 보기에서 고를 항목이 있을 때만 보인다", async () => {
+  const app = boot({ items: [] });
+  await app.settle();
+  assert.equal(app.output("show_hint"), false);
+  await app.externalItems([item("a")]);
+  assert.equal(app.output("show_hint"), true);
+  await app.externalState({ view: "log" });
+  assert.equal(app.output("show_hint"), false);
+  await app.externalItems([item("done", { status: "done", done_on: "2026-11-06" })]);
+  assert.equal(app.output("show_hint"), true);
+  await app.externalState({ view: "open" });
+  assert.equal(app.output("show_hint"), false);
+});
+
+test("기록의 날짜 행은 선택하지 않고 할 일 행은 선택한다", async () => {
+  const app = boot({ view: "log", items: [item("done", { status: "done", done_on: "2026-11-06" })] });
+  await app.settle();
+  await app.run("select_log", { event: "day:2026-11-06", item: { key: "day:2026-11-06" } });
+  assert.equal(app.win.selected, null);
+  await app.run("select_log", { event: "done", item: { key: "done" } });
+  assert.equal(app.win.selected, "done");
+  await app.externalState({ selected: "done" });
+  await app.run("select_log", { event: "day:2026-11-06", item: { key: "day:2026-11-06" } });
+  assert.equal(app.win.selected, "done");
+  assert.equal(app.output("has_selection"), true);
 });
 
 test("불러오는 동안에는 list_empty가 거짓이다", async () => {

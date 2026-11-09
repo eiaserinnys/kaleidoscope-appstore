@@ -13,7 +13,6 @@ import base64
 import hashlib
 import json
 import re
-import shutil
 import time
 from datetime import date, timedelta
 from pathlib import Path
@@ -387,14 +386,12 @@ log("넓은 창 메모 칸 bottom", measured["memo"]["bottom"],
     "결정 줄 top", measured["toolbar"]["top"], "차", memo_gap)
 
 sb.shot("wide-light.png", "todo", settle=0.5)
-shutil.copyfile(OUT / "wide-light.png", APP_DIR / "screenshots" / "1.png")
 results["wide"] = "ok"
 
 # 2. 같은 화면 어두움
 page.emulate_media(color_scheme="dark")
 time.sleep(0.8)
 sb.shot("wide-dark.png", "todo", settle=0.3)
-shutil.copyfile(OUT / "wide-dark.png", APP_DIR / "screenshots" / "2.png")
 page.emulate_media(color_scheme="light")
 time.sleep(0.5)
 
@@ -438,11 +435,25 @@ expect(row("t-library")).to_be_visible()
 row("t-collect").click()
 expect(win.get_by_label("제목", exact=True)).to_have_value("자료 모으기", timeout=10000)
 sb.shot("log-wide.png", "todo", settle=0.5)
-shutil.copyfile(OUT / "log-wide.png", APP_DIR / "screenshots" / "3.png")
-for index in (1, 2, 3):
-    size = (APP_DIR / "screenshots" / f"{index}.png").stat().st_size
-    assert size <= 2 * 1024 * 1024, f"{index}.png가 2MiB를 넘습니다: {size}"
+for name in ("wide-light.png", "wide-dark.png", "log-wide.png"):
+    size = (OUT / name).stat().st_size
+    assert size <= 2 * 1024 * 1024, f"{name}이 2MiB를 넘습니다: {size}"
 results["log_screenshot"] = "ok"
+
+def log_day_keeps_selection():
+    before = current_window()["state"]["selected"]
+    assert before == "t-collect", before
+    day_groups().filter(has_text="오늘").first.click()
+    page.wait_for_timeout(500)
+    after = current_window()["state"]["selected"]
+    assert after == before, f"날짜 행을 눌러 선택이 바뀌었습니다: {before} → {after}"
+    expect(win.get_by_label("제목", exact=True)).to_have_value("자료 모으기")
+    expect(row("t-collect")).to_have_attribute("aria-selected", "true")
+    sb.shot("log-day-selection.png", "todo", settle=0.3)
+    return {"before": before, "after": after}
+
+
+check("log_day_keeps_selection", log_day_keeps_selection)
 
 win.get_by_role("button", name="할 일", exact=True).click()
 expect(section("업무")).to_be_visible()
@@ -812,13 +823,41 @@ def empty_store_check():
                  "빈 저장소에 트리 행 없음", timeout=10)
         time.sleep(0.6)
         measured["wide"] = win.evaluate(EMPTY_MEASURE_JS)
+        expect(win.get_by_text("할 일을 고르면 여기에 보입니다")).to_have_count(0)
         sb.shot("empty-wide.png", "todo", settle=0.3)
         set_size(380, 700)
         time.sleep(1.2)
         measured["narrow"] = win.evaluate(EMPTY_MEASURE_JS)
+        expect(win.get_by_text("할 일을 고르면 여기에 보입니다")).to_have_count(0)
         sb.shot("empty-narrow.png", "todo", settle=0.3)
+
+        win.get_by_role("button", name="기록", exact=True).click()
+        expect(win.get_by_text("끝낸 할 일이 없습니다")).to_be_visible(timeout=10000)
+        for label, width in (("narrow", 380), ("wide", 1040)):
+            set_size(width, 700)
+            expect(win.get_by_text("할 일을 고르면 여기에 보입니다")).to_have_count(0)
+            expect(win.locator(".ks-no-items")).to_have_count(0)
+            line = win.get_by_text("끝낸 할 일이 없습니다")
+            expect(line).to_have_class(re.compile("is-meta"))
+            bounds = line.evaluate("""el => {
+              const rect = el.getBoundingClientRect();
+              const pane = el.closest('.ks-split-pane').getBoundingClientRect();
+              const toolbar = el.closest('.ks-split-pane').querySelector('.ks-data-toolbar').getBoundingClientRect();
+              return {line: {left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom},
+                      pane: {left: pane.left, right: pane.right, bottom: pane.bottom}, toolbarBottom: toolbar.bottom};
+            }""")
+            center = (bounds["line"]["top"] + bounds["line"]["bottom"]) / 2
+            pane_center = (bounds["toolbarBottom"] + bounds["pane"]["bottom"]) / 2
+            assert abs(center - pane_center) <= 2, f"{label}: 기록 빈 안내가 칸 가운데가 아닙니다: {bounds}"
+            line_center_x = (bounds["line"]["left"] + bounds["line"]["right"]) / 2
+            pane_center_x = (bounds["pane"]["left"] + bounds["pane"]["right"]) / 2
+            assert abs(line_center_x - pane_center_x) <= 2, f"{label}: 기록 빈 안내가 가로 가운데가 아닙니다: {bounds}"
+            assert bounds["pane"]["left"] <= bounds["line"]["left"] <= bounds["line"]["right"] <= bounds["pane"]["right"], bounds
+            measured["log_" + label] = bounds
+            sb.shot("log-empty-" + label + ".png", "todo", settle=0.3)
     finally:
         set_size(1040, 700)
+        win.get_by_role("button", name="할 일", exact=True).click()
         time.sleep(0.4)
         latest = read_storage("items")
         if latest is not None:
