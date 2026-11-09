@@ -164,7 +164,7 @@
 
   /** 묶음 순서: 설정 순서, 설정에 없는 이름은 보이는 항목이 처음 나온 순서대로 뒤에. */
   function sectionNames(items, areas, visible) {
-    var seen = {};
+    var seen = Object.create(null);
     var names = [];
     areas.forEach(function (name) {
       if (seen[name]) return;
@@ -197,7 +197,7 @@
   }
 
   function areaOptionList(items, areas) {
-    var seen = {};
+    var seen = Object.create(null);
     var options = [];
     var push = function (name) {
       if (!name || seen[name]) return;
@@ -210,7 +210,7 @@
   }
 
   function areaRank(areas) {
-    var rank = {};
+    var rank = Object.create(null);
     areas.forEach(function (name, index) { if (!(name in rank)) rank[name] = index; });
     return rank;
   }
@@ -580,7 +580,14 @@
 
   function scheduleEdit(field, id, value) {
     var previous = pendingEdits[field];
-    if (previous && previous.timer) clearTimeout(previous.timer);
+    if (previous) {
+      if (previous.timer) clearTimeout(previous.timer);
+      // 다른 항목으로 넘어갔으면 앞 항목의 수정을 미루지 않고 바로 저장한다.
+      if (previous.id !== id) {
+        pendingEdits[field] = null;
+        enqueue({ kind: "edit", id: previous.id, field: field, value: previous.value }).catch(fail);
+      }
+    }
     var entry = { id: id, value: value, timer: null };
     entry.timer = setTimeout(function () {
       entry.timer = null;
@@ -597,36 +604,69 @@
     pendingEdits[field] = null;
   }
 
+  /** 저장하지 못한 초안은 그 필드에 새 초안이 없을 때만 되돌려 다음 닫기에서 다시 보낸다. */
+  function keepDraft(slot) {
+    if (!pendingEdits[slot.field]) {
+      slot.entry.timer = null;
+      pendingEdits[slot.field] = slot.entry;
+    }
+  }
+
   function flushEdits() {
-    var tasks = [];
+    var slots = [];
     ["title", "wait"].forEach(function (field) {
       var pending = pendingEdits[field];
       if (!pending) return;
       if (pending.timer) clearTimeout(pending.timer);
       pendingEdits[field] = null;
-      tasks.push(enqueue({ kind: "edit", id: pending.id, field: field, value: pending.value }));
+      var slot = { field: field, entry: pending, done: false };
+      slots.push(slot);
+      slot.task = enqueue({ kind: "edit", id: pending.id, field: field, value: pending.value }).then(function () {
+        slot.done = true;
+      }, function (error) {
+        slot.done = true;
+        keepDraft(slot);
+        fail(error);
+        throw error;
+      });
     });
-    return tasks;
+    return { slots: slots, tasks: slots.map(function (slot) { return slot.task; }) };
   }
 
-  function withLimit(promise) {
-    return new Promise(function (resolve) {
+  /** 닫기를 기다리는 상한. 넘기거나 쓰기가 실패하면 성공으로 바꾸지 않고 실패로 돌려준다. */
+  function withLimit(promise, onTimeout) {
+    return new Promise(function (resolve, reject) {
       var done = false;
-      var finish = function () {
+      var timer = setTimeout(function () {
+        if (done) return;
+        done = true;
+        if (onTimeout) onTimeout();
+        var error = new Error("저장이 끝나기 전에 창 닫기를 멈췄습니다");
+        error.id = "STORAGE_ITEM_WRITE_TIMEOUT";
+        fail(error);
+        reject(error);
+      }, CLOSE_LIMIT_MS);
+      promise.then(function () {
         if (done) return;
         done = true;
         clearTimeout(timer);
         resolve();
-      };
-      var timer = setTimeout(finish, CLOSE_LIMIT_MS);
-      promise.then(finish, finish);
+      }, function (error) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        reject(error);
+      });
     });
   }
 
   bridge.onLifecycle(function (lifecycle) {
     if (!isObject(lifecycle)) return;
     if (lifecycle.phase === "closing") {
-      return withLimit(Promise.all(flushEdits().map(function (task) { return task.catch(function () {}); })));
+      var flush = flushEdits();
+      return withLimit(Promise.all(flush.tasks), function () {
+        flush.slots.forEach(function (slot) { if (!slot.done) keepDraft(slot); });
+      });
     }
     if (lifecycle.visible) refreshToday();
   });

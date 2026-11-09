@@ -59,6 +59,7 @@ function boot({ now = local(2026, 11, 9), items = [], areas = ["업무", "개인
   let queue = Promise.resolve();
   const conflicts = [];
   let failure = null;
+  let readFailure = null;
   const gates = [];
 
   const bridge = {
@@ -85,6 +86,11 @@ function boot({ now = local(2026, 11, 9), items = [], areas = ["업무", "개인
           await promise;
         }
         reads[entry] = (reads[entry] ?? 0) + 1;
+        if (readFailure && (!readFailure.entry || readFailure.entry === entry)) {
+          const error = readFailure.error;
+          readFailure = null;
+          throw error;
+        }
         return clone(store[entry]);
       });
     },
@@ -197,6 +203,7 @@ function boot({ now = local(2026, 11, 9), items = [], areas = ["업무", "개인
     settle, advance, jump, externalItems, externalAreas, externalState, lifecycleCall, release, run, published, output,
     conflictNext: value => { conflicts.push(value); },
     failNext: (entry, error = Object.assign(new Error("저장 실패"), { id: "STORAGE_ITEM_WRITE_FAILED" })) => { failure = { entry, error }; },
+    failRead: (entry, error = Object.assign(new Error("저장소 읽기 실패"), { id: "STORAGE_ITEM_READ_FAILED" })) => { readFailure = { entry, error }; },
     reads,
   };
 }
@@ -254,6 +261,19 @@ test("저장소를 읽어 묶음 구역과 트리를 만든다", async () => {
   assert.equal(personal[0].children[0].meta, "오늘");
   assert.equal("meta" in personal[0].children[2], false);
   assert.deepEqual(sections[3].children.map(node => node.key), ["hobby"]);
+});
+
+test("Object.prototype에 있는 이름도 묶음 구역과 선택지에 나온다", async () => {
+  const items = [
+    item("a", { title: "생성자", area: "constructor", order: 0 }),
+    item("b", { title: "일반", area: "업무", order: 1 }),
+  ];
+  const app = boot({ items, areas: ["constructor", "업무"] });
+  await app.settle();
+
+  assert.deepEqual(app.output("sections").map(section => section.name), ["constructor", "업무"]);
+  assert.deepEqual(app.output("sections")[0].children.map(node => node.key), ["a"]);
+  assert.deepEqual(app.output("area_options"), ["constructor", "업무"]);
 });
 
 test("날짜 표기는 기기 날짜 기준 오늘·내일·어제·M/D·YYYY/M/D다", async () => {
@@ -452,6 +472,32 @@ test("edit의 제목과 기다림은 마지막 입력 뒤 0.5초에 한 번만 �
   assert.equal(app.store.items.find(entry => entry.id === "a").title, "가나");
 });
 
+test("항목을 빨리 바꾸면 앞 항목의 제목과 기다림도 저장한다", async () => {
+  const items = [item("a", { title: "처음", wait: "검토" }), item("b", { title: "다른", order: 1 })];
+  const app = boot({ items });
+  await app.settle();
+  await app.externalState({ selected: "a" });
+
+  await app.run("edit", { event: "에이 제목", args: "title" });
+  await app.run("edit", { event: "에이 기다림", args: "wait" });
+  await app.advance(100);
+
+  await app.externalState({ selected: "b" });
+  await app.run("edit", { event: "비 제목", args: "title" });
+  await app.run("edit", { event: "비 기다림", args: "wait" });
+  await app.settle();
+
+  const saved = id => app.store.items.find(entry => entry.id === id);
+  assert.equal(saved("a").title, "에이 제목");
+  assert.equal(saved("a").wait, "에이 기다림");
+  assert.equal(app.writes.length, 2);
+
+  await app.advance(500);
+  assert.equal(saved("b").title, "비 제목");
+  assert.equal(saved("b").wait, "비 기다림");
+  assert.equal(app.writes.length, 4);
+});
+
 test("edit의 기다림은 빈 값이면 null로 쓰고 들어 있던 대상에 쓴다", async () => {
   const items = [item("a", { title: "하나", wait: "팀장 검토" }), item("b", { title: "둘", order: 1 })];
   const app = boot({ items });
@@ -641,6 +687,30 @@ test("창을 닫으면 미뤄 둔 제목 쓰기를 바로 보내고 그 Promise�
   assert.equal(app.store.items[0].title, "마지막 제목");
 });
 
+test("닫는 중 쓰기가 실패하면 닫기를 실패로 끝내고 초안을 남겨 다시 저장한다", async () => {
+  const items = [item("a", { title: "처음", wait: "검토" })];
+  const app = boot({ items });
+  await app.settle();
+  await app.externalState({ selected: "a" });
+
+  await app.run("edit", { event: "마지막 제목", args: "title" });
+  await app.run("edit", { event: "마지막 기다림", args: "wait" });
+  await app.settle();
+  assert.equal(app.writes.length, 0);
+
+  app.failNext("items");
+  await assert.rejects(app.lifecycleCall({ phase: "closing" }), /저장 실패/);
+  await app.settle();
+
+  assert.equal(app.store.items[0].title, "처음");
+  assert.equal(app.store.items[0].wait, "마지막 기다림");
+  assert.ok(app.notices.some(message => message.includes("저장 실패")));
+
+  await app.lifecycleCall({ phase: "closing" });
+  await app.settle();
+  assert.equal(app.store.items[0].title, "마지막 제목");
+});
+
 test("자정이 지나면 오늘·어제 표기를 다시 계산한다", async () => {
   const app = boot({ now: local(2026, 11, 9, 23, 59, 30), items: [item("a", { title: "하나", status: "done", done_on: "2026-11-09" })] });
   await app.settle();
@@ -706,7 +776,12 @@ test("구역 +는 그 묶음을, 하위 추가는 그 항목을 대상으로 대
 
 test("저장소 읽기가 실패하면 불러오기를 끝내고 쉘에 알린다", async () => {
   const app = boot({ items: [item("a", { title: "하나" })] });
-  await app.release();
+  app.failRead("items");
   await app.settle();
+
   assert.equal(app.output("loading"), false);
+  assert.equal(app.output("show_hint"), true);
+  assert.deepEqual(app.output("sections"), []);
+  assert.equal(app.reads.items, 1);
+  assert.ok(app.notices.some(message => message.includes("저장소 읽기 실패")));
 });
