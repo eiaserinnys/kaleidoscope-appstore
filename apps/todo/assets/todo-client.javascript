@@ -22,6 +22,7 @@
   var DAY_PREFIX = "day:";
   var WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
   var DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+  var CHILD_REMOVE_PHRASE = "\n\n하위 할 일도 함께 지워집니다";
 
   function pad2(value) { return value < 10 ? "0" + value : String(value); }
 
@@ -153,8 +154,9 @@
     return parts.length ? parts.join(" · ") : null;
   }
 
-  function treeNode(item, children, today) {
-    var node = { key: item.id, title: textOf(item.title), checked: item.status === "done" };
+  function treeNode(item, children, today, hasChildren) {
+    var title = textOf(item.title);
+    var node = { key: item.id, title: title, checked: item.status === "done", remove_body: hasChildren ? title + CHILD_REMOVE_PHRASE : title };
     var meta = itemMeta(item, today);
     if (meta !== null) node.meta = meta;
     if (item.status === "held") node.badges = ["보류"];
@@ -183,16 +185,19 @@
   function buildSections(items, areas, today) {
     var visible = visibleIds(items, today);
     var children = childMap(items);
+    var parents = Object.create(null);
+    items.forEach(function (item) { if (typeof item.parent === "string") parents[item.parent] = true; });
     var areaOf = function (item) { return textOf(item.area); };
     var nodesFor = function (parentId, area) {
       var list = parentId === null ? items.filter(function (item) { return !item.parent; }) : (children[parentId] || []);
       return list
         .filter(function (item) { return visible.ids[item.id] && areaOf(item) === area; })
         .sort(function (left, right) { return numbersOf(left.order) - numbersOf(right.order); })
-        .map(function (item) { return treeNode(item, nodesFor(item.id, area), today); });
+        .map(function (item) { return treeNode(item, nodesFor(item.id, area), today, parents[item.id] === true); });
     };
     return sectionNames(items, areas, visible).map(function (area) {
-      return { key: area, name: area, children: nodesFor(null, area) };
+      var nodes = nodesFor(null, area);
+      return { key: area, name: area, has_items: nodes.length > 0, children: nodes };
     });
   }
 
@@ -456,13 +461,20 @@
     return itemOf(state.items, id);
   }
 
+  /** 이 항목을 부모로 두는 항목이 하나라도 있는가(지우면 함께 지워지는 대상). */
+  function hasChildItems(items, id) {
+    return items.some(function (entry) { return typeof entry.id === "string" && entry.parent === id; });
+  }
+
   function publish() {
     var item = selectedItem();
+    var sections = state.loaded ? buildSections(state.items, state.areas, today) : [];
     bridge.publish({
       loading: !state.loaded,
       open_view: state.loaded && state.view !== "log",
       log_view: state.loaded && state.view === "log",
-      sections: state.loaded ? buildSections(state.items, state.areas, today) : [],
+      sections: sections,
+      list_empty: state.loaded && !sections.some(function (section) { return section.has_items; }),
       log: state.loaded ? buildLog(state.items, state.areas, today) : [],
       area_options: state.loaded ? areaOptionList(state.items, state.areas) : [],
       has_selection: state.loaded && item !== null,
@@ -473,6 +485,7 @@
       d_wait: item && typeof item.wait === "string" && item.wait ? item.wait : null,
       held: item !== null && item.status === "held",
       selected_title: item ? textOf(item.title) : null,
+      selected_remove_body: item ? textOf(item.title) + (hasChildItems(state.items, item.id) ? CHILD_REMOVE_PHRASE : "") : null,
       add_title: draft.title,
       add_date: draft.date,
     });
@@ -492,8 +505,13 @@
     var selected = typeof next.selected === "string" ? next.selected : null;
     var view = typeof next.view === "string" && next.view ? next.view : "open";
     if (selected === state.selected && view === state.view) return;
+    var viewChanged = view !== state.view;
     state.selected = selected;
     state.view = view;
+    if (viewChanged && state.selected !== null) {
+      state.selected = null;
+      bridge.setState("selected", null);
+    }
     publish();
   });
 

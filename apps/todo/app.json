@@ -177,6 +177,9 @@
       "show_hint": {
         "default": false
       },
+      "list_empty": {
+        "default": false
+      },
       "d_title": {
         "default": null
       },
@@ -193,6 +196,9 @@
         "default": false
       },
       "selected_title": {
+        "default": null
+      },
+      "selected_remove_body": {
         "default": null
       },
       "add_title": {
@@ -239,7 +245,8 @@
         "gap": "none",
         "fill": [
           1,
-          2
+          2,
+          3
         ],
         "children": [
           {
@@ -270,80 +277,115 @@
           {
             "type": "when",
             "value": {
+              "client": "loading"
+            },
+            "child": {
+              "type": "notice",
+              "kind": "loading",
+              "message": "할 일을 불러오는 중입니다"
+            }
+          },
+          {
+            "type": "when",
+            "value": {
               "client": "open_view"
             },
             "child": {
-              "type": "repeat",
-              "items": {
-                "client": "sections"
-              },
-              "key": "key",
-              "layout": "column",
-              "gap": "small",
-              "template": {
-                "type": "section",
-                "title": {
-                  "item": "name"
+              "type": "stack",
+              "direction": "column",
+              "gap": "none",
+              "children": [
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "list_empty"
+                  },
+                  "child": {
+                    "type": "text",
+                    "style": "meta",
+                    "value": "할 일이 없습니다. +로 더하세요"
+                  }
                 },
-                "collapsible": true,
-                "actions": [
-                  {
-                    "type": "button",
-                    "label": "할 일 추가",
-                    "icon": "plus",
-                    "icon_only": true,
-                    "variant": "ghost",
-                    "on_click": {
-                      "client": "open_add_area"
+                {
+                  "type": "repeat",
+                  "items": {
+                    "client": "sections"
+                  },
+                  "key": "key",
+                  "layout": "column",
+                  "gap": "small",
+                  "template": {
+                    "type": "section",
+                    "title": {
+                      "item": "name"
+                    },
+                    "collapsible": true,
+                    "actions": [
+                      {
+                        "type": "button",
+                        "label": "할 일 추가",
+                        "icon": "plus",
+                        "icon_only": true,
+                        "variant": "ghost",
+                        "on_click": {
+                          "client": "open_add_area"
+                        }
+                      }
+                    ],
+                    "child": {
+                      "type": "when",
+                      "value": {
+                        "item": "has_items"
+                      },
+                      "child": {
+                        "type": "tree",
+                        "items": {
+                          "item": "children"
+                        },
+                        "by": "children",
+                        "default_expanded": true,
+                        "selected": {
+                          "state": "selected"
+                        },
+                        "on_select": {
+                          "set_state": "selected"
+                        },
+                        "on_check": {
+                          "client": "check"
+                        },
+                        "item_menu": [
+                          {
+                            "label": "하위 할 일 추가",
+                            "on_select": {
+                              "client": "open_add_child"
+                            }
+                          },
+                          {
+                            "label": "보류",
+                            "on_select": {
+                              "client": "toggle_hold"
+                            }
+                          },
+                          {
+                            "label": "지우기",
+                            "danger": true,
+                            "confirm": {
+                              "title": "할 일을 지울까요?",
+                              "body": {
+                                "item": "remove_body"
+                              },
+                              "ok": "지우기"
+                            },
+                            "on_select": {
+                              "client": "remove"
+                            }
+                          }
+                        ]
+                      }
                     }
                   }
-                ],
-                "child": {
-                  "type": "tree",
-                  "items": {
-                    "item": "children"
-                  },
-                  "by": "children",
-                  "default_expanded": true,
-                  "selected": {
-                    "state": "selected"
-                  },
-                  "on_select": {
-                    "set_state": "selected"
-                  },
-                  "on_check": {
-                    "client": "check"
-                  },
-                  "item_menu": [
-                    {
-                      "label": "하위 할 일 추가",
-                      "on_select": {
-                        "client": "open_add_child"
-                      }
-                    },
-                    {
-                      "label": "보류",
-                      "on_select": {
-                        "client": "toggle_hold"
-                      }
-                    },
-                    {
-                      "label": "지우기",
-                      "danger": true,
-                      "confirm": {
-                        "title": "할 일을 지울까요?",
-                        "body": {
-                          "item": "title"
-                        },
-                        "ok": "지우기"
-                      },
-                      "on_select": {
-                        "client": "remove"
-                      }
-                    }
-                  ]
                 }
-              }
+              ]
             }
           },
           {
@@ -377,8 +419,7 @@
         "gap": "none",
         "fill": [
           1,
-          2,
-          3
+          2
         ],
         "children": [
           {
@@ -408,6 +449,9 @@
                   },
                   "on_change": {
                     "client": "dialog_title"
+                  },
+                  "on_submit": {
+                    "client": "add"
                   }
                 },
                 {
@@ -427,24 +471,6 @@
           {
             "type": "when",
             "value": {
-              "client": "loading"
-            },
-            "child": {
-              "type": "stack",
-              "direction": "column",
-              "place": "center",
-              "children": [
-                {
-                  "type": "notice",
-                  "kind": "loading",
-                  "message": "할 일을 불러오는 중입니다"
-                }
-              ]
-            }
-          },
-          {
-            "type": "when",
-            "value": {
               "client": "show_hint"
             },
             "child": {
@@ -454,6 +480,7 @@
               "children": [
                 {
                   "type": "text",
+                  "style": "meta",
                   "value": "할 일을 고르면 여기에 보입니다"
                 }
               ]
@@ -522,7 +549,7 @@
                         "type": "input",
                         "kind": "text",
                         "label": "기다림",
-                        "placeholder": "누구나 무엇을 기다리는지",
+                        "placeholder": "기다리는 사람이나 일",
                         "value": {
                           "client": "d_wait"
                         },
@@ -566,7 +593,7 @@
                       "confirm": {
                         "title": "할 일을 지울까요?",
                         "body": {
-                          "client": "selected_title"
+                          "client": "selected_remove_body"
                         },
                         "ok": "지우기"
                       },

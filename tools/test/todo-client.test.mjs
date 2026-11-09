@@ -785,3 +785,102 @@ test("저장소 읽기가 실패하면 불러오기를 끝내고 쉘에 알린�
   assert.equal(app.reads.items, 1);
   assert.ok(app.notices.some(message => message.includes("저장소 읽기 실패")));
 });
+
+test("묶음마다 보이는 항목이 있는지를 has_items로 알린다", async () => {
+  const items = [
+    item("a", { title: "하나", order: 0 }),
+    item("b", { title: "둘", area: "개인", order: 0 }),
+  ];
+  const app = boot({ items, areas: ["업무", "개인", "독서"] });
+  await app.settle();
+
+  const sections = app.output("sections");
+  assert.deepEqual(sections.map(section => [section.name, section.has_items]), [["업무", true], ["개인", true], ["독서", false]]);
+  assert.deepEqual(sections[2].children, []);
+
+  await app.externalItems([item("done", { title: "끝난 일", area: "개인", status: "done", done_on: "2026-11-06" })]);
+  assert.deepEqual(app.output("sections").map(section => [section.name, section.has_items]), [["업무", false], ["개인", false], ["독서", false]]);
+});
+
+test("보이는 항목이 하나도 없으면 list_empty를 참으로 알린다", async () => {
+  const app = boot({ items: [], areas: ["업무", "개인"] });
+  await app.settle();
+  assert.equal(app.output("list_empty"), true);
+  assert.deepEqual(app.output("sections").map(section => section.has_items), [false, false]);
+
+  await app.externalItems([item("a", { title: "하나" })]);
+  assert.equal(app.output("list_empty"), false);
+
+  await app.externalItems([item("done", { title: "끝난 일", status: "done", done_on: "2026-11-06" })]);
+  assert.equal(app.output("list_empty"), true);
+});
+
+test("불러오는 동안에는 list_empty가 거짓이다", async () => {
+  const app = boot({ items: [], areas: ["업무"], hold: true });
+  await app.settle();
+  assert.equal(app.output("loading"), true);
+  assert.equal(app.output("list_empty"), false);
+
+  await app.release();
+  assert.equal(app.output("loading"), false);
+  assert.equal(app.output("list_empty"), true);
+});
+
+test("보기를 바꾸면 고른 항목을 비운다", async () => {
+  const items = [
+    item("a", { title: "하나" }),
+    item("b", { title: "끝난 일", status: "done", done_on: "2026-11-09", order: 1 }),
+  ];
+  const app = boot({ items });
+  await app.settle();
+  await app.externalState({ selected: "a" });
+  assert.equal(app.output("has_selection"), true);
+
+  await app.externalState({ view: "log" });
+  assert.equal(app.win.selected, null);
+  assert.ok(app.statePatches.some(patch => patch.selected === null));
+  assert.equal(app.output("log_view"), true);
+  assert.equal(app.output("has_selection"), false);
+  assert.equal(app.output("show_hint"), true);
+
+  await app.externalState({ selected: "b" });
+  assert.equal(app.output("has_selection"), true);
+  await app.externalState({ view: "open" });
+  assert.equal(app.win.selected, null);
+  assert.equal(app.output("open_view"), true);
+  assert.equal(app.output("has_selection"), false);
+});
+
+test("고른 것이 없는데 보기만 바뀌면 선택을 다시 쓰지 않는다", async () => {
+  const app = boot({ items: [item("a", { title: "하나" })] });
+  await app.settle();
+  const before = app.statePatches.length;
+
+  await app.externalState({ view: "log" });
+  assert.equal(app.statePatches.length, before);
+  assert.equal(app.output("log_view"), true);
+});
+
+test("지우기 확인 본문에 하위 할 일이 있으면 함께 지워진다는 말을 넣는다", async () => {
+  const items = [
+    item("p", { title: "부모 일", order: 0 }),
+    item("c", { title: "자식 일", parent: "p", order: 0 }),
+    item("one", { title: "단독 일", order: 1 }),
+  ];
+  const app = boot({ items });
+  await app.settle();
+
+  const nodes = Object.fromEntries(app.output("sections")[0].children.map(node => [node.key, node]));
+  assert.equal(nodes.p.remove_body, "부모 일\n\n하위 할 일도 함께 지워집니다");
+  assert.equal(nodes.p.children[0].remove_body, "자식 일");
+  assert.equal(nodes.one.remove_body, "단독 일");
+
+  await app.externalState({ selected: "p" });
+  assert.equal(app.output("selected_remove_body"), "부모 일\n\n하위 할 일도 함께 지워집니다");
+
+  await app.externalState({ selected: "one" });
+  assert.equal(app.output("selected_remove_body"), "단독 일");
+
+  await app.externalState({ selected: null });
+  assert.equal(app.output("selected_remove_body"), null);
+});
