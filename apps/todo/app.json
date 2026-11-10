@@ -386,70 +386,64 @@
                       }
                     ],
                     "child": {
-                      "type": "when",
-                      "value": {
-                        "item": "has_items"
+                      "type": "tree",
+                      "items": {
+                        "item": "children"
                       },
-                      "child": {
-                        "type": "tree",
-                        "items": {
-                          "item": "children"
-                        },
-                        "by": "children",
-                        "default_expanded": true,
-                        "selected": {
-                          "state": "selected"
-                        },
-                        "on_select": {
-                          "set_state": "selected"
-                        },
-                        "on_check": {
-                          "client": "check"
-                        },
-                        "on_edit": {
-                          "client": "edit_commit"
-                        },
-                        "on_edit_cancel": {
-                          "client": "edit_cancel"
-                        },
-                        "on_move": {
-                          "client": "move"
-                        },
-                        "item_menu": [
-                          {
-                            "label": "이름 바꾸기",
-                            "on_select": {
-                              "client": "start_rename"
-                            }
-                          },
-                          {
-                            "label": "하위 할 일 추가",
-                            "on_select": {
-                              "client": "open_add_child"
-                            }
-                          },
-                          {
-                            "label": "보류",
-                            "on_select": {
-                              "client": "toggle_hold"
-                            }
-                          },
-                          {
-                            "label": "지우기",
-                            "danger": true,
-                            "confirm": {
-                              "title": "할 일을 지울까요?",
-                              "body": {
-                                "item": "remove_body"
-                              },
-                              "ok": "지우기"
-                            },
-                            "on_select": {
-                              "client": "remove"
-                            }
+                      "by": "children",
+                      "default_expanded": true,
+                      "selected": {
+                        "state": "selected"
+                      },
+                      "on_select": {
+                        "set_state": "selected"
+                      },
+                      "on_check": {
+                        "client": "check"
+                      },
+                      "on_edit": {
+                        "client": "edit_commit"
+                      },
+                      "on_edit_cancel": {
+                        "client": "edit_cancel"
+                      },
+                      "on_move": {
+                        "client": "move"
+                      },
+                      "item_menu": [
+                        {
+                          "label": "이름 바꾸기",
+                          "on_select": {
+                            "client": "start_rename"
                           }
-                        ]
-                      }
+                        },
+                        {
+                          "label": "하위 할 일 추가",
+                          "on_select": {
+                            "client": "open_add_child"
+                          }
+                        },
+                        {
+                          "label": "보류",
+                          "on_select": {
+                            "client": "toggle_hold"
+                          }
+                        },
+                        {
+                          "label": "지우기",
+                          "danger": true,
+                          "confirm": {
+                            "title": "할 일을 지울까요?",
+                            "body": {
+                              "item": "remove_body"
+                            },
+                            "ok": "지우기"
+                          },
+                          "on_select": {
+                            "client": "remove"
+                          }
+                        }
+                      ]
                     }
                   }
                 },

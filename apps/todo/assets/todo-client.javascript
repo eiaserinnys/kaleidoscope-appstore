@@ -168,17 +168,23 @@
     return node;
   }
 
+  /** 묶음 이름 확정 뒤 두 쓰기가 끝나기 전까지 화면에서는 옛 이름을 새 이름으로 읽는다. */
+  function renamedArea(name) {
+    return areaRename && name === areaRename.from ? areaRename.to : name;
+  }
+
   /** 묶음 순서: 설정 순서, 설정에 없는 이름은 보이는 항목이 처음 나온 순서대로 뒤에. */
   function sectionNames(items, areas, visible) {
     var seen = Object.create(null);
     var names = [];
     areas.forEach(function (name) {
-      if (seen[name]) return;
-      seen[name] = true;
-      names.push(name);
+      var area = renamedArea(name);
+      if (seen[area]) return;
+      seen[area] = true;
+      names.push(area);
     });
     items.forEach(function (item) {
-      var area = textOf(item.area);
+      var area = renamedArea(textOf(item.area));
       if (!area || seen[area] || typeof item.id !== "string" || !visible.ids[item.id]) return;
       seen[area] = true;
       names.push(area);
@@ -191,7 +197,7 @@
     var children = childMap(items);
     var parents = Object.create(null);
     items.forEach(function (item) { if (typeof item.parent === "string") parents[item.parent] = true; });
-    var areaOf = function (item) { return textOf(item.area); };
+    var areaOf = function (item) { return renamedArea(textOf(item.area)); };
     // 아직 저장하지 않은 draft 행. 같은 key가 저장소에 들어오면 실제 항목이 그 자리를 대신한다.
     var draftNode = draft && !itemOf(items, draft.id)
       ? { key: draft.id, title: "", checked: false, editing: true }
@@ -203,7 +209,7 @@
         .sort(function (left, right) { return numbersOf(left.order) - numbersOf(right.order); })
         .map(function (item) {
           var node = treeNode(item, nodesFor(item.id, area), today, parents[item.id] === true);
-          if (renaming && item.id === renaming) node.editing = true;
+          if (renaming && item.id === renaming.id) node.editing = true;
           return node;
         });
       if (draftNode && draft.parent === parentId && textOf(draft.area) === area) nodes.push({
@@ -230,8 +236,8 @@
       seen[name] = true;
       options.push(name);
     };
-    areas.forEach(push);
-    items.forEach(function (item) { push(textOf(item.area)); });
+    areas.forEach(function (name) { push(renamedArea(name)); });
+    items.forEach(function (item) { push(renamedArea(textOf(item.area))); });
     return options;
   }
 
@@ -524,8 +530,11 @@
   var state = { items: [], areas: [], selected: null, view: "open", hideDone: true, loaded: false };
   var today = todayString();
   var draft = null;
+  // renaming: { id, busy } — 쓰는 동안 같은 확정이 다시 와도 두 번 쓰지 않게 표시한다.
   var renaming = null;
   var renamingArea = null;
+  // areaRename: { from, to } — 두 쓰기(areas, items)가 끝날 때까지 화면 이름만 새 이름으로 읽는다.
+  var areaRename = null;
   var areaDraft = { open: false, name: "" };
   var pendingEdits = { title: null, wait: null };
   var writeQueue = Promise.resolve();
@@ -575,7 +584,7 @@
       has_selection: state.loaded && item !== null,
       show_hint: state.loaded && item === null && !(state.view === "log" ? logEmpty : listEmpty),
       d_title: item ? textOf(item.title) : null,
-      d_area: item ? textOf(item.area) : null,
+      d_area: item ? renamedArea(textOf(item.area)) : null,
       d_date: item && typeof item.date === "string" && item.date ? item.date : null,
       d_wait: item && typeof item.wait === "string" && item.wait ? item.wait : null,
       held: item !== null && item.status === "held",
@@ -657,6 +666,8 @@
     if (next === null) return Promise.resolve();
     return bridge.setStorage("items", next).then(function () {
       state.items = asItems(next);
+      // 이름 확정 쓰기가 끝나면 새 제목과 편집 해제가 같은 publish에 나간다.
+      if (op.rename && renaming && renaming.id === op.id) renaming = null;
       ensureSelection();
       publish();
       afterCommit(op);
@@ -686,6 +697,8 @@
     var next = state.areas.concat([name]);
     return bridge.setStorage("areas", next).then(function () {
       state.areas = next;
+      // 묶음 추가 성공: 새 묶음과 글칸 닫힘을 한 publish에 내보낸다.
+      if (areaDraft.open) areaDraft = { open: false, name: "" };
       publish();
     }, function (error) {
       if (!retried && error && error.id === CONFLICT_ID) {
@@ -966,11 +979,15 @@
         throw error;
       });
     }
-    if (renaming && key === renaming) {
-      var id = renaming;
-      renaming = null;
-      publish();
-      return enqueue({ kind: "edit", id: id, field: "title", value: title }).catch(function (error) {
+    if (renaming && key === renaming.id) {
+      if (renaming.busy) return;
+      var id = renaming.id;
+      renaming.busy = true;
+      return enqueue({ kind: "edit", id: id, field: "title", value: title, rename: true }).then(function () {
+        // 쓸 것이 없어 applyOp가 null을 낸 경우에도 편집 표시를 끈다.
+        if (renaming && renaming.id === id) { renaming = null; publish(); }
+      }).catch(function (error) {
+        if (renaming && renaming.id === id) { renaming = null; publish(); }
         fail(error);
         throw error;
       });
@@ -982,7 +999,7 @@
     var key = item && typeof item.key === "string" ? item.key : "";
     var changed = false;
     if (draft && key === draft.id) { draft = null; changed = true; }
-    if (renaming && key === renaming) { renaming = null; changed = true; }
+    if (renaming && key === renaming.id) { renaming = null; changed = true; }
     if (changed) publish();
   });
 
@@ -991,7 +1008,7 @@
     var id = item && typeof item.key === "string" ? item.key : "";
     if (!id || !itemOf(state.items, id)) return;
     draft = null;
-    renaming = id;
+    renaming = { id: id, busy: false };
     renamingArea = null;
     publish();
   });
@@ -1026,14 +1043,22 @@
   bridge.handle("rename_area", function (context) {
     var from = renamingArea;
     if (!from) return;
-    renamingArea = null;
-    publish();
     var to = textOf(context && context.event).trim();
-    if (!to || to === from) return;
+    if (!to || to === from) {
+      renamingArea = null;
+      publish();
+      return;
+    }
     if (areaOptionList(state.items, state.areas).indexOf(to) !== -1) {
+      renamingArea = null;
+      publish();
       bridge.notice("같은 이름의 묶음이 이미 있습니다");
       return;
     }
+    // 확정한 갱신부터 두 쓰기가 끝날 때까지 화면에는 같은 자리의 새 이름 구역 하나만 보인다.
+    areaRename = { from: from, to: to };
+    renamingArea = null;
+    publish();
     var task = Promise.resolve();
     if (state.areas.indexOf(from) !== -1) {
       task = task.then(function () {
@@ -1043,7 +1068,12 @@
     task = task.then(function () {
       return enqueueTask(function () { return attemptItemsRename(from, to, false); });
     });
-    return task.catch(function (error) {
+    return task.then(function () {
+      areaRename = null;
+      publish();
+    }, function (error) {
+      areaRename = null;
+      publish();
       fail(error);
       throw error;
     });
@@ -1071,7 +1101,10 @@
       closeAreaDraft();
       return;
     }
-    return enqueueArea(name).then(closeAreaDraft, function (error) {
+    return enqueueArea(name).then(function () {
+      // 성공 갱신은 attemptArea가 이미 글칸을 닫아 내보냈다. 그 사이 이름이 생겨 쓰지 않은 경우만 닫는다.
+      if (areaDraft.open) closeAreaDraft();
+    }, function (error) {
       fail(error);
       throw error;
     });

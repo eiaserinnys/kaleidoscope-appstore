@@ -9,8 +9,9 @@ Escape·빈 Enter가 아무것도 쓰지 않는지, Enter가 저장소에 넣고
 행 메뉴 첫 항목의 이름 바꾸기가 전체 선택된 글칸을 열고 Enter로 저장하는지.
 끌어 옮기기(앞, 안, 다른 묶음 끝)가 저장소의 parent·area·order를 바꾸고 화면 순서도
 따라가는지. 구역 이름 바꾸기가 areas와 모든 항목의 area를 함께 바꾸고, 중복 이름이면
-알림만 내고 쓰지 않는지. 접힌 구역과 접힌 부모에서 새 행이 보이는지, 구역 이름을
-바꾼 뒤 초점과 스크롤이 어디로 가는지는 관찰만 해 보고에 적는다(앱에서 우회하지 않는다).
+알림만 내고 쓰지 않는지. 빈 묶음의 「없음」 자리에 놓아도 그 묶음으로 옮겨지는지.
+접힌 구역과 접힌 부모에 새 행이 생기면 쉘이 펼쳐 글칸을 보이는지, 구역 이름을
+바꾼 뒤 초점과 스크롤이 어디로 가는지는 수치를 남긴다(앱에서 우회하지 않는다).
 
 끌기는 브라우저의 실제 끌기 이벤트를 이어 보낸다. Playwright의 포인터 흉내는 머리 없는
 Chromium에서 dragover·drop을 보내지 않으므로, 쉘 E2E와 같이 dragstart·dragover·drop을
@@ -146,6 +147,8 @@ log("표본 저장", len(sample_items), "항목,", len(sample["memos"]), "메모
 
 held = []
 page_ops = []
+# 이름 확정 확인에서 쓰기 응답을 늦춰, 고치기 전 코드의 되돌림 프레임을 놓치지 않고 잡는다.
+write_delay = {"entries": set(), "seconds": 0.0}
 
 
 def core_route(route):
@@ -158,6 +161,9 @@ def core_route(route):
     if isinstance(req, dict) and req.get("op") == "storage.get" and req.get("entry") == "items":
         held.append(route)
         return
+    if (isinstance(req, dict) and write_delay["seconds"] > 0
+            and req.get("op") == "storage.write" and req.get("entry") in write_delay["entries"]):
+        time.sleep(write_delay["seconds"])
     route.continue_()
 
 
@@ -233,6 +239,58 @@ SCROLL_JS = """() => {
     return el.scrollHeight > el.clientHeight + 2 && /(auto|scroll)/.test(style.overflowY);
   }).map((el) => ({cls: String(el.className).slice(0, 60), top: Math.round(el.scrollTop),
                    max: el.scrollHeight - el.clientHeight}));
+}"""
+
+# 행 이름 확정 뒤 매 프레임의 행 글을 모은다. 고치기 전 코드는 쓰기가 끝나기 전 옛 이름을
+# 편집 꺼진 행으로 한동안 보여 주므로, 그 프레임이 있는지로 판정한다.
+RENAME_FRAME_JS = """(key) => {
+  window.__renameFrames = [];
+  window.__renameDone = false;
+  const stop = performance.now() + 2000;
+  const tick = () => {
+    const root = document.querySelector('[data-testid="app-window-todo"]');
+    const row = root ? root.querySelector('button[data-tree-id="item:' + key + '"]') : null;
+    const name = row ? row.querySelector('.ks-tree-name') : null;
+    const input = row ? row.querySelector('input[aria-label="항목 이름"]') : null;
+    window.__renameFrames.push({
+      name: name ? name.textContent.trim() : null,
+      editing: !!input,
+      value: input ? input.value : null,
+    });
+    if (performance.now() < stop) requestAnimationFrame(tick);
+    else window.__renameDone = true;
+  };
+  requestAnimationFrame(tick);
+}"""
+
+# 구역 머리 목록을 매 프레임 모은다. 편집 중인 머리는 제목 요소 대신 글칸이라 빠진다.
+AREA_FRAME_JS = """() => {
+  window.__areaFrames = [];
+  window.__areaDone = false;
+  const stop = performance.now() + 2200;
+  const tick = () => {
+    const root = document.querySelector('[data-testid="app-window-todo"]');
+    const titles = root ? [...root.querySelectorAll('section.ks-data-section[data-ks-block$="/template"] .ks-data-section-title')] : [];
+    window.__areaFrames.push(titles.map((el) => el.textContent.trim()));
+    if (performance.now() < stop) requestAnimationFrame(tick);
+    else window.__areaDone = true;
+  };
+  requestAnimationFrame(tick);
+}"""
+
+AREA_FOCUS_JS = """() => {
+  const el = document.activeElement;
+  if (!el || el === document.body) return {tag: "body"};
+  const section = el.closest('section.ks-data-section[data-ks-block$="/template"]');
+  const title = section ? section.querySelector('.ks-data-section-title') : null;
+  return {
+    tag: el.tagName,
+    label: el.getAttribute('aria-label'),
+    expanded: el.getAttribute('aria-expanded'),
+    cls: String(el.className).slice(0, 80),
+    section: title ? title.textContent.trim() : null,
+    in_header: !!(section && el.closest('.ks-data-section-header')),
+  };
 }"""
 
 
@@ -1010,7 +1068,24 @@ def inline_item_rename_enter():
     field = win.locator(INLINE_INPUT)
     expect(field).to_be_visible(timeout=10000)
     field.fill("  세제 리필  ")
-    field.press("Enter")
+    page.evaluate(RENAME_FRAME_JS, "t-soap")
+    # 쓰기 응답을 늦춰, 고치기 전 코드가 옛 이름으로 되돌리는 프레임을 확실히 잡는다.
+    write_delay.update(entries={"items"}, seconds=0.6)
+    try:
+        field.press("Enter")
+        page.wait_for_function("() => window.__renameDone === true", timeout=15000)
+    finally:
+        write_delay.update(entries=set(), seconds=0.0)
+    frames = page.evaluate("() => window.__renameFrames")
+    reverted = [frame for frame in frames if not frame["editing"] and frame["name"] == "세제"]
+    assert not reverted, f"Enter 뒤 옛 이름이 편집 꺼진 채 보인 프레임이 있습니다: {reverted[:3]}"
+    after = [frame for frame in frames if not frame["editing"] and frame["name"] == "세제 리필"]
+    assert after, f"새 이름이 편집 꺼진 행으로 보인 프레임이 없습니다: {frames[-5:]}"
+    editing = [frame for frame in frames if frame["editing"]]
+    log("이름 확정 프레임 표본", json.dumps({
+        "frames": len(frames), "editing": len(editing), "after": len(after),
+        "editing_values": sorted({frame["value"] for frame in editing}),
+    }, ensure_ascii=False))
     expect(field).to_have_count(0, timeout=10000)
     renamed = wait_for(lambda: item_now("t-soap") if (item_now("t-soap") or {}).get("title") == "세제 리필" else None,
                        "이름 저장")
@@ -1018,7 +1093,7 @@ def inline_item_rename_enter():
     assert renamed["area"] == "개인" and renamed["parent"] == "t-shop", renamed
     assert renamed["status"] == "open", renamed
     expect(win.get_by_label("제목", exact=True)).to_have_value("세제 리필")
-    return {"title": renamed["title"]}
+    return {"title": renamed["title"], "frames": len(frames), "editing_frames": len(editing)}
 
 
 check("inline_item_rename_enter", inline_item_rename_enter)
@@ -1036,14 +1111,13 @@ def collapsed_add_observation():
     section("업무").locator('button[aria-label="할 일 추가"]').click()
     page.wait_for_timeout(500)
     field = win.locator(INLINE_INPUT)
+    # 쉘 #549부터 접힌 구역에 새 행이 생기면 머리의 같은 동작 단추를 눌러 스스로 펼친다.
+    observation["collapsed_section_expanded"] = toggle.get_attribute("aria-expanded")
     observation["collapsed_section_field_visible"] = field.count() > 0 and field.first.is_visible()
+    observation["collapsed_section_focus"] = page.evaluate(FOCUS_JS)
     sb.shot("collapsed-section-add.png", "todo", settle=0.2)
-    toggle.click()
-    expect(toggle).to_have_attribute("aria-expanded", "true", timeout=10000)
-    page.wait_for_timeout(500)
-    observation["after_expand_field_visible"] = field.count() > 0 and field.first.is_visible()
-    observation["after_expand_focus"] = page.evaluate(FOCUS_JS)
-    sb.shot("collapsed-section-expanded.png", "todo", settle=0.2)
+    assert observation["collapsed_section_expanded"] == "true", f"접힌 구역이 새 글칸과 함께 펼쳐지지 않았습니다: {observation}"
+    assert observation["collapsed_section_field_visible"], f"새 글칸이 보이지 않습니다: {observation}"
     if field.count():
         field.first.press("Escape")
         expect(field).to_have_count(0, timeout=10000)
@@ -1055,14 +1129,12 @@ def collapsed_add_observation():
     menu = open_item_menu("t-shop")
     menu.get_by_role("menuitem", name="하위 할 일 추가", exact=True).click()
     page.wait_for_timeout(500)
+    observation["collapsed_parent_expanded"] = row("t-soap").count() > 0
     observation["collapsed_parent_field_visible"] = field.count() > 0 and field.first.is_visible()
+    observation["collapsed_parent_focus"] = page.evaluate(FOCUS_JS)
     sb.shot("collapsed-parent-add.png", "todo", settle=0.2)
-    chevron.click()
-    expect(row("t-soap")).to_be_visible(timeout=10000)
-    page.wait_for_timeout(500)
-    observation["parent_after_expand_field_visible"] = field.count() > 0 and field.first.is_visible()
-    observation["parent_after_expand_focus"] = page.evaluate(FOCUS_JS)
-    sb.shot("collapsed-parent-expanded.png", "todo", settle=0.2)
+    assert observation["collapsed_parent_expanded"], f"접힌 부모가 새 글칸과 함께 펼쳐지지 않았습니다: {observation}"
+    assert observation["collapsed_parent_field_visible"], f"하위 글칸이 보이지 않습니다: {observation}"
     if field.count():
         field.first.press("Escape")
         expect(field).to_have_count(0, timeout=10000)
@@ -1190,7 +1262,7 @@ results["missing_memo"] = {
 }
 log("메모 없는 항목", json.dumps(results["missing_memo"], ensure_ascii=False))
 
-# ── 5. 빈 저장소: 묶음마다 트리를 숨기고 목록 자리에 빈 안내 한 줄만 둔다 ──
+# ── 5. 빈 저장소: 묶음마다 빈 트리(「없음」)를 그려 놓을 자리를 두고, 목록 자리에 빈 안내 한 줄만 둔다 ──
 
 EMPTY_MEASURE_JS = """() => {
   const root = document.querySelector('[data-testid="app-window-todo"]');
@@ -1296,6 +1368,11 @@ def empty_store_check():
         measured["wide"] = win.evaluate(EMPTY_MEASURE_JS)
         expect(win.get_by_text("할 일을 고르면 여기에 보입니다")).to_have_count(0)
         sb.shot("empty-wide.png", "todo", settle=0.3)
+        page.emulate_media(color_scheme="dark")
+        time.sleep(0.8)
+        sb.shot("empty-wide-dark.png", "todo", settle=0.3)
+        page.emulate_media(color_scheme="light")
+        time.sleep(0.4)
         set_size(380, 700)
         time.sleep(1.2)
         measured["narrow"] = win.evaluate(EMPTY_MEASURE_JS)
@@ -1344,7 +1421,8 @@ def empty_store_check():
     assert line is not None, f"빈 안내 줄을 찾지 못했습니다: {wide}"
     assert line["text"] == "할 일이 없습니다. +로 더하세요", line
     assert "is-meta" in line["cls"], line
-    assert wide["noItems"] == 0, f"빈 묶음마다 트리 기본 표시가 남습니다: {wide['noItems']}"
+    assert wide["noItems"] == len(wide["sections"]), (
+        f"빈 묶음마다 놓을 자리(「없음」)가 하나씩 있지 않습니다: {wide['noItems']} vs {len(wide['sections'])}")
     assert wide["pane"] is not None and wide["toolbar"] is not None, wide
     gap = round(line["rect"]["top"] - wide["toolbar"]["bottom"], 1)
     assert 7 <= gap <= 9, (
@@ -1359,7 +1437,7 @@ def empty_store_check():
         f"빈 안내 top이 칸의 위쪽 여백(space-2)과 다릅니다: {block_inset} vs {section}")
     for sec in wide["sections"]:
         assert sec["rows"] == 0, f"빈 묶음에 트리 행이 남습니다: {sec}"
-        assert sec["noItems"] == 0, f"빈 묶음에 기본 빈 표시가 남습니다: {sec}"
+        assert sec["noItems"] == 1, f"빈 묶음에 놓을 자리(「없음」)가 하나가 아닙니다: {sec}"
     assert len(wide["sections"]) >= 2, f"빈 묶음 머리가 사라졌습니다: {wide['sections']}"
     group = wide["sections"][0]
     assert group["child"] is not None and abs(line["rect"]["left"] - group["child"]["left"]) <= 1, (
@@ -1382,6 +1460,7 @@ def empty_store_check():
     assert len(narrow["sections"]) >= 2, f"좁은 창에서 빈 묶음 머리가 사라졌습니다: {narrow['sections']}"
     for sec in narrow["sections"]:
         assert sec["rows"] == 0, f"좁은 창의 빈 묶음에 트리 행이 남습니다: {sec}"
+        assert sec["noItems"] == 1, f"좁은 창의 빈 묶음에 놓을 자리가 하나가 아닙니다: {sec}"
     return measured
 
 
@@ -1481,6 +1560,42 @@ def long_list_check():
             field.press("Escape")
             expect(field).to_have_count(0, timeout=10000)
 
+    def flow_narrow_enter_five():
+        # 좁은 창에서 「묶음 추가」를 Enter로 다섯 번 확정한다. 매번 초점이 새 묶음 머리 단추에
+        # 가고, Enter 앞뒤로 스크롤 수치가 제자리인지 본다.
+        set_size(380, 700)
+        metrics = []
+        for step in range(1, 6):
+            name = f"반복{step}"
+            scroll_bottom()
+            field = open_area_field()
+            field.fill(name)
+            page.wait_for_timeout(250)
+            before = win.evaluate(SCROLL_JS)
+            field.press("Enter")
+            wait_for(lambda: read_storage("areas")["content"][-1] == name, f"반복{step}: 묶음 저장", timeout=15)
+            expect(field).to_have_count(0, timeout=10000)
+            page.wait_for_timeout(800)
+            focus = page.evaluate(AREA_FOCUS_JS)
+            after = win.evaluate(SCROLL_JS)
+            before_tops = {entry["cls"]: entry["top"] for entry in before}
+            after_tops = {entry["cls"]: entry["top"] for entry in after}
+            moved = {cls: [top, after_tops.get(cls)] for cls, top in before_tops.items()
+                     if after_tops.get(cls) is None or abs(after_tops[cls] - top) > 2}
+            sample = {"step": step, "name": name, "focus": focus, "before": before, "after": after}
+            captured[f"narrow_enter_{step}"] = sample
+            metrics.append(sample)
+            log(f"좁은 창 묶음 추가 {step}번째", json.dumps(sample, ensure_ascii=False))
+            sb.shot(f"long-narrow-enter-{step}.png", "todo", settle=0.2)
+            assert focus.get("section") == name, f"반복{step}: Enter 뒤 초점이 새 묶음 머리에 없습니다: {focus}"
+            assert focus.get("in_header"), f"반복{step}: Enter 뒤 초점이 머리 안이 아닙니다: {focus}"
+            assert "ks-data-section-toggle" in (focus.get("cls") or ""), (
+                f"반복{step}: Enter 뒤 초점이 머리 접기 단추가 아닙니다: {focus}")
+            assert focus.get("expanded") == "true", f"반복{step}: 새 묶음 머리가 펼쳐져 있지 않습니다: {focus}"
+            assert not moved, f"반복{step}: Enter 뒤 스크롤이 움직였습니다: {moved}"
+        captured["narrow_enter_5"] = metrics
+        return metrics
+
     try:
         call("write_app_storage", {"app_id": "todo", "entry_id": "items",
                                    "content": items_snapshot["content"] + extras,
@@ -1489,7 +1604,7 @@ def long_list_check():
         flow_enter("wide", 1040, "운동")
         flow_escape("wide", 1040, "산책")
         flow_blur("wide", 1040, "공부")
-        flow_enter("narrow", 380, "요리")
+        flow_narrow_enter_five()
         flow_escape("narrow", 380, "낚시")
         flow_blur("narrow", 380, "청소")
     finally:
@@ -1661,6 +1776,53 @@ def drag_other_area_end():
 
 check("drag_other_area_end", drag_other_area_end)
 
+
+def drag_empty_area_end():
+    # 다른 묶음 끝으로 t-dentist를 옮긴 뒤 개인 구역은 비어 있다. 이제 빈 트리의 「없음」이
+    # 놓을 자리로 그려지는지 보고, 자식이 있는 t-shop을 그 자리에 끌어 놓는다.
+    empty = section("개인")
+    expect(empty.locator(".ks-no-items")).to_be_visible(timeout=10000)
+    expect(empty.locator('button[role="treeitem"]')).to_have_count(0)
+    empty.scroll_into_view_if_needed()
+    page.wait_for_timeout(300)
+    sb.shot("empty-area-light.png", "todo", settle=0.3)
+    page.emulate_media(color_scheme="dark")
+    time.sleep(0.8)
+    sb.shot("empty-area-dark.png", "todo", settle=0.3)
+    page.emulate_media(color_scheme="light")
+    time.sleep(0.4)
+    indicators = drag_move("t-shop", area="개인", shot="drag-empty-area.png")
+    assert any(m["state"] == "valid" and m["id"] == "tree" for m in indicators), (
+        f"빈 묶음 놓을 자리 표시가 없습니다: {indicators}")
+    shop = wait_for(lambda: item_now("t-shop") if (item_now("t-shop") or {}).get("area") == "개인" else None,
+                    "빈 묶음 끝으로 옮기기 저장")
+    assert shop["parent"] is None, shop
+    current = items_now()
+    by_parent = {}
+    for entry in current:
+        by_parent.setdefault(entry.get("parent"), []).append(entry)
+    descendants = []
+    queue = list(by_parent.get("t-shop", []))
+    while queue:
+        entry = queue.pop(0)
+        descendants.append(entry)
+        queue.extend(by_parent.get(entry["id"], []))
+    direct = sorted(by_parent.get("t-shop", []), key=lambda it: it["order"])
+    assert [it["id"] for it in direct] == ["t-milk", "t-eggs", "t-soap"], direct
+    assert all(it["area"] == "개인" for it in descendants), descendants
+    added = next(it for it in descendants if it.get("title") == "세탁")
+    assert added["area"] == "개인" and added["parent"] == "t-soap", added
+    expect(empty.locator(".ks-no-items")).to_have_count(0, timeout=10000)
+    expect(row("t-shop")).to_be_visible(timeout=10000)
+    assert row_top("t-shop") < row_top("t-milk") < row_top("t-soap"), (
+        row_top("t-shop"), row_top("t-milk"), row_top("t-soap"))
+    sb.shot("drag-empty-area-after.png", "todo", settle=0.3)
+    return {"t-shop": {"area": shop["area"], "parent": shop["parent"], "order": shop["order"]},
+            "descendant_areas": sorted({it["area"] for it in descendants})}
+
+
+check("drag_empty_area_end", drag_empty_area_end)
+
 # ── 14. 구역 머리 우클릭 → 이름 바꾸기 → areas와 모든 항목 area를 함께 바꾼다 ──
 
 
@@ -1688,6 +1850,28 @@ def area_rename():
     before_areas = read_storage("areas")["content"]
     field.fill("직장")
     field.press("Enter")
+    # Enter 뒤 1초 넘게 머리 목록을 매 프레임 읽어, 옛 이름과 새 이름이 함께 보이는 순간이 없는지 본다.
+    page.evaluate(AREA_FRAME_JS)
+    # 두 쓰기(areas, items)를 늦춰, 고치기 전 코드가 중간 이름을 그리는 프레임을 놓치지 않고 잡는다.
+    write_delay.update(entries={"areas", "items"}, seconds=0.45)
+    try:
+        page.wait_for_function("() => window.__areaDone === true", timeout=15000)
+    finally:
+        write_delay.update(entries=set(), seconds=0.0)
+    frames = page.evaluate("() => window.__areaFrames")
+    assert frames, "구역 머리 목록을 한 프레임도 읽지 못했습니다"
+    stale = [frame for frame in frames if "업무" in frame]
+    assert not stale, f"Enter 뒤 옛 이름이 머리에 남은 프레임이 있습니다: {stale[:3]}"
+    doubled = [frame for frame in frames if frame.count("직장") > 1]
+    assert not doubled, f"Enter 뒤 새 이름 구역이 둘로 보인 프레임이 있습니다: {doubled[:3]}"
+    renamed_frames = [frame for frame in frames if "직장" in frame]
+    assert renamed_frames, f"Enter 뒤 새 이름이 머리에 보인 프레임이 없습니다: {frames[-5:]}"
+    seen = {}
+    for frame in frames:
+        key = tuple(frame)
+        seen[key] = seen.get(key, 0) + 1
+    samples = [[list(key), count] for key, count in sorted(seen.items(), key=lambda pair: -pair[1])[:4]]
+    log("묶음 이름 확정 머리 목록 표본", json.dumps({"frames": len(frames), "samples": samples}, ensure_ascii=False))
     expect(field).to_have_count(0, timeout=10000)
     areas = wait_for(lambda: read_storage("areas")["content"] if read_storage("areas")["content"][:2] == ["직장", "개인"] else None,
                      "구역 이름 저장", timeout=15)
@@ -1700,6 +1884,8 @@ def area_rename():
     wait_for(lambda: section("직장").count() == 1, "구역 머리 하나로 정리", timeout=15)
     expect(section("직장").locator(".ks-data-section-title")).to_be_visible(timeout=10000)
     expect(section("업무")).to_have_count(0, timeout=10000)
+    heads = [text.strip() for text in win.locator('section.ks-data-section[data-ks-block$="/template"] .ks-data-section-title').all_inner_texts()]
+    assert heads == ["직장", "개인", "독서", "취미"], f"묶음 이름 바꾼 뒤 머리 순서가 다릅니다: {heads}"
     page.wait_for_timeout(600)
     focus = page.evaluate(FOCUS_JS)
     scroll = win.evaluate(SCROLL_JS)
@@ -1709,7 +1895,8 @@ def area_rename():
     expect(win.locator('button.ks-select-button[aria-label="묶음"]')).to_contain_text("직장")
     log("구역 이름 바꾼 뒤 초점", json.dumps(focus, ensure_ascii=False))
     log("구역 이름 바꾼 뒤 스크롤", json.dumps(scroll, ensure_ascii=False))
-    return {"areas": before_areas, "after": areas, "focus": focus, "scroll": scroll}
+    return {"areas": before_areas, "after": areas, "focus": focus, "scroll": scroll,
+            "heads": heads, "frames": len(frames), "samples": samples}
 
 
 check("area_rename", area_rename)
