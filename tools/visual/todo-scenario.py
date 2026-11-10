@@ -9,7 +9,9 @@ Escape·빈 Enter가 아무것도 쓰지 않는지, Enter가 저장소에 넣고
 행 메뉴 첫 항목의 이름 바꾸기가 전체 선택된 글칸을 열고 Enter로 저장하는지.
 끌어 옮기기(앞, 안, 다른 묶음 끝)가 저장소의 parent·area·order를 바꾸고 화면 순서도
 따라가는지. 구역 이름 바꾸기가 areas와 모든 항목의 area를 함께 바꾸고, 중복 이름이면
-알림만 내고 쓰지 않는지. 빈 묶음의 「없음」 자리에 놓아도 그 묶음으로 옮겨지는지.
+알림만 내고 쓰지 않는지. 빈 묶음은 61판 셸의 tree.empty_text로 「할 일 없음」 한 줄을
+그리고, 그 줄 위에 놓아도 그 묶음으로 옮겨지는지. 끝낸 일만 있어 숨겨진 묶음도 같은
+줄을 보이는지. /core 요청·응답을 가려서 남겨 400의 출처를 밝히는지.
 접힌 구역과 접힌 부모에 새 행이 생기면 쉘이 펼쳐 글칸을 보이는지, 구역 이름을
 바꾼 뒤 초점과 스크롤이 어디로 가는지는 수치를 남긴다(앱에서 우회하지 않는다).
 
@@ -63,7 +65,9 @@ def wait_for(pred, what, timeout=15.0):
         last = pred()
         if last:
             return last
-        time.sleep(0.2)
+        # /core 기록 라우트를 쓰는 동안에는 page 호출로 플레이라이트 디스패처를
+        # 돌려야 대기 중인 라우트 처리기가 불린다(time.sleep만으로는 멈춘다).
+        page.wait_for_timeout(200)
     raise AssertionError(f"시간이 다 됐습니다: {what} (마지막 {last!r})")
 
 
@@ -460,6 +464,61 @@ for held_route in held:
         pass
 time.sleep(1.5)
 page.unroute("**/core")
+
+# ── /core 요청·응답 기록: 3판에서 콘솔에 보이던 400 하나의 출처를 남긴다.
+#    저장소 op만 본문을 남기고, 400 이상이면 다른 op도 응답 본문을 남긴다.
+#    토큰·비밀값으로 보이는 키는 가리고 긴 글은 줄인다. ──
+
+SECRET_KEYS = ("token", "secret", "password", "authorization", "api_key", "apikey", "credential")
+core_trace = []
+
+
+def mask_secrets(value):
+    if isinstance(value, dict):
+        masked = {}
+        for key, item in value.items():
+            if any(word in str(key).lower() for word in SECRET_KEYS):
+                masked[key] = "<가림>"
+            else:
+                masked[key] = mask_secrets(item)
+        return masked
+    if isinstance(value, list):
+        return [mask_secrets(item) for item in value]
+    if isinstance(value, str) and len(value) > 2000:
+        return value[:2000] + "…<줄임>"
+    return value
+
+
+def trace_core(route):
+    try:
+        req = json.loads(route.request.post_data or "")
+    except Exception:  # noqa: BLE001
+        req = {}
+    op = req.get("op") if isinstance(req, dict) else None
+    keep_body = isinstance(op, str) and op.startswith("storage")
+    entry = {"op": op,
+             "entry": req.get("entry") if isinstance(req, dict) else None,
+             "doc": req.get("doc") if isinstance(req, dict) else None}
+    if keep_body:
+        entry["body"] = mask_secrets(req)
+    try:
+        response = route.fetch()
+        text = response.text()
+        entry["status"] = response.status
+        if keep_body or response.status >= 400:
+            try:
+                entry["response"] = mask_secrets(json.loads(text))
+            except Exception:  # noqa: BLE001
+                entry["response"] = text[:2000]
+        route.fulfill(response=response)
+    except Exception as error:  # noqa: BLE001
+        entry["status"] = "fetch 실패"
+        entry["response"] = str(error)[:300]
+        route.continue_()
+    core_trace.append(entry)
+
+
+page.route("**/core", trace_core)
 wait_for(lambda: win.locator('button[role="treeitem"]').count() > 0, "불러오기 끝난 트리", timeout=20)
 
 # 4. 고른 것이 없을 때의 안내 글은 meta 스타일이다.
@@ -1364,6 +1423,8 @@ EMPTY_MEASURE_JS = """() => {
       const toggle = el.querySelector(".ks-data-section-toggle");
       const titleEl = el.querySelector(".ks-data-section-title");
       const metaEl = el.querySelector(".ks-data-section-meta");
+      const emptyEl = el.querySelector(".ks-tree-empty");
+      const emptyTextEl = emptyEl ? emptyEl.querySelector(".ks-view-meta") : null;
       return {
         title: headerText(el),
         rect: rect(el),
@@ -1374,11 +1435,20 @@ EMPTY_MEASURE_JS = """() => {
         titleGlyph: glyph(titleEl),
         metaText: metaEl ? metaEl.textContent.trim() : null,
         child: rect(el.querySelector(".ks-data-section-child")),
+        tree: rect(el.querySelector(".ks-data-tree")),
         rows: el.querySelectorAll('button[role="treeitem"]').length,
         noItems: el.querySelectorAll(".ks-no-items").length,
+        emptyRows: el.querySelectorAll(".ks-tree-empty").length,
+        emptyLine: emptyEl ? {
+          text: emptyTextEl ? emptyTextEl.textContent.trim() : null,
+          rect: rect(emptyEl),
+          glyph: glyph(emptyTextEl),
+          svg: emptyEl.querySelectorAll("svg").length,
+        } : null,
       };
     }),
     noItems: root.querySelectorAll(".ks-no-items").length,
+    emptyRows: root.querySelectorAll(".ks-tree-empty").length,
     line: line ? {text: line.textContent.trim(), cls: line.className, rect: rect(line), glyph: glyph(line)} : null,
   };
 }"""
@@ -1480,8 +1550,10 @@ def empty_store_check():
     assert line is not None, f"빈 안내 줄을 찾지 못했습니다: {wide}"
     assert line["text"] == "할 일이 없습니다. +로 더하세요", line
     assert "is-meta" in line["cls"], line
-    assert wide["noItems"] == len(wide["sections"]), (
-        f"빈 묶음마다 놓을 자리(「없음」)가 하나씩 있지 않습니다: {wide['noItems']} vs {len(wide['sections'])}")
+    assert wide["noItems"] == 0, (
+        f"빈 묶음에 쉘 빈 상태 상자(아이콘과 「없음」)가 남았습니다: {wide['noItems']}")
+    assert wide["emptyRows"] == len(wide["sections"]), (
+        f"빈 묶음마다 「할 일 없음」 줄이 하나씩 있지 않습니다: {wide['emptyRows']} vs {len(wide['sections'])}")
     assert wide["pane"] is not None and wide["toolbar"] is not None, wide
     gap = round(line["rect"]["top"] - wide["toolbar"]["bottom"], 1)
     assert 7 <= gap <= 9, (
@@ -1496,7 +1568,18 @@ def empty_store_check():
         f"빈 안내 top이 칸의 위쪽 여백(space-2)과 다릅니다: {block_inset} vs {section}")
     for sec in wide["sections"]:
         assert sec["rows"] == 0, f"빈 묶음에 트리 행이 남습니다: {sec}"
-        assert sec["noItems"] == 1, f"빈 묶음에 놓을 자리(「없음」)가 하나가 아닙니다: {sec}"
+        assert sec["noItems"] == 0, f"빈 묶음에 쉘 빈 상태 상자가 남았습니다: {sec}"
+        assert sec["emptyRows"] == 1 and sec["emptyLine"] is not None, (
+            f"빈 묶음에 「할 일 없음」 줄이 하나가 아닙니다: {sec}")
+        empty_line = sec["emptyLine"]
+        assert empty_line["text"] == "할 일 없음", f"빈 묶음 줄 글자가 다릅니다: {empty_line}"
+        assert empty_line["svg"] == 0, f"빈 묶음 줄에 아이콘이 그려졌습니다: {empty_line}"
+        assert empty_line["glyph"] is not None, f"빈 묶음 줄 글자를 찾지 못했습니다: {empty_line}"
+        assert abs(empty_line["rect"]["height"] - 32) <= 0.5, (
+            f"빈 묶음 줄 높이가 트리 행 높이(32px)가 아닙니다: {empty_line['rect']}")
+        assert (empty_line["rect"]["left"] >= sec["tree"]["left"] - 1
+                and empty_line["rect"]["right"] <= sec["tree"]["right"] + 1), (
+            f"빈 묶음 줄이 트리 가로 범위를 벗어납니다: {empty_line} vs {sec['tree']}")
     assert len(wide["sections"]) >= 2, f"빈 묶음 머리가 사라졌습니다: {wide['sections']}"
     group = wide["sections"][0]
     assert group["child"] is not None and abs(line["rect"]["left"] - group["child"]["left"]) <= 1, (
@@ -1517,9 +1600,19 @@ def empty_store_check():
     assert (narrow_line["rect"]["left"] >= narrow["pane"]["left"] - 1
             and narrow_line["rect"]["right"] <= narrow["pane"]["right"] + 1), "좁은 창에서 빈 안내가 목록 칸 가로 범위를 벗어납니다"
     assert len(narrow["sections"]) >= 2, f"좁은 창에서 빈 묶음 머리가 사라졌습니다: {narrow['sections']}"
+    assert narrow["noItems"] == 0, (
+        f"좁은 창의 빈 묶음에 쉘 빈 상태 상자가 남았습니다: {narrow['noItems']}")
+    assert narrow["emptyRows"] == len(narrow["sections"]), (
+        f"좁은 창의 빈 묶음마다 「할 일 없음」 줄이 하나씩 있지 않습니다: {narrow['emptyRows']}")
     for sec in narrow["sections"]:
         assert sec["rows"] == 0, f"좁은 창의 빈 묶음에 트리 행이 남습니다: {sec}"
-        assert sec["noItems"] == 1, f"좁은 창의 빈 묶음에 놓을 자리가 하나가 아닙니다: {sec}"
+        assert sec["noItems"] == 0, f"좁은 창의 빈 묶음에 쉘 빈 상태 상자가 남았습니다: {sec}"
+        assert sec["emptyRows"] == 1 and sec["emptyLine"] is not None, (
+            f"좁은 창의 빈 묶음에 「할 일 없음」 줄이 하나가 아닙니다: {sec}")
+        assert sec["emptyLine"]["text"] == "할 일 없음", (
+            f"좁은 창의 빈 묶음 줄 글자가 다릅니다: {sec['emptyLine']}")
+        assert abs(sec["emptyLine"]["rect"]["height"] - 32) <= 0.5, (
+            f"좁은 창의 빈 묶음 줄 높이가 트리 행 높이(32px)가 아닙니다: {sec['emptyLine']['rect']}")
     return measured
 
 
@@ -1700,6 +1793,10 @@ DRAG_JS = """(cmd) => {
     });
     return found ? found.querySelector('.ks-data-tree') : null;
   };
+  const emptyEl = (area) => {
+    const tree = treeEl(area);
+    return tree ? tree.querySelector('.ks-tree-empty') : null;
+  };
   if (cmd.action === 'start') {
     const source = rowEl(cmd.key);
     if (!source) return {error: 'source 없음: ' + cmd.key};
@@ -1710,12 +1807,13 @@ DRAG_JS = """(cmd) => {
   }
   const drag = window.__ksDrag;
   if (!drag) return {error: '끌기 없음'};
-  const target = cmd.target ? rowEl(cmd.target) : treeEl(cmd.area);
+  const target = cmd.target ? rowEl(cmd.target) : (emptyEl(cmd.area) || treeEl(cmd.area));
   if (!target) return {error: 'target 없음: ' + (cmd.target || cmd.area)};
   const rect = target.getBoundingClientRect();
   const clientX = rect.left + rect.width / 2;
   const dy = cmd.dy || 0;
-  const clientY = cmd.target ? rect.top + rect.height * cmd.ratio + dy : rect.bottom - 2 + dy;
+  const clientY = cmd.target ? rect.top + rect.height * cmd.ratio + dy
+    : (target.classList.contains('ks-tree-empty') ? rect.top + rect.height / 2 + dy : rect.bottom - 2 + dy);
   if (cmd.action === 'over') {
     target.dispatchEvent(new DragEvent('dragover', {bubbles: true, cancelable: true, dataTransfer: drag.dataTransfer, clientX: clientX, clientY: clientY}));
     return {ok: true, clientY: +clientY.toFixed(1), top: +rect.top.toFixed(1), height: +rect.height.toFixed(1)};
@@ -1732,7 +1830,8 @@ DRAG_JS = """(cmd) => {
 INDICATOR_JS = """() => {
   const root = document.querySelector('[data-testid="app-window-todo"]');
   return [...root.querySelectorAll('[data-drop-state], [data-drop-position]')].map((el) => ({
-    id: el.getAttribute('data-tree-id') || el.getAttribute('role'),
+    id: el.getAttribute('data-tree-id') || el.getAttribute('role')
+      || (el.classList.contains('ks-tree-empty') ? 'tree-empty' : String(el.className).slice(0, 40)),
     state: el.getAttribute('data-drop-state'),
     position: el.getAttribute('data-drop-position'),
   }));
@@ -1836,26 +1935,162 @@ def drag_other_area_end():
 check("drag_other_area_end", drag_other_area_end)
 
 
+EMPTY_AREA_MEASURE_JS = """() => {
+  const root = document.querySelector('[data-testid="app-window-todo"]');
+  const rect = (el) => {
+    if (!el) return null;
+    const b = el.getBoundingClientRect();
+    return {top: +b.top.toFixed(1), bottom: +b.bottom.toFixed(1), left: +b.left.toFixed(1), right: +b.right.toFixed(1), width: +b.width.toFixed(1), height: +b.height.toFixed(1)};
+  };
+  const glyph = (el) => {
+    if (!el) return null;
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const b = range.getBoundingClientRect();
+    return {top: +b.top.toFixed(1), bottom: +b.bottom.toFixed(1), left: +b.left.toFixed(1), right: +b.right.toFixed(1), width: +b.width.toFixed(1), height: +b.height.toFixed(1)};
+  };
+  const sections = [...root.querySelectorAll('section.ks-data-section[data-ks-block$="/template"]')];
+  const byName = {};
+  for (const sec of sections) {
+    const title = sec.querySelector('.ks-data-section-title');
+    const name = title ? title.textContent.trim() : '';
+    const line = sec.querySelector('.ks-tree-empty');
+    const meta = line ? line.querySelector('.ks-view-meta') : null;
+    const firstRow = sec.querySelector('button[role="treeitem"]');
+    const firstName = firstRow ? firstRow.querySelector('.ks-tree-name') : null;
+    byName[name] = {
+      section: rect(sec),
+      tree: rect(sec.querySelector('.ks-data-tree')),
+      pane: rect(sec.closest('.ks-split-pane')),
+      line: rect(line),
+      lineText: meta ? meta.textContent.trim() : null,
+      lineGlyph: glyph(meta),
+      lineSvg: line ? line.querySelectorAll('svg').length : null,
+      emptyRows: sec.querySelectorAll('.ks-tree-empty').length,
+      noItems: sec.querySelectorAll('.ks-no-items').length,
+      treeitems: sec.querySelectorAll('button[role="treeitem"]').length,
+      firstRow: rect(firstRow),
+      firstNameGlyph: glyph(firstName),
+    };
+  }
+  const firstWithRoot = Object.keys(byName).find((name) => byName[name].firstNameGlyph);
+  return {
+    sections: byName,
+    rootName: firstWithRoot ? {
+      section: firstWithRoot,
+      glyph: byName[firstWithRoot].firstNameGlyph,
+      rowHeight: byName[firstWithRoot].firstRow.height,
+    } : null,
+    emptyRows: root.querySelectorAll('.ks-tree-empty').length,
+    noItems: root.querySelectorAll('.ks-no-items').length,
+  };
+}"""
+
+OVERFLOW_JS = """() => {
+  const root = document.querySelector('[data-testid="app-window-todo"]');
+  return [...root.querySelectorAll('*')].filter((el) => {
+    const style = getComputedStyle(el);
+    return el.scrollWidth > el.clientWidth + 1 && /(auto|scroll)/.test(style.overflowX);
+  }).map((el) => ({cls: String(el.className).slice(0, 50), sw: el.scrollWidth, cw: el.clientWidth}));
+}"""
+
+
 def drag_empty_area_end():
-    # 다른 묶음 끝으로 t-dentist를 옮긴 뒤 개인 구역은 비어 있다. 이제 빈 트리의 「없음」이
-    # 놓을 자리로 그려지는지 보고, 자식이 있는 t-shop을 그 자리에 끌어 놓는다.
+    # 다른 묶음 끝으로 t-dentist를 옮긴 뒤 개인 구역은 비어 있다. 4판은 61판 셸의
+    # tree.empty_text로 「할 일 없음」 한 줄을 그린다. 끝낸 일만 있어 숨겨진 묶음(취미)도
+    # 같은 줄을 그리는지, 그 줄이 트리 행과 같은 높이·시작선인지, 360폭에서 넘치지 않는지 본다.
+    current = read_storage("items")
+    hidden_item = {
+        "id": "t-hidden-done",
+        "title": "끝난 취미 일",
+        "area": "취미",
+        "parent": None,
+        "status": "done",
+        "date": None,
+        "wait": None,
+        "done_on": TODAY.isoformat(),
+        "created_on": TODAY.isoformat(),
+        "order": 0,
+    }
+    if not any(it.get("id") == hidden_item["id"] for it in current["content"]):
+        call("write_app_storage", {"app_id": "todo", "entry_id": "items",
+                                   "content": current["content"] + [hidden_item],
+                                   "expected_revision": current["revision"]})
+    hidden_area = section("취미")
+    # 숨김을 잠깐 꺼 그 항목이 이 묶음에 실제로 있는지 보고, 다시 켜서 빈 줄로 돌아오는지 본다.
+    hidden_area.scroll_into_view_if_needed()
+    toggle.click()
+    expect(toggle).to_have_attribute("aria-checked", "false")
+    expect(section("취미").locator('button[data-tree-id="item:t-hidden-done"]')).to_be_visible(timeout=10000)
+    toggle.click()
+    expect(toggle).to_have_attribute("aria-checked", "true")
+    expect(section("취미").locator('button[data-tree-id="item:t-hidden-done"]')).to_have_count(0, timeout=10000)
+
     empty = section("개인")
-    expect(empty.locator(".ks-no-items")).to_be_visible(timeout=10000)
+    expect(empty.locator(".ks-tree-empty")).to_have_count(1, timeout=10000)
     expect(empty.locator('button[role="treeitem"]')).to_have_count(0)
+    expect(empty.locator(".ks-no-items")).to_have_count(0)
+    expect(hidden_area.locator(".ks-tree-empty")).to_have_count(1, timeout=10000)
+    expect(hidden_area.locator('button[role="treeitem"]')).to_have_count(0)
+    expect(hidden_area.locator(".ks-no-items")).to_have_count(0)
     empty.scroll_into_view_if_needed()
     page.wait_for_timeout(300)
+    measured = win.evaluate(EMPTY_AREA_MEASURE_JS)
     sb.shot("empty-area-light.png", "todo", settle=0.3)
     page.emulate_media(color_scheme="dark")
     time.sleep(0.8)
     sb.shot("empty-area-dark.png", "todo", settle=0.3)
     page.emulate_media(color_scheme="light")
     time.sleep(0.4)
+
+    personal = measured["sections"].get("개인") or {}
+    hidden_only = measured["sections"].get("취미") or {}
+    for label, info in (("개인", personal), ("취미", hidden_only)):
+        assert info.get("emptyRows") == 1 and info.get("line") is not None, (
+            f"{label}: 빈 묶음에 「할 일 없음」 줄이 하나가 아닙니다: {info}")
+        assert info.get("lineText") == "할 일 없음", f"{label}: 빈 묶음 줄 글자가 다릅니다: {info}"
+        assert info.get("lineSvg") == 0, f"{label}: 빈 묶음 줄에 아이콘이 그려졌습니다: {info}"
+        assert info.get("noItems") == 0, f"{label}: 쉘 빈 상태 상자가 남았습니다: {info}"
+        assert info.get("treeitems") == 0, f"{label}: 숨은 항목이 행으로 남았습니다: {info}"
+        assert abs(info["line"]["height"] - 32) <= 0.5, (
+            f"{label}: 빈 줄 높이가 32px이 아닙니다: {info['line']}")
+        assert (info["line"]["left"] >= info["tree"]["left"] - 1
+                and info["line"]["right"] <= info["tree"]["right"] + 1), (
+            f"{label}: 빈 줄이 트리 가로 범위를 벗어납니다: {info['line']} vs {info['tree']}")
+    root_name = measured.get("rootName") or {}
+    root_glyph = root_name.get("glyph") or {}
+    assert root_glyph, f"빈 줄 시작선과 견줄 트리 뿌리 행 제목을 찾지 못했습니다: {measured}"
+    assert abs(personal["lineGlyph"]["left"] - root_glyph["left"]) <= 1, (
+        f"빈 줄 글 시작이 같은 창 트리 뿌리 행 제목 시작선과 다릅니다: {personal['lineGlyph']} vs {root_glyph}")
+    assert abs(personal["line"]["height"] - root_name["rowHeight"]) <= 0.5, (
+        f"빈 줄 높이가 트리 행 높이와 다릅니다: {personal['line']} vs {root_name['rowHeight']}")
+
+    set_size(360, 700)
+    page.wait_for_timeout(1000)
+    section("개인").scroll_into_view_if_needed()
+    page.wait_for_timeout(400)
+    overflow = win.evaluate(OVERFLOW_JS)
+    narrow = win.evaluate(EMPTY_AREA_MEASURE_JS)
+    narrow_personal = narrow["sections"].get("개인") or {}
+    assert overflow == [], f"360폭에서 가로로 넘치는 칸이 있습니다: {overflow}"
+    assert narrow_personal.get("line") is not None, f"360폭에서 빈 줄이 사라졌습니다: {narrow}"
+    assert (narrow_personal["line"]["left"] >= narrow_personal["pane"]["left"] - 1
+            and narrow_personal["line"]["right"] <= narrow_personal["pane"]["right"] + 1), (
+        f"360폭에서 빈 줄이 목록 칸을 벗어납니다: {narrow_personal['line']} vs {narrow_personal['pane']}")
+    sb.shot("empty-area-360.png", "todo", settle=0.3)
+    set_size(1040, 700)
+    page.wait_for_timeout(600)
+    section("개인").scroll_into_view_if_needed()
+    page.wait_for_timeout(300)
+
     indicators = drag_move("t-shop", area="개인", shot="drag-empty-area.png")
-    assert any(m["state"] == "valid" and m["id"] == "tree" for m in indicators), (
-        f"빈 묶음 놓을 자리 표시가 없습니다: {indicators}")
+    assert len(indicators) == 1, f"빈 묶음 줄에만 놓을 자리 표시가 서지 않았습니다: {indicators}"
+    marker = indicators[0]
+    assert marker["id"] == "tree-empty" and marker["state"] == "valid" and marker["position"] is None, (
+        f"빈 묶음 줄의 놓을 자리 표시가 다릅니다: {indicators}")
     shop = wait_for(lambda: item_now("t-shop") if (item_now("t-shop") or {}).get("area") == "개인" else None,
                     "빈 묶음 끝으로 옮기기 저장")
-    assert shop["parent"] is None, shop
+    assert shop["parent"] is None and shop["order"] == 1, shop
     current = items_now()
     by_parent = {}
     for entry in current:
@@ -1871,13 +2106,32 @@ def drag_empty_area_end():
     assert all(it["area"] == "개인" for it in descendants), descendants
     added = next(it for it in descendants if it.get("title") == "세탁")
     assert added["area"] == "개인" and added["parent"] == "t-soap", added
-    expect(empty.locator(".ks-no-items")).to_have_count(0, timeout=10000)
+    expect(empty.locator(".ks-tree-empty")).to_have_count(0, timeout=10000)
+    expect(empty.locator(".ks-no-items")).to_have_count(0)
+    expect(hidden_area.locator(".ks-tree-empty")).to_have_count(1)
     expect(row("t-shop")).to_be_visible(timeout=10000)
     assert row_top("t-shop") < row_top("t-milk") < row_top("t-soap"), (
         row_top("t-shop"), row_top("t-milk"), row_top("t-soap"))
+    after = win.evaluate(EMPTY_AREA_MEASURE_JS)
+    personal_after = after["sections"].get("개인") or {}
+    assert personal_after.get("firstNameGlyph"), f"놓은 뒤 개인 뿌리 행 제목을 찾지 못했습니다: {after}"
+    assert abs(personal_after["firstNameGlyph"]["left"] - personal["lineGlyph"]["left"]) <= 1, (
+        f"빈 줄 글 시작과 같은 트리 뿌리 행 제목 시작선이 다릅니다: "
+        f"{personal_after['firstNameGlyph']} vs {personal['lineGlyph']}")
     sb.shot("drag-empty-area-after.png", "todo", settle=0.3)
-    return {"t-shop": {"area": shop["area"], "parent": shop["parent"], "order": shop["order"]},
-            "descendant_areas": sorted({it["area"] for it in descendants})}
+    return {
+        "empty_row_height": personal["line"]["height"],
+        "root_row_height": root_name["rowHeight"],
+        "empty_text_left": personal["lineGlyph"]["left"],
+        "root_title_left": root_glyph["left"],
+        "hidden_only_area": {"name": "취미", "treeitems": hidden_only["treeitems"],
+                             "empty_rows": hidden_only["emptyRows"], "text": hidden_only["lineText"]},
+        "narrow_360_overflow": overflow,
+        "indicator": marker,
+        "t-shop": {"area": shop["area"], "parent": shop["parent"], "order": shop["order"]},
+        "after_title_left": personal_after["firstNameGlyph"]["left"],
+        "descendant_areas": sorted({it["area"] for it in descendants}),
+    }
 
 
 check("drag_empty_area_end", drag_empty_area_end)
@@ -1988,6 +2242,34 @@ def area_rename_duplicate():
 
 
 check("area_rename_duplicate", area_rename_duplicate)
+
+
+def core_400_trace():
+    summary = {}
+    for entry in core_trace:
+        key = f"{entry.get('op')}|{entry.get('entry')}|{entry.get('status')}"
+        summary[key] = summary.get(key, 0) + 1
+    bad = [entry for entry in core_trace
+           if isinstance(entry.get("status"), int) and entry["status"] >= 400]
+    unexpected = [entry for entry in bad
+                  if not (entry.get("op") == "storage.get" and entry.get("entry") == "memos")]
+    assert not unexpected, f"메모 문서 읽기 밖의 /core 실패가 있습니다: {unexpected[:3]}"
+    for entry in bad:
+        response = entry.get("response")
+        assert isinstance(response, dict) and response.get("id") == "STORAGE_DOCUMENT_READ_NOT_FOUND", entry
+        details = response.get("details") or []
+        assert any("404" in str(item) for item in details), entry
+        body = entry.get("body") or {}
+        assert body.get("op") == "storage.get" and body.get("entry") == "memos", entry
+        assert isinstance(body.get("doc"), str) and body["doc"], entry
+    memo_reads = sum(1 for entry in core_trace
+                     if entry.get("op") == "storage.get" and entry.get("entry") == "memos")
+    log("core 400 추적", json.dumps({"bad": len(bad), "memo_reads": memo_reads,
+                                    "summary": summary}, ensure_ascii=False))
+    return {"bad_count": len(bad), "bad": bad, "memo_reads": memo_reads, "summary": summary}
+
+
+check("core_400_trace", core_400_trace)
 
 # 시험 쉘은 시나리오보다 먼저 --app을 열어, 자산 등록 전이라 앱 올리기가 실패해 있다.
 # 마지막에 같은 정의로 다시 올려 결과의 앱 보고를 성공으로 맞춘다(같은 정의라 unchanged).

@@ -12,7 +12,7 @@
   },
   "single_window": true,
   "requires": {
-    "blocks": 60,
+    "blocks": 61,
     "modules": {
       "assets": 1,
       "client": 1,
@@ -391,6 +391,7 @@
                         "item": "children"
                       },
                       "by": "children",
+                      "empty_text": "할 일 없음",
                       "default_expanded": true,
                       "selected": {
                         "state": "selected"
