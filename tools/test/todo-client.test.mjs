@@ -37,7 +37,7 @@ function item(id, over = {}) {
 }
 
 /** 자산 파일을 vm에서 실행하고, 가짜 window.kaleidoscope로 조작하는 시험용 껍데기. */
-function boot({ now = local(2026, 11, 9), items = [], areas = ["업무", "개인"], view = "open", selected = null, hold = false } = {}) {
+function boot({ now = local(2026, 11, 9), items = [], areas = ["업무", "개인"], view = "open", selected = null, hold = false, hideDone = false } = {}) {
   const source = readFileSync(ASSET, "utf8");
   const clock = { now };
   const timers = new Map();
@@ -51,7 +51,7 @@ function boot({ now = local(2026, 11, 9), items = [], areas = ["업무", "개인
   const stateListeners = new Set();
   const lifecycleListeners = new Set();
   const storageListeners = new Map();
-  const win = { view, selected, adding: null };
+  const win = { view, selected, adding: null, hide_done: hideDone };
   const reads = {};
   let lifecycle = null;
   let holding = hold;
@@ -922,4 +922,184 @@ test("지우기 확인 본문에 하위 할 일이 있으면 함께 지워진다
 
   await app.externalState({ selected: null });
   assert.equal(app.output("selected_remove_body"), null);
+});
+
+test("완료한 일 숨기기를 켜면 할 일 보기에서 끝낸 항목을 그리지 않는다", async () => {
+  const app = boot({ items: sampleItems(), areas: ["업무", "개인", "독서", "취미"], hideDone: true });
+  await app.settle();
+
+  const sections = app.output("sections");
+  assert.deepEqual(sections.map(section => section.name), ["업무", "개인", "독서", "취미"]);
+  assert.deepEqual(sections[0].children.map(node => node.key), ["report", "deck", "quote"]);
+  assert.deepEqual(sections[0].children[0].children.map(node => node.key), ["draft"]);
+  assert.equal(sections[0].children[0].checked, false);
+  assert.deepEqual(sections[1].children.map(node => node.key), ["shop", "dentist"]);
+  assert.deepEqual(sections[1].children[0].children.map(node => node.key), ["soap"]);
+  assert.deepEqual(sections[3].children.map(node => node.key), ["hobby"]);
+  assert.equal(app.output("list_empty"), false);
+  assert.equal(app.output("show_hint"), true);
+});
+
+test("끝낸 조상은 보이는 자손이 있을 때만 남는다", async () => {
+  const items = [
+    item("p1", { title: "끝났지만 자식이 남음", status: "done", done_on: "2026-11-09", order: 0 }),
+    item("c1", { title: "남은 자식", parent: "p1", order: 0 }),
+    item("p2", { title: "자식도 다 끝남", status: "done", done_on: "2026-11-08", order: 1 }),
+    item("d1", { title: "끝난 자식", parent: "p2", status: "done", done_on: "2026-11-08", order: 0 }),
+    item("p3", { title: "자식 없는 끝난 일", status: "done", done_on: "2026-11-09", order: 2 }),
+  ];
+  const app = boot({ items, areas: ["업무"], hideDone: true });
+  await app.settle();
+
+  const nodes = app.output("sections")[0].children;
+  assert.deepEqual(nodes.map(node => node.key), ["p1"]);
+  assert.equal(nodes[0].checked, true);
+  assert.deepEqual(nodes[0].children.map(node => node.key), ["c1"]);
+});
+
+test("숨김을 끄면 1판처럼 끝낸 항목이 취소선으로 제자리에 남는다", async () => {
+  const app = boot({ items: sampleItems(), areas: ["업무", "개인", "취미"], hideDone: true });
+  await app.settle();
+  assert.deepEqual(app.output("sections")[0].children[0].children.map(node => node.key), ["draft"]);
+  assert.deepEqual(app.output("sections")[1].children[0].children.map(node => node.key), ["soap"]);
+
+  await app.externalState({ hide_done: false });
+  const report = app.output("sections")[0].children[0];
+  assert.deepEqual(report.children.map(node => node.key), ["collect", "draft"]);
+  assert.equal(report.children[0].checked, true);
+  assert.deepEqual(app.output("sections")[1].children[0].children.map(node => node.key), ["milk", "egg", "soap"]);
+
+  await app.externalState({ hide_done: true });
+  assert.deepEqual(app.output("sections")[0].children[0].children.map(node => node.key), ["draft"]);
+  assert.deepEqual(app.output("sections")[1].children[0].children.map(node => node.key), ["soap"]);
+});
+
+test("숨김 켜짐에서 체크하면 목록에서 사라지고 상세는 그 항목을 그대로 보인다", async () => {
+  const app = boot({ items: [item("a", { title: "끝낼 일", order: 0 })], areas: ["업무"], hideDone: true });
+  await app.settle();
+  await app.externalState({ selected: "a" });
+  assert.equal(app.output("has_selection"), true);
+
+  await app.run("check", { event: true, item: { key: "a" } });
+  await app.settle();
+
+  assert.deepEqual(app.output("sections")[0].children, []);
+  assert.equal(app.output("list_empty"), true);
+  assert.equal(app.output("has_selection"), true);
+  assert.equal(app.output("d_title"), "끝낼 일");
+  assert.equal(app.win.selected, "a");
+});
+
+test("숨김의 빈 목록 안내와 상세 안내는 보이는 항목 기준이다", async () => {
+  const done = item("done", { title: "오늘 끝낸 일", status: "done", done_on: "2026-11-09" });
+  const app = boot({ items: [done], hideDone: true });
+  await app.settle();
+  assert.equal(app.output("list_empty"), true);
+  assert.equal(app.output("show_hint"), false);
+  assert.deepEqual(app.output("sections").map(section => [section.name, section.has_items]), [["업무", false], ["개인", false]]);
+
+  await app.externalItems([done, item("open", { title: "남은 일", order: 1 })]);
+  assert.equal(app.output("list_empty"), false);
+  assert.equal(app.output("show_hint"), true);
+});
+
+test("기록 보기는 숨김과 상관없이 끝낸 항목을 보여준다", async () => {
+  const items = [
+    item("a", { title: "오늘 끝냄", status: "done", done_on: "2026-11-09", order: 0 }),
+    item("b", { title: "어제 끝냄", status: "done", done_on: "2026-11-08", order: 1 }),
+    item("c", { title: "남은 일", order: 2 }),
+  ];
+  const app = boot({ items, hideDone: true, view: "log" });
+  await app.settle();
+
+  assert.equal(app.output("log_view"), true);
+  assert.equal(app.output("log_has_items"), true);
+  const log = app.output("log");
+  assert.deepEqual(log.map(day => day.key), ["day:2026-11-09", "day:2026-11-08"]);
+  assert.deepEqual(log.map(day => day.children.map(node => node.key)), [["a"], ["b"]]);
+});
+
+test("start_area는 글칸을 열고 cancel_area는 쓰지 않고 닫는다", async () => {
+  const app = boot({ items: [item("a")] });
+  await app.settle();
+  assert.equal(app.output("area_drafting"), false);
+  assert.equal(app.output("area_idle"), true);
+  assert.equal(app.output("area_draft"), "");
+
+  await app.run("start_area");
+  assert.equal(app.output("area_drafting"), true);
+  assert.equal(app.output("area_idle"), false);
+
+  await app.run("area_draft_change", { event: "독서" });
+  assert.equal(app.output("area_draft"), "독서");
+
+  await app.run("cancel_area");
+  assert.equal(app.output("area_drafting"), false);
+  assert.equal(app.output("area_idle"), true);
+  assert.equal(app.output("area_draft"), "");
+  assert.equal(app.writes.length, 0);
+  assert.deepEqual(app.store.areas, ["업무", "개인"]);
+});
+
+test("add_area는 앞뒤 공백을 빼고 목록 끝에 더하고 글칸을 닫는다", async () => {
+  const app = boot({ items: [item("a", { order: 0 })], areas: ["업무", "개인"] });
+  await app.settle();
+  await app.run("start_area");
+  await app.run("area_draft_change", { event: "  독서  " });
+  await app.run("add_area");
+  await app.settle();
+
+  assert.deepEqual(app.store.areas, ["업무", "개인", "독서"]);
+  const sections = app.output("sections");
+  assert.deepEqual(sections.map(section => section.name), ["업무", "개인", "독서"]);
+  assert.deepEqual(sections[2].children, []);
+  assert.equal(sections[2].has_items, false);
+  assert.equal(app.output("area_options").at(-1), "독서");
+  assert.equal(app.output("area_drafting"), false);
+  assert.equal(app.output("area_draft"), "");
+  const areaWrites = app.writes.filter(entry => entry.entry === "areas");
+  assert.equal(areaWrites.length, 1);
+  assert.deepEqual(areaWrites[0].content, ["업무", "개인", "독서"]);
+});
+
+test("add_area는 빈 이름이면 글칸만 닫고 쓰지 않는다", async () => {
+  const app = boot({ items: [item("a")] });
+  await app.settle();
+  await app.run("start_area");
+  await app.run("area_draft_change", { event: "   " });
+  await app.run("add_area");
+  await app.settle();
+
+  assert.equal(app.writes.length, 0);
+  assert.deepEqual(app.store.areas, ["업무", "개인"]);
+  assert.equal(app.output("area_drafting"), false);
+  assert.equal(app.output("area_draft"), "");
+});
+
+test("add_area는 이미 있는 이름이면 더하지 않고 글칸을 닫는다", async () => {
+  const app = boot({ items: [item("a")] });
+  await app.settle();
+  await app.run("start_area");
+  await app.run("area_draft_change", { event: " 업무 " });
+  await app.run("add_area");
+  await app.settle();
+
+  assert.equal(app.writes.length, 0);
+  assert.deepEqual(app.store.areas, ["업무", "개인"]);
+  assert.equal(app.output("area_drafting"), false);
+});
+
+test("묶음 쓰기가 충돌하면 다시 읽어 한 번 더 넣는다", async () => {
+  const app = boot({ items: [item("a")] });
+  await app.settle();
+  await app.run("start_area");
+  await app.run("area_draft_change", { event: "독서" });
+  app.conflictNext({ store: ["업무", "개인", "취미"] });
+  await app.run("add_area");
+  await app.settle();
+
+  assert.equal(app.attempts.filter(entry => entry.entry === "areas").length, 2);
+  assert.deepEqual(app.store.areas, ["업무", "개인", "취미", "독서"]);
+  assert.deepEqual(app.output("sections").map(section => section.name), ["업무", "개인", "취미", "독서"]);
+  assert.equal(app.output("area_drafting"), false);
 });

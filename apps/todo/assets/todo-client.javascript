@@ -1,5 +1,5 @@
 /*
- * 할 일 — kaleidoscope 클라이언트 (todo-client v1)
+ * 할 일 — kaleidoscope 클라이언트 (todo-client v2)
  *
  * 저장소 두 곳을 다룬다.
  *   items: 할 일 항목 배열 (앱과 바깥 도구가 함께 고치는 계약)
@@ -122,15 +122,16 @@
     return item.status === "open" || item.status === "held";
   }
 
-  function visibleIds(items, today) {
+  function visibleIds(items, today, hideDone) {
     var byId = indexItems(items);
     var visible = {};
     var queue = [];
     items.forEach(function (item) {
-      if (typeof item.id === "string" && isActive(item, today)) {
-        visible[item.id] = true;
-        queue.push(item.id);
-      }
+      if (typeof item.id !== "string" || !isActive(item, today)) return;
+      // 숨김이 켜져 있으면 끝낸 항목은 그리지 않는다. 보이는 자손이 있으면 아래 조상 규칙이 다시 켠다.
+      if (hideDone && item.status === "done") return;
+      visible[item.id] = true;
+      queue.push(item.id);
     });
     // 조건에 맞는 자손이 있는 조상도 함께 보인다.
     while (queue.length) {
@@ -182,8 +183,8 @@
     return names;
   }
 
-  function buildSections(items, areas, today) {
-    var visible = visibleIds(items, today);
+  function buildSections(items, areas, today, hideDone) {
+    var visible = visibleIds(items, today, hideDone);
     var children = childMap(items);
     var parents = Object.create(null);
     items.forEach(function (item) { if (typeof item.parent === "string") parents[item.parent] = true; });
@@ -436,9 +437,10 @@
 
   // ── 연결: 창 상태, 저장소, 화면 출력 ──
 
-  var state = { items: [], areas: [], selected: null, view: "open", loaded: false };
+  var state = { items: [], areas: [], selected: null, view: "open", hideDone: true, loaded: false };
   var today = todayString();
   var draft = { title: "", date: null };
+  var areaDraft = { open: false, name: "" };
   var pendingEdits = { title: null, wait: null };
   var writeQueue = Promise.resolve();
   var midnightTimer = null;
@@ -451,8 +453,10 @@
   (function readInitialState() {
     var selected = initialValue("selected");
     var view = initialValue("view");
+    var hideDone = initialValue("hide_done");
     if (typeof selected === "string") state.selected = selected;
     if (typeof view === "string" && view) state.view = view;
+    if (typeof hideDone === "boolean") state.hideDone = hideDone;
   })();
 
   function selectedItem() {
@@ -468,7 +472,7 @@
 
   function publish() {
     var item = selectedItem();
-    var sections = state.loaded ? buildSections(state.items, state.areas, today) : [];
+    var sections = state.loaded ? buildSections(state.items, state.areas, today, state.hideDone) : [];
     var log = state.loaded ? buildLog(state.items, state.areas, today) : [];
     var listEmpty = !sections.some(function (section) { return section.has_items; });
     var logEmpty = log.length === 0;
@@ -493,6 +497,9 @@
       selected_remove_body: item ? textOf(item.title) + (hasChildItems(state.items, item.id) ? CHILD_REMOVE_PHRASE : "") : null,
       add_title: draft.title,
       add_date: draft.date,
+      area_drafting: areaDraft.open,
+      area_draft: areaDraft.name,
+      area_idle: !areaDraft.open,
     });
   }
 
@@ -509,10 +516,12 @@
     if (!isObject(next)) return;
     var selected = typeof next.selected === "string" ? next.selected : null;
     var view = typeof next.view === "string" && next.view ? next.view : "open";
-    if (selected === state.selected && view === state.view) return;
+    var hideDone = typeof next.hide_done === "boolean" ? next.hide_done : true;
+    if (selected === state.selected && view === state.view && hideDone === state.hideDone) return;
     var viewChanged = view !== state.view;
     state.selected = selected;
     state.view = view;
+    state.hideDone = hideDone;
     if (viewChanged && state.selected !== null) {
       state.selected = null;
       bridge.setState("selected", null);
@@ -583,6 +592,35 @@
     draft = { title: "", date: null };
     state.selected = op.id;
     bridge.setState({ adding: null, selected: op.id });
+    publish();
+  }
+
+  /** 묶음 추가도 항목 쓰기와 같은 줄에 세우고, revision 충돌이면 다시 읽어 한 번 더 넣는다. */
+  function attemptArea(name, retried) {
+    if (state.areas.indexOf(name) !== -1) return Promise.resolve();
+    var next = state.areas.concat([name]);
+    return bridge.setStorage("areas", next).then(function () {
+      state.areas = next;
+      publish();
+    }, function (error) {
+      if (!retried && error && error.id === CONFLICT_ID) {
+        return bridge.getStorage("areas").then(function (value) {
+          state.areas = asAreas(value);
+          return attemptArea(name, true);
+        });
+      }
+      throw error;
+    });
+  }
+
+  function enqueueArea(name) {
+    var task = writeQueue.then(function () { return attemptArea(name, false); }, function () { return attemptArea(name, false); });
+    writeQueue = task.then(function () {}, function () {});
+    return task;
+  }
+
+  function closeAreaDraft() {
+    areaDraft = { open: false, name: "" };
     publish();
   }
 
@@ -794,6 +832,32 @@
     var target = id ? itemOf(state.items, id) : null;
     if (!target) return;
     openDialog(textOf(target.area), target.id);
+  });
+
+  bridge.handle("start_area", function () {
+    areaDraft = { open: true, name: "" };
+    publish();
+  });
+
+  bridge.handle("area_draft_change", function (context) {
+    areaDraft.name = textOf(context.event);
+    publish();
+  });
+
+  bridge.handle("add_area", function () {
+    var name = areaDraft.name.trim();
+    if (!name || state.areas.indexOf(name) !== -1) {
+      closeAreaDraft();
+      return;
+    }
+    return enqueueArea(name).then(closeAreaDraft, function (error) {
+      fail(error);
+      throw error;
+    });
+  });
+
+  bridge.handle("cancel_area", function () {
+    closeAreaDraft();
   });
 
   bridge.handle("dialog_title", function (context) {
