@@ -228,6 +228,13 @@
     });
   }
 
+  /** 저장소 원래 이름과 화면 표시 이름 어디에든 있으면 이미 있는 묶음 이름이다. */
+  function areaNameTaken(name) {
+    return state.areas.indexOf(name) !== -1
+      || state.items.some(function (item) { return textOf(item.area) === name; })
+      || areaOptionList(state.items, state.areas).indexOf(name) !== -1;
+  }
+
   function areaOptionList(items, areas) {
     var seen = Object.create(null);
     var options = [];
@@ -974,7 +981,11 @@
       };
       draft.busy = true;
       return enqueue({ kind: "add", id: piece.id, item: piece }).catch(function (error) {
-        draft.busy = false;
+        // 저장하지 못한 draft 행을 거둔다. 그 사이 다른 draft가 열렸으면 건드리지 않는다.
+        if (draft && draft.id === piece.id) {
+          draft = null;
+          publish();
+        }
         fail(error);
         throw error;
       });
@@ -1049,7 +1060,7 @@
       publish();
       return;
     }
-    if (areaOptionList(state.items, state.areas).indexOf(to) !== -1) {
+    if (areaNameTaken(to)) {
       renamingArea = null;
       publish();
       bridge.notice("같은 이름의 묶음이 이미 있습니다");

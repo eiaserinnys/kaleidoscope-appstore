@@ -149,6 +149,21 @@ held = []
 page_ops = []
 # 이름 확정 확인에서 쓰기 응답을 늦춰, 고치기 전 코드의 되돌림 프레임을 놓치지 않고 잡는다.
 write_delay = {"entries": set(), "seconds": 0.0}
+# 쓰기 실패 재현용 다리: fail_writes에 entry가 있으면 storage.write를 500으로 끊는다.
+# core_route는 불러오기 화면을 잡느라 쓰고 453행에서 떼므로, 실패 재현 단계에서만 따로 건다.
+fail_writes = set()
+
+
+def fail_route(route):
+    try:
+        req = json.loads(route.request.post_data or "")
+    except Exception:  # noqa: BLE001
+        req = {}
+    if isinstance(req, dict) and req.get("op") == "storage.write" and req.get("entry") in fail_writes:
+        route.fulfill(status=500, content_type="application/json",
+                      body=json.dumps({"error": {"code": "internal", "message": "시나리오용 쓰기 실패"}}))
+        return
+    route.continue_()
 
 
 def core_route(route):
@@ -808,6 +823,50 @@ def inline_add_enter():
 
 
 check("inline_add_enter", inline_add_enter)
+
+
+def inline_add_write_fail():
+    # 세라피엘 재현: 목록 안 더하기를 확정할 때 items 쓰기를 500으로 끊는다.
+    # 고치기 전에는 저장되지 않은 draft 행이 보통 행으로 남는다(유령 행).
+    page.route("**/core", fail_route)
+    fail_writes.add("items")
+    try:
+        field = open_area_draft()
+        field.fill("유령 시험")
+        started = time.time()
+        field.press("Enter")
+        ghost = win.locator('button[data-tree-id]',
+                            has=page.locator('.ks-tree-name', has_text="유령 시험"))
+        samples = []
+        notice_at = None
+        while time.time() - started < 4:
+            now = time.time() - started
+            samples.append([round(now, 2), ghost.count(),
+                            page.get_by_text("SHELL_HTTP_REQUEST_FAILED").count()])
+            if notice_at is None and samples[-1][2]:
+                notice_at = now
+            if notice_at is not None and now - notice_at >= 1.0:
+                break
+            page.wait_for_timeout(100)
+    finally:
+        fail_writes.discard("items")
+        page.unroute("**/core", fail_route)
+    assert notice_at is not None, f"쓰기 실패 알림이 뜨지 않았습니다: {samples[-8:]}"
+    within = [sample for sample in samples if notice_at <= sample[0] <= notice_at + 1.0]
+    assert within and within[-1][1] == 0, (
+        f"실패 알림 뒤 1초 안에 유령 행이 사라지지 않았습니다: {samples[-10:]}")
+    assert ghost.count() == 0, "쓰기에 실패한 행이 화면에 남아 있습니다"
+    assert not any(it.get("title") == "유령 시험" for it in items_now()), "저장에 실패한 항목이 저장소에 있습니다"
+    sb.shot("add-fail-after.png", "todo", settle=0.3)
+    # 실패 알림은 저절로 사라지지 않고 누르는 것을 가로막으므로, 확인을 마친 뒤 닫는다.
+    notice_box = win.locator(".ks-data-window-notice")
+    if notice_box.get_by_text("SHELL_HTTP_REQUEST_FAILED").count():
+        notice_box.get_by_role("button", name="닫기").click()
+        expect(win.get_by_text("SHELL_HTTP_REQUEST_FAILED")).to_have_count(0, timeout=5000)
+    return {"notice_at": round(notice_at, 2), "samples": samples[::2], "last": samples[-1]}
+
+
+check("inline_add_write_fail", inline_add_write_fail)
 
 # ── 5. 상세에서 제목 고치기(0.5초 뒤 저장), 묶음 바꾸기(구역 이동) ──
 

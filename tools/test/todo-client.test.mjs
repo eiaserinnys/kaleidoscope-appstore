@@ -1041,6 +1041,22 @@ function ordersOf(app, area, parent = null) {
     .map(entry => [entry.id, entry.order]);
 }
 
+/** 첫 setStorage(entry)를 잡아 두었다가 release()로 풀어 쓰기 대기 중 상태를 만든다. */
+function gateWrite(app, entry) {
+  const original = app.bridge.setStorage;
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  let seen = false;
+  app.bridge.setStorage = (key, value) => {
+    if (key === entry && !seen) {
+      seen = true;
+      return gate.then(() => original(key, value));
+    }
+    return original(key, value);
+  };
+  return release;
+}
+
 test("구역 +는 그 묶음 끝에 빈 글칸 행을 넣고 빈 묶음도 has_items를 켠다", async () => {
   const app = boot({ items: [item("report", { title: "분기 보고서", order: 0 })], areas: ["업무", "개인", "독서"] });
   await app.settle();
@@ -1648,4 +1664,61 @@ test("묶음 추가 성공은 새 묶음과 글칸 닫힘을 한 publish에 내�
   assert.deepEqual(after[0].sections.map(section => section.name), ["업무", "개인", "독서"]);
   assert.equal(after[0].area_drafting, false);
   assert.deepEqual(app.store.areas, ["업무", "개인", "독서"]);
+});
+
+test("더하기 쓰기가 실패하면 다음 publish에 draft 행이 없고 알림이 뜬다", async () => {
+  const app = boot({ items: [item("a")], areas: ["업무", "개인"] });
+  await app.settle();
+  await app.run("open_add_area", { item: { key: "업무" } });
+  const draft = sectionOf(app, "업무").children.at(-1);
+  app.failNext("items");
+
+  await app.run("edit_commit", { event: "유령 시험", item: { key: draft.key } }).catch(() => {});
+  await app.settle();
+
+  assert.ok(app.notices.length >= 1, "쓰기 실패를 알리지 않았습니다");
+  assert.equal(app.writes.length, 0);
+  assert.ok(!app.store.items.some(entry => entry.title === "유령 시험"));
+  assert.deepEqual(sectionOf(app, "업무").children.map(node => node.key), ["a"]);
+  assert.equal(editingNodes(app).length, 0);
+});
+
+test("더하기 쓰기가 실패해도 그 사이 연 다른 draft는 지우지 않는다", async () => {
+  const app = boot({ items: [item("a")], areas: ["업무"] });
+  await app.settle();
+  await app.run("open_add_area", { item: { key: "업무" } });
+  const first = sectionOf(app, "업무").children.at(-1).key;
+  const release = gateWrite(app, "items");
+  app.failNext("items");
+  const task = app.run("edit_commit", { event: "실패할 일", item: { key: first } });
+  await app.settle();
+
+  await app.run("open_add_area", { item: { key: "업무" } });
+  const second = sectionOf(app, "업무").children.at(-1).key;
+  release();
+  await task.catch(() => {});
+  await app.settle();
+
+  assert.notEqual(second, first);
+  assert.deepEqual(sectionOf(app, "업무").children.map(node => node.key), ["a", second]);
+  assert.deepEqual(editingNodes(app).map(node => node.key), [second]);
+  assert.ok(app.notices.length >= 1, "쓰기 실패를 알리지 않았습니다");
+});
+
+test("묶음 쓰기 대기 중 중복 판정은 저장소 원래 이름으로 한다", async () => {
+  const app = boot({ items: [item("a"), item("b", { area: "개인" })] });
+  await app.settle();
+  const release = gateWrite(app, "areas");
+  await app.run("start_rename_area", { item: { key: "업무" } });
+  const first = app.run("rename_area", { event: "회사" });
+  await app.settle();
+  await app.run("start_rename_area", { item: { key: "개인" } });
+  const second = app.run("rename_area", { event: "업무" });
+  const rejected = app.notices.includes("같은 이름의 묶음이 이미 있습니다");
+  release();
+  await Promise.all([first, second]);
+
+  assert.equal(rejected, true);
+  assert.deepEqual(app.store.areas, ["회사", "개인"]);
+  assert.deepEqual(app.store.items.map(entry => entry.area), ["회사", "개인"]);
 });
