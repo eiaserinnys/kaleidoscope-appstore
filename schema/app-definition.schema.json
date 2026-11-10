@@ -1297,6 +1297,24 @@
             ]
           }
         },
+        "attached_instructions_template": {
+          "description": "연결한 대화에 말마다 덧붙이는 글. `{workspace.id}`, `{workspace.name}`을 바꿔 넣는다.",
+          "anyOf": [
+            {
+              "description": "연결한 대화에 말마다 덧붙이는 글. {workspace.id}, {workspace.name}을 바꿔 넣는다.",
+              "$ref": "#/$defs/Binding",
+              "not": {
+                "type": "object",
+                "required": [
+                  "state"
+                ]
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "thread_entry": {
           "description": "현재 작업에 thread id를 저장하는 JSON 항목 id.",
           "type": "string"
@@ -1985,6 +2003,10 @@
         },
         "release": {
           "$ref": "#/$defs/Binding"
+        },
+        "replace": {
+          "description": "명시적 스토어 판 전환 요청. 생략은 false이며 store 모듈 4판부터다.",
+          "type": "boolean"
         }
       },
       "additionalProperties": false,
@@ -2250,6 +2272,7 @@
               "minimum": 0
             },
             "template": {
+              "description": "템플릿 안 블록이 자기 행을 넘기는 동작(트리, 목록, 표의 행)에서는 `$item`이 그 행이다. repeat 항목은 클라이언트 동작 context의 `parent_item`으로 받는다(56판).",
               "$ref": "#/$defs/Block"
             }
           },
@@ -2927,7 +2950,7 @@
           ]
         },
         {
-          "description": "`items`면 앱 데이터 항목의 트리, `root`면 폴더의 파일 트리다. 둘 중 하나를 둔다.\n데이터 모드의 항목은 [`data::TreeItem`]이고 `by`가 `path`면 항목의 경로를 나눠 가상 폴더를 만든다.\n`by: \"children\"`에서 자식이 있는 항목은 펼치고 접으며, 항목이 있으면 같은 동작에서 `on_select`도 실행한다.\n`by: \"path\"`의 가상 중간 폴더는 펼치고 접기만 하고, 자식이 없는 데이터 항목은 `on_select`를 실행한다.\n`selected` 항목의 상위 노드는 펼쳐지며 편 상태는 저장하지 않는다. 폴더 모드에서는 파일을 누르면 `on_select` 상태 키에\n경로를 쓰고 폴더는 펼치고 접기만 한다. 쉘 창이 포커스를 다시 얻으면 폴더 모드의 트리를 다시 읽는다.",
+          "description": "`items`면 앱 데이터 항목의 트리, `root`면 폴더의 파일 트리다. 둘 중 하나를 둔다.\n데이터 모드의 항목은 [`data::TreeItem`]이고 `by`가 `path`면 항목의 경로를 나눠 가상 폴더를 만든다.\n`by: \"children\"`에서 자식이 있는 항목은 펼치고 접으며, 항목이 있으면 같은 동작에서 `on_select`도 실행한다.\n`by: \"path\"`의 가상 중간 폴더는 펼치고 접기만 하고, 자식이 없는 데이터 항목은 `on_select`를 실행한다.\n(59판) 확인 모드(`on_check`가 있는 데이터 트리)에서 `checked`가 있는 항목은 펼침 화살표 다음 열에 확인 상자를 그린다.\n그 행의 본문 클릭과 Enter는 `on_select`만 실행하고 펼치고 접기는 화살표와 방향키가 맡는다.\n`checked`가 없는 항목은 확인 상자를 그리지 않는다. 자식이 있는 항목은 확인 모드가 아닐 때처럼 본문 클릭과 Enter로\n펼치고 접으며, 항목이 있으면 같은 동작에서 `on_select`도 실행한다.\n`selected` 항목의 상위 노드는 펼쳐지며 편 상태는 저장하지 않는다. 폴더 모드에서는 파일을 누르면 `on_select` 상태 키에\n경로를 쓰고 폴더는 펼치고 접기만 한다. 쉘 창이 포커스를 다시 얻으면 폴더 모드의 트리를 다시 읽는다.",
           "type": "object",
           "properties": {
             "type": {
@@ -2999,6 +3022,39 @@
               "items": {
                 "$ref": "#/$defs/ItemMenuEntry"
               }
+            },
+            "on_edit": {
+              "description": "(60판) 바로 입력을 확정할 때 실행한다. `$event`는 앞뒤 공백을 뺀 글, `$item`은 그 항목이다.\n항목의 `editing`이 참이고 이 동작이 있을 때만 그 행을 글칸으로 그린다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Actions"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "on_edit_cancel": {
+              "description": "(60판) 바로 입력을 취소할 때 실행한다. `$event`는 null, `$item`은 그 항목이다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Actions"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "on_move": {
+              "description": "(60판) 항목을 끌어 놓을 때 실행한다. `$event`는 `{key, target, position}`, `$item`은 놓은 자리 항목(없으면 null)이다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Actions"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           },
           "additionalProperties": false,
@@ -3526,6 +3582,49 @@
               "items": {
                 "$ref": "#/$defs/Block"
               }
+            },
+            "menu": {
+              "description": "(60판) 구역 머리의 메뉴. 1~4개이고 항목 모양은 `item_menu`와 같다. 동작의 범위는 구역을 둘러싼 범위이며\n`$event`는 null이다. 있으면 머리 우클릭과 접기 단추의 Shift+F10으로 열고, 앱 항목 뒤에 쉘 기본 「제목 복사」를 붙인다.",
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "$ref": "#/$defs/ItemMenuEntry"
+              }
+            },
+            "editing": {
+              "description": "(60판) 참이면 구역 제목 자리가 글칸이 된다. `on_edit`이 있을 때만 쓴다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Binding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "on_edit": {
+              "description": "(60판) 구역 이름을 확정할 때 실행한다. `$event`는 앞뒤 공백을 뺀 새 이름이다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Actions"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "on_edit_cancel": {
+              "description": "(60판) 구역 이름 바꾸기를 취소할 때 실행한다. `$event`는 null이다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Actions"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "child": {
               "$ref": "#/$defs/Block"
@@ -4776,7 +4875,7 @@
       ]
     },
     "DocumentRef": {
-      "description": "저장소 문서를 참조한다. `entry`는 앱의 저장 항목 id이고, 문서 모음에서는 `doc`에 문서 이름을 준다.",
+      "description": "저장소 문서를 참조한다. `entry`는 앱의 저장 항목 id이고, 문서 모음에서는 `doc`에 문서 이름을 준다.\n문서 모음의 문서가 아직 없으면 빈 문서로 열리고, 처음 고칠 때 만들어진다(57판).",
       "type": "object",
       "properties": {
         "entry": {
