@@ -1002,6 +1002,9 @@ check("inline_item_rename_field", inline_item_rename_field)
 
 
 def inline_item_rename_enter():
+    # 상세 칸 제목이 같이 바뀌는지 보려면 바꿀 항목이 골라져 있어야 한다.
+    row("t-soap").click()
+    expect(win.get_by_label("제목", exact=True)).to_have_value("세제", timeout=10000)
     menu = open_item_menu("t-soap")
     menu.get_by_role("menuitem", name="이름 바꾸기", exact=True).click()
     field = win.locator(INLINE_INPUT)
@@ -1537,7 +1540,8 @@ DRAG_JS = """(cmd) => {
   if (!target) return {error: 'target 없음: ' + (cmd.target || cmd.area)};
   const rect = target.getBoundingClientRect();
   const clientX = rect.left + rect.width / 2;
-  const clientY = cmd.target ? rect.top + rect.height * cmd.ratio + cmd.dy : rect.bottom - 2 + cmd.dy;
+  const dy = cmd.dy || 0;
+  const clientY = cmd.target ? rect.top + rect.height * cmd.ratio + dy : rect.bottom - 2 + dy;
   if (cmd.action === 'over') {
     target.dispatchEvent(new DragEvent('dragover', {bubbles: true, cancelable: true, dataTransfer: drag.dataTransfer, clientX: clientX, clientY: clientY}));
     return {ok: true, clientY: +clientY.toFixed(1), top: +rect.top.toFixed(1), height: +rect.height.toFixed(1)};
