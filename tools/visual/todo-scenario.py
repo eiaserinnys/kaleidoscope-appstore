@@ -1,12 +1,15 @@
 """할 일 앱 정의를 로컬 시험 쉘에서 실제 조작으로 확인한다.
 
-위임서(카드 87b15ec1)의 확인 항목 1~10을 순서대로 수행한다. 시험 쉘은 정의만
+2판(카드 87b15ec1)의 확인 항목과 1판 회귀를 순서대로 수행한다. 시험 쉘은 정의만
 올리므로 store.json의 자산을 먼저 등록하고, 저장 항목을 채운 뒤 창을 다시 연다.
 날짜가 든 표본은 실행일 기준으로 계산한다(todo-sample.json의 date/done은 일 오프셋).
 
-세라피엘 2회차 반려분(불러오는 중 자리, Enter 추가, 빈 묶음, 보기 바꿈, 지우기
-확인 본문)은 check()로 모아 두었다가 마지막에 한꺼번에 실패로 알린다. 고치기 전
-정의로 돌려 어느 확인이 실패하는지 한 번에 보기 위해서다.
+2판에서 더한 확인: preview_app 경고, 완료한 일 숨기기 켬/끔과 체크 직후 사라짐,
+앱 안 묶음 추가(글칸·취소·빈 이름·중복·새 빈 구역), 기록 보기에서 잠긴 토글,
+앱 설정 화면에서 묶음 추가. 2판 세라피엘 반려 반영으로 긴 목록 끝에서의 Enter·Escape·
+포인터로 초점 잃기를 더했다(초점이 맨 위로 튀는 것은 쉘 결함이라 화면만 찍는다).
+확인은 check()로 모아 두었다가 마지막에 한꺼번에 실패로 알린다. 고치기 전 정의로 돌려
+어느 확인이 실패하는지 한 번에 보기 위해서다.
 """
 
 import base64
@@ -260,6 +263,24 @@ def check(name, fn):
         log("확인 통과", name)
 
 
+# ── 0. 정의 검사: preview_app이 돌려주는 경고와 실패한 식이 없어야 한다 ──
+
+def preview_check():
+    preview = call("preview_app", {"definition": definition})
+    failed = [value for value in preview.get("values", []) if value.get("status") == "failed"]
+    log("preview_app", json.dumps({
+        "warnings": preview.get("warnings", []),
+        "notes": preview.get("notes", []),
+        "failed": failed[:3],
+    }, ensure_ascii=False)[:1500])
+    assert not preview.get("warnings"), f"경고: {preview['warnings']}"
+    assert not failed, f"실패한 식: {failed[:3]}"
+    return {"warnings": [], "values": len(preview.get("values", []))}
+
+
+check("preview_app", preview_check)
+
+
 # ── 1-1. 불러오는 중: 뼈대가 왼쪽 목록 칸의 도구 막대 아래에 서고, 좁은 창에서도 목록 칸이 산다 ──
 
 LOADING_MEASURE_JS = """() => {
@@ -345,23 +366,29 @@ wait_for(lambda: win.locator('button[role="treeitem"]').count() > 0, "불러오�
 check("hint_meta_style", lambda: expect(
     win.get_by_text("할 일을 고르면 여기에 보입니다")).to_have_class(re.compile("is-meta")))
 
-# ── 1. 첫 화면: 묶음 구역, 펼친 트리, 취소선, 보류 배지, meta ──
+# ── 1. 첫 화면(2판 기본: 완료한 일 숨김): 묶음 구역, 보이는 트리, 보류 배지, meta ──
 
 wait_for(lambda: win.locator('button[role="treeitem"]').count() > 0, "트리 행이 그려짐")
 expect(section("업무")).to_be_visible(timeout=15000)
 expect(section("개인")).to_be_visible(timeout=15000)
-expect(row("t-report")).to_be_visible()
-expect(row("t-collect")).to_be_visible()   # 펼친 트리(자식이 보인다)
+expect(row("t-report")).to_be_visible()   # 끝낸 자손은 숨고, 보이는 자손이 있어 조상은 남는다
 expect(row("t-draft")).to_be_visible()
 expect(row("t-quote")).to_be_visible()
 expect(row("t-milk")).to_be_visible()
+expect(row("t-soap")).to_be_visible()
+expect(row("t-collect")).to_have_count(0)   # 끝낸 항목은 그리지 않는다
+expect(row("t-eggs")).to_have_count(0)
+expect(row("t-passport")).to_have_count(0)
+expect(row("t-library")).to_have_count(0)
 
-expect(row("t-collect").locator(".ks-tree-name")).to_have_class(re.compile("is-checked"))
-expect(row("t-collect").locator(".ks-tree-name")).to_have_css("text-decoration-line", re.compile("line-through"))
 expect(row("t-quote").locator(".ks-badge")).to_have_text("보류")
 expect(row("t-room").locator(".ks-view-meta")).to_have_text("내일")
 expect(row("t-draft").locator(".ks-view-meta")).to_have_text("팀장 검토")
-expect(row("t-collect").locator(".ks-view-meta")).to_have_text("어제")
+
+toggle = win.get_by_role("switch", name="완료한 일 숨기기", exact=True)
+expect(toggle).to_be_visible()
+expect(toggle).to_have_attribute("aria-checked", "true")
+expect(win.get_by_role("button", name="묶음 추가", exact=True)).to_be_visible()
 
 # 상세 칸: 항목 하나를 골라 이름표 입력과 메모 문서를 확인한다.
 row("t-draft").click()
@@ -399,7 +426,7 @@ time.sleep(0.5)
 set_size(380, 700)
 expect(section("업무")).to_be_visible(timeout=15000)
 expect(row("t-draft")).to_be_visible()
-expect(row("t-collect").locator(".ks-tree-name")).to_have_class(re.compile("is-checked"))
+expect(row("t-collect")).to_have_count(0)
 expect(row("t-quote").locator(".ks-badge")).to_have_text("보류")
 expect(row("t-room").locator(".ks-view-meta")).to_have_text("내일")
 time.sleep(0.3)
@@ -415,6 +442,11 @@ set_size(1040, 700)
 # 3. 넓은 창 기록 보기(스크린샷 3) — 6. 보기를 바꾸면 고른 항목을 비운다.
 win.get_by_role("button", name="기록", exact=True).click()
 wait_for(lambda: day_groups().count() >= 3, "기록 보기 날짜 묶음")
+
+# 기록 보기에서는 숨김 토글이 잠긴다.
+expect(toggle).to_be_disabled()
+expect(toggle).to_have_attribute("aria-checked", "true")
+results["log_toggle_locked"] = "ok"
 
 
 def clears_to_log():
@@ -465,8 +497,22 @@ def clears_to_open():
 
 check("view_change_clears_log_selection", clears_to_open)
 
-# ── 2. 체크 칸 클릭으로 끝내기, 다시 눌러 되돌리기 ──
+# ── 2. 숨김 끔: 1판처럼 끝낸 항목이 취소선으로 제자리에 남는다 ──
 
+toggle.click()
+expect(toggle).to_have_attribute("aria-checked", "false")
+wait_for(lambda: row("t-collect").count() > 0, "숨김 끔에서 끝낸 항목이 보임")
+expect(row("t-collect").locator(".ks-tree-name")).to_have_class(re.compile("is-checked"))
+expect(row("t-collect").locator(".ks-tree-name")).to_have_css("text-decoration-line", re.compile("line-through"))
+expect(row("t-collect").locator(".ks-view-meta")).to_have_text("어제")
+expect(row("t-eggs")).to_be_visible()
+# 6일·13일 전에 끝낸 항목은 기록 보기에만 있고 할 일 보기에는 원래 없다.
+expect(row("t-passport")).to_have_count(0)
+expect(row("t-library")).to_have_count(0)
+sb.shot("hide-off.png", "todo", settle=0.4)
+results["hide_off"] = "ok"
+
+# 1판 회귀: 숨김을 끈 상태에서 체크와 되돌리기가 제자리에서 동작한다.
 check_span("t-milk").click()
 wait_for(lambda: (item_now("t-milk") or {}).get("status") == "done", "t-milk 끝냄 저장")
 assert item_now("t-milk")["done_on"] == TODAY.isoformat(), item_now("t-milk")
@@ -477,14 +523,121 @@ assert item_now("t-milk")["done_on"] is None, item_now("t-milk")
 expect(row("t-milk").locator(".ks-tree-name")).not_to_have_class(re.compile("is-checked"))
 results["check_toggle"] = "ok"
 
-# ── 3. 마지막 남은 자식을 끝내면 부모도 끝남 ──
+# ── 3. 숨김 켬: 체크하면 목록에서 사라지고, 마지막 자식을 끝내면 부모도 끝나며, 상세는 남는다 ──
 
+toggle.click()
+expect(toggle).to_have_attribute("aria-checked", "true")
+wait_for(lambda: row("t-collect").count() == 0, "숨김 켬에서 끝낸 항목이 숨음")
+
+row("t-draft").click()
+expect(win.get_by_label("제목", exact=True)).to_have_value("초안 쓰기", timeout=10000)
 check_span("t-draft").click()
 wait_for(lambda: (item_now("t-draft") or {}).get("status") == "done", "t-draft 끝냄 저장")
 wait_for(lambda: (item_now("t-report") or {}).get("status") == "done", "부모 t-report 끝냄 저장")
-assert item_now("t-report")["done_on"] == TODAY.isoformat(), item_now("t-report")
+wait_for(lambda: row("t-draft").count() == 0 and row("t-report").count() == 0,
+         "끝낸 항목이 목록에서 사라짐")
+assert current_window()["state"]["selected"] == "t-draft", current_window()["state"]
+expect(win.get_by_label("제목", exact=True)).to_have_value("초안 쓰기")
+expect(win.get_by_role("button", name="지우기", exact=True)).to_be_visible()
+sb.shot("hide-check.png", "todo", settle=0.4)
+results["hide_check_keeps_detail"] = "ok"
+
+# 기록 보기에서 되돌리면 부모까지 다시 열리고 할 일 보기에 제자리로 돌아온다.
+win.get_by_role("button", name="기록", exact=True).click()
+wait_for(lambda: row("t-draft").count() > 0, "기록 보기의 끝낸 t-draft", timeout=15)
 expect(row("t-report").locator(".ks-tree-name")).to_have_class(re.compile("is-checked"))
-results["parent_auto_done"] = "ok"
+check_span("t-draft").click()
+wait_for(lambda: (item_now("t-draft") or {}).get("status") == "open", "기록 보기에서 t-draft 되돌림")
+wait_for(lambda: (item_now("t-report") or {}).get("status") == "open", "부모 t-report 되돌림")
+win.get_by_role("button", name="할 일", exact=True).click()
+expect(row("t-report")).to_be_visible(timeout=10000)
+expect(row("t-draft")).to_be_visible()
+expect(row("t-draft").locator(".ks-tree-name")).not_to_have_class(re.compile("is-checked"))
+results["parent_auto_done_and_reopen"] = "ok"
+
+# ── 4. 앱 안 묶음 추가: 줄 단추 → 초점 글칸 → Esc 취소 → Enter 추가 → 새 빈 구역 ──
+
+areas_before = read_storage("areas")["content"]
+assert areas_before == ["업무", "개인"], areas_before
+
+add_area_button = win.get_by_role("button", name="묶음 추가", exact=True)
+expect(add_area_button).to_be_visible()
+add_area_button.click()
+area_input = win.get_by_label("새 묶음", exact=True)
+expect(area_input).to_be_visible(timeout=10000)
+# 이름표 「새 묶음」이 화면에 보이고, 자리 표시는 「묶음 이름」이다(2판 반려 반영).
+expect(win.get_by_text("새 묶음", exact=True).first).to_be_visible()
+expect(area_input).to_have_attribute("placeholder", "묶음 이름")
+assert area_input.evaluate("el => document.activeElement === el"), "묶음 추가 글칸에 초점이 없습니다"
+expect(add_area_button).to_have_count(0)
+sb.shot("area-input.png", "todo", settle=0.4)
+
+area_input.press("Escape")
+expect(area_input).to_have_count(0, timeout=10000)
+expect(add_area_button).to_be_visible(timeout=10000)
+assert read_storage("areas")["content"] == areas_before, "Esc 취소가 묶음을 썼습니다"
+results["area_cancel"] = "ok"
+
+add_area_button.click()
+area_input = win.get_by_label("새 묶음", exact=True)
+expect(area_input).to_be_visible(timeout=10000)
+area_input.fill("독서")
+area_input.press("Enter")
+wait_for(lambda: read_storage("areas")["content"] == ["업무", "개인", "독서"], "새 묶음 저장", timeout=15)
+expect(area_input).to_have_count(0)
+expect(section("독서")).to_be_visible(timeout=10000)
+expect(section("독서").locator('button[role="treeitem"]')).to_have_count(0)
+sb.shot("area-added.png", "todo", settle=0.4)
+results["area_add"] = "ok"
+
+
+def area_rejects(name, label):
+    win.get_by_role("button", name="묶음 추가", exact=True).click()
+    field = win.get_by_label("새 묶음", exact=True)
+    expect(field).to_be_visible(timeout=10000)
+    if name:
+        field.fill(name)
+    field.press("Enter")
+    expect(field).to_have_count(0, timeout=10000)
+    stored = read_storage("areas")["content"]
+    assert stored == ["업무", "개인", "독서"], f"{label} 뒤 묶음: {stored}"
+    expect(win.get_by_role("button", name="묶음 추가", exact=True)).to_be_visible()
+
+
+check("area_empty", lambda: area_rejects("", "빈 이름"))
+check("area_duplicate", lambda: area_rejects(" 업무 ", "중복 이름"))
+
+# ── 5. 앱 설정 화면: 「묶음」에 이름을 넣고 「묶음 추가」를 눌러 새 구역이 생기는지 본다 ──
+
+
+def app_settings_check():
+    settings_heading = win.get_by_role("heading", name="앱 설정", exact=True)
+    win.get_by_role("button", name="앱 설정", exact=True).click()
+    try:
+        expect(settings_heading).to_be_visible(timeout=10000)
+        # 앱 설정의 글칸과 단추가 같은 이름이라 역할로 구분한다.
+        field = win.get_by_role("textbox", name="묶음 추가", exact=True)
+        expect(field).to_be_visible(timeout=10000)
+        sb.shot("app-settings.png", "todo", settle=0.4)
+        field.fill("취미")
+        add_button = win.get_by_role("button", name="묶음 추가", exact=True)
+        expect(add_button).to_be_enabled(timeout=10000)
+        add_button.click()
+        wait_for(lambda: "취미" in (read_storage("areas") or {}).get("content", []),
+                 "앱 설정에서 묶음 저장", timeout=15)
+    finally:
+        back = win.get_by_role("button", name="앱으로 돌아가기", exact=True)
+        if back.count() > 0:
+            back.first.click()
+    expect(settings_heading).to_be_hidden(timeout=10000)
+    expect(section("취미")).to_be_visible(timeout=15000)
+    sb.shot("app-settings-applied.png", "todo", settle=0.4)
+    stored = read_storage("areas")["content"]
+    assert stored == ["업무", "개인", "독서", "취미"], stored
+    return {"areas": stored}
+
+
+check("app_settings_add_area", app_settings_check)
 
 # ── 4. 구역 + → 대화상자 → Enter로 추가 → 새 항목이 고른 상태 ──
 
@@ -915,6 +1068,149 @@ def empty_store_check():
 
 
 check("empty_store", empty_store_check)
+
+# ── 12. 긴 목록 끝에서 묶음 추가: Enter, Escape, 포인터로 초점 잃기 ──
+
+# 표본 항목을 더해 목록을 창보다 길게 만든다(중립 자료, 시나리오 안에서만).
+# 글칸을 닫으면 초점이 첫 트리 행으로 가고 칸이 맨 위로 튀는 것은 쉘 결함이다(카드의 같은
+# 다른 세션이 쉘에서 고친다). 그래서 이 확인은 저장소 값과 글칸 닫힘만 단언하고, 그 화면은
+# 그대로 찍어 남긴다. 초점과 스크롤 값은 보고에 쓰려고 기록만 한다.
+
+TO_BOTTOM_JS = """() => {
+  const root = document.querySelector('[data-testid="app-window-todo"]');
+  [...root.querySelectorAll('*')].filter((el) => {
+    const style = getComputedStyle(el);
+    return el.scrollHeight > el.clientHeight + 2 && /(auto|scroll)/.test(style.overflowY);
+  }).forEach((el) => { el.scrollTop = el.scrollHeight; });
+}"""
+
+FOCUS_JS = """() => {
+  const el = document.activeElement;
+  if (!el || el === document.body) return "body";
+  return {
+    tree: el.getAttribute('data-tree-id'),
+    label: el.getAttribute('aria-label'),
+    text: (el.textContent || '').trim().slice(0, 30),
+  };
+}"""
+
+SCROLL_JS = """() => {
+  const root = document.querySelector('[data-testid="app-window-todo"]');
+  return [...root.querySelectorAll('*')].filter((el) => {
+    const style = getComputedStyle(el);
+    return el.scrollHeight > el.clientHeight + 2 && /(auto|scroll)/.test(style.overflowY);
+  }).map((el) => ({cls: String(el.className).slice(0, 60), top: Math.round(el.scrollTop),
+                   max: el.scrollHeight - el.clientHeight}));
+}"""
+
+
+def long_list_check():
+    items_snapshot = read_storage("items")
+    areas_snapshot = read_storage("areas")
+    root_orders = [it["order"] for it in items_snapshot["content"]
+                   if it["area"] == "개인" and it["parent"] is None]
+    extras = [{
+        "id": f"t-extra-{n}",
+        "title": f"표본 할 일 {n + 1}",
+        "area": "개인",
+        "parent": None,
+        "status": "open",
+        "date": None,
+        "wait": None,
+        "done_on": None,
+        "created_on": on_day(-30),
+        "order": max(root_orders, default=-1) + 1 + n,
+    } for n in range(12)]
+    captured = {}
+
+    def scroll_bottom():
+        win.evaluate(TO_BOTTOM_JS)
+        page.wait_for_timeout(400)
+
+    def open_area_field():
+        win.get_by_role("button", name="묶음 추가", exact=True).click()
+        field = win.get_by_label("새 묶음", exact=True)
+        expect(field).to_be_visible(timeout=10000)
+        return field
+
+    def snap_state():
+        return {"focus": page.evaluate(FOCUS_JS), "scroll": win.evaluate(SCROLL_JS)}
+
+    def flow_enter(label, width, name):
+        set_size(width, 700)
+        scroll_bottom()
+        sb.shot(f"long-{label}-bottom.png", "todo", settle=0.3)
+        field = open_area_field()
+        field.fill(name)
+        sb.shot(f"long-{label}-input.png", "todo", settle=0.3)
+        field.press("Enter")
+        wait_for(lambda: read_storage("areas")["content"][-1] == name, f"{label}: 묶음 저장", timeout=15)
+        expect(field).to_have_count(0, timeout=10000)
+        page.wait_for_timeout(800)
+        captured[f"{label}_enter"] = snap_state()
+        sb.shot(f"long-{label}-enter.png", "todo", settle=0.2)
+        log(f"{label} Enter 뒤", json.dumps(captured[f"{label}_enter"], ensure_ascii=False))
+
+    def flow_escape(label, width, name):
+        set_size(width, 700)
+        scroll_bottom()
+        field = open_area_field()
+        field.fill(name)
+        before = read_storage("areas")["content"]
+        field.press("Escape")
+        expect(field).to_have_count(0, timeout=10000)
+        page.wait_for_timeout(800)
+        assert read_storage("areas")["content"] == before, f"{label}: Escape가 묶음을 썼습니다"
+        captured[f"{label}_escape"] = snap_state()
+        sb.shot(f"long-{label}-escape.png", "todo", settle=0.2)
+        log(f"{label} Escape 뒤", json.dumps(captured[f"{label}_escape"], ensure_ascii=False))
+
+    def flow_blur(label, width, name):
+        set_size(width, 700)
+        scroll_bottom()
+        field = open_area_field()
+        field.fill(name)
+        before = read_storage("areas")["content"]
+        row("t-extra-11").click()
+        page.wait_for_timeout(800)
+        assert read_storage("areas")["content"] == before, f"{label}: 초점을 잃을 때 묶음을 썼습니다"
+        captured[f"{label}_blur"] = {"field_open": field.count() > 0, **snap_state()}
+        sb.shot(f"long-{label}-blur.png", "todo", settle=0.2)
+        log(f"{label} 초점 잃은 뒤", json.dumps(captured[f"{label}_blur"], ensure_ascii=False))
+        # 뒤처리: 열린 글칸을 Escape로 닫는다(블록이 초점을 잃을 때 닫았다면 그대로 둔다).
+        if field.count():
+            field.click()
+            field.press("Escape")
+            expect(field).to_have_count(0, timeout=10000)
+
+    try:
+        call("write_app_storage", {"app_id": "todo", "entry_id": "items",
+                                   "content": items_snapshot["content"] + extras,
+                                   "expected_revision": items_snapshot["revision"]})
+        wait_for(lambda: row("t-extra-11").count() > 0, "긴 목록 그려짐", timeout=15)
+        flow_enter("wide", 1040, "운동")
+        flow_escape("wide", 1040, "산책")
+        flow_blur("wide", 1040, "공부")
+        flow_enter("narrow", 380, "요리")
+        flow_escape("narrow", 380, "낚시")
+        flow_blur("narrow", 380, "청소")
+    finally:
+        set_size(1040, 700)
+        win.get_by_role("button", name="할 일", exact=True).click()
+        time.sleep(0.4)
+        latest = read_storage("items")
+        call("write_app_storage", {"app_id": "todo", "entry_id": "items",
+                                   "content": items_snapshot["content"],
+                                   "expected_revision": latest["revision"]})
+        latest_areas = read_storage("areas")
+        call("write_app_storage", {"app_id": "todo", "entry_id": "areas",
+                                   "content": areas_snapshot["content"],
+                                   "expected_revision": latest_areas["revision"]})
+        wait_for(lambda: row("t-extra-0").count() == 0, "긴 목록 되돌리기", timeout=20)
+    return captured
+
+
+check("long_list_area_flows", long_list_check)
 
 # 시험 쉘은 시나리오보다 먼저 --app을 열어, 자산 등록 전이라 앱 올리기가 실패해 있다.
 # 마지막에 같은 정의로 다시 올려 결과의 앱 보고를 성공으로 맞춘다(같은 정의라 unchanged).
