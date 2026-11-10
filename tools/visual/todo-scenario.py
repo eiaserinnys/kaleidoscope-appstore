@@ -1695,6 +1695,9 @@ def area_rename():
     items = wait_for(lambda: items_now() if all(it.get("area") != "업무" for it in items_now()) else None,
                      "항목 area 함께 바꾸기", timeout=15)
     assert all(it.get("area") in ("직장", "개인", "독서", "취미") for it in items), [it for it in items if it.get("area") not in ("직장", "개인", "독서", "취미")]
+    # 묶음 이름은 areas와 items 두 번에 나눠 쓰므로, 그 사이에는 옛 구역이 pending 이름을
+    # 단 채 잠깐 남는다. 두 구역이 같은 이름을 보이는 순간을 지나 하나로 정리될 때까지 기다린다.
+    wait_for(lambda: section("직장").count() == 1, "구역 머리 하나로 정리", timeout=15)
     expect(section("직장").locator(".ks-data-section-title")).to_be_visible(timeout=10000)
     expect(section("업무")).to_have_count(0, timeout=10000)
     page.wait_for_timeout(600)
