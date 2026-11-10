@@ -12,7 +12,7 @@
   },
   "single_window": true,
   "requires": {
-    "blocks": 59,
+    "blocks": 60,
     "modules": {
       "assets": 1,
       "client": 1,
@@ -22,7 +22,7 @@
   "assets": [
     {
       "id": "todo-client",
-      "version": 2
+      "version": 3
     },
     {
       "id": "todo-icon",
@@ -33,7 +33,6 @@
   "state": {
     "view": "open",
     "selected": null,
-    "adding": null,
     "hide_done": true
   },
   "storage": {
@@ -151,7 +150,7 @@
     "runtime": "javascript",
     "entry": {
       "id": "todo-client",
-      "version": 2
+      "version": 3
     },
     "outputs": {
       "loading": {
@@ -208,12 +207,6 @@
       "selected_remove_body": {
         "default": null
       },
-      "add_title": {
-        "default": ""
-      },
-      "add_date": {
-        "default": null
-      },
       "area_drafting": {
         "default": false
       },
@@ -227,15 +220,18 @@
     "actions": [
       "check",
       "select_log",
-      "add",
       "edit",
       "toggle_hold",
       "remove",
       "open_add_area",
       "open_add_child",
-      "dialog_title",
-      "dialog_date",
-      "dialog_close",
+      "edit_commit",
+      "edit_cancel",
+      "start_rename",
+      "move",
+      "start_rename_area",
+      "rename_area",
+      "cancel_rename_area",
       "start_area",
       "area_draft_change",
       "add_area",
@@ -244,7 +240,6 @@
     "state_keys": [
       "view",
       "selected",
-      "adding",
       "hide_done"
     ],
     "storage_entries": [
@@ -360,6 +355,23 @@
                     "title": {
                       "item": "name"
                     },
+                    "menu": [
+                      {
+                        "label": "이름 바꾸기",
+                        "on_select": {
+                          "client": "start_rename_area"
+                        }
+                      }
+                    ],
+                    "editing": {
+                      "item": "editing"
+                    },
+                    "on_edit": {
+                      "client": "rename_area"
+                    },
+                    "on_edit_cancel": {
+                      "client": "cancel_rename_area"
+                    },
                     "collapsible": true,
                     "actions": [
                       {
@@ -394,7 +406,22 @@
                         "on_check": {
                           "client": "check"
                         },
+                        "on_edit": {
+                          "client": "edit_commit"
+                        },
+                        "on_edit_cancel": {
+                          "client": "edit_cancel"
+                        },
+                        "on_move": {
+                          "client": "move"
+                        },
                         "item_menu": [
+                          {
+                            "label": "이름 바꾸기",
+                            "on_select": {
+                              "client": "start_rename"
+                            }
+                          },
                           {
                             "label": "하위 할 일 추가",
                             "on_select": {
@@ -517,56 +544,10 @@
         "direction": "column",
         "gap": "none",
         "fill": [
-          1,
-          2
+          0,
+          1
         ],
         "children": [
-          {
-            "type": "dialog",
-            "open": {
-              "expr": "$state.adding != null"
-            },
-            "title": "할 일 추가",
-            "close_label": "추가",
-            "on_confirm": {
-              "client": "add"
-            },
-            "on_close": {
-              "client": "dialog_close"
-            },
-            "child": {
-              "type": "stack",
-              "direction": "column",
-              "gap": "medium",
-              "children": [
-                {
-                  "type": "input",
-                  "kind": "text",
-                  "label": "제목",
-                  "value": {
-                    "client": "add_title"
-                  },
-                  "on_change": {
-                    "client": "dialog_title"
-                  },
-                  "on_submit": {
-                    "client": "add"
-                  }
-                },
-                {
-                  "type": "input",
-                  "kind": "date",
-                  "label": "날짜",
-                  "value": {
-                    "client": "add_date"
-                  },
-                  "on_change": {
-                    "client": "dialog_date"
-                  }
-                }
-              ]
-            }
-          },
           {
             "type": "when",
             "value": {

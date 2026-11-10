@@ -1,5 +1,8 @@
 /*
- * 할 일 — kaleidoscope 클라이언트 (todo-client v2)
+ * 할 일 — kaleidoscope 클라이언트 (todo-client v3)
+ *
+ * 목록 안 바로 입력(draft), 이름 바꾸기, 끌어 옮기기는 client 지역 값으로만 열고,
+ * 저장소에는 확정할 때 한 번 쓴다.
  *
  * 저장소 두 곳을 다룬다.
  *   items: 할 일 항목 배열 (앱과 바깥 도구가 함께 고치는 계약)
@@ -183,22 +186,39 @@
     return names;
   }
 
-  function buildSections(items, areas, today, hideDone) {
+  function buildSections(items, areas, today, hideDone, draft, renaming, renamingArea) {
     var visible = visibleIds(items, today, hideDone);
     var children = childMap(items);
     var parents = Object.create(null);
     items.forEach(function (item) { if (typeof item.parent === "string") parents[item.parent] = true; });
     var areaOf = function (item) { return textOf(item.area); };
+    // 아직 저장하지 않은 draft 행. 같은 key가 저장소에 들어오면 실제 항목이 그 자리를 대신한다.
+    var draftNode = draft && !itemOf(items, draft.id)
+      ? { key: draft.id, title: "", checked: false, editing: true }
+      : null;
     var nodesFor = function (parentId, area) {
       var list = parentId === null ? items.filter(function (item) { return !item.parent; }) : (children[parentId] || []);
-      return list
+      var nodes = list
         .filter(function (item) { return visible.ids[item.id] && areaOf(item) === area; })
         .sort(function (left, right) { return numbersOf(left.order) - numbersOf(right.order); })
-        .map(function (item) { return treeNode(item, nodesFor(item.id, area), today, parents[item.id] === true); });
+        .map(function (item) {
+          var node = treeNode(item, nodesFor(item.id, area), today, parents[item.id] === true);
+          if (renaming && item.id === renaming) node.editing = true;
+          return node;
+        });
+      if (draftNode && draft.parent === parentId && textOf(draft.area) === area) nodes.push({
+        key: draftNode.key,
+        title: draftNode.title,
+        checked: draftNode.checked,
+        editing: draftNode.editing,
+      });
+      return nodes;
     };
     return sectionNames(items, areas, visible).map(function (area) {
       var nodes = nodesFor(null, area);
-      return { key: area, name: area, has_items: nodes.length > 0, children: nodes };
+      var section = { key: area, name: area, has_items: nodes.length > 0, children: nodes };
+      if (renamingArea === area) section.editing = true;
+      return section;
     });
   }
 
@@ -424,6 +444,69 @@
     return items.filter(function (item) { return !removing[item.id]; });
   }
 
+  /** 끌어 옮기기: 새 자리의 부모·묶음과 형제 순서를 정하고 order를 1부터 다시 매긴다. */
+  function applyMove(items, op) {
+    var moved = itemOf(items, op.key);
+    if (!moved) return null;
+    var targetId = typeof op.target === "string" && op.target ? op.target : null;
+    var position = op.position;
+    var parentId = null;
+    var area = "";
+    if (targetId === null && position === "end") {
+      area = textOf(op.area);
+    } else if (position === "before" || position === "after" || position === "inside") {
+      var target = itemOf(items, targetId);
+      if (!target) return null;
+      if (target.id === moved.id) return null;
+      var selfOrDescendant = descendantsOf(items, moved.id).some(function (item) { return item.id === target.id; });
+      if (selfOrDescendant) return null;
+      parentId = position === "inside" ? target.id : (typeof target.parent === "string" ? target.parent : null);
+      area = textOf(target.area);
+    } else {
+      return null;
+    }
+    if (!area) return null;
+    // 숨긴 끝난 일까지 포함한 전체 형제 목록에서 자리를 잡는다.
+    var siblings = items.filter(function (item) {
+      if (item.id === moved.id) return false;
+      if (parentId === null) return !item.parent && textOf(item.area) === area;
+      return item.parent === parentId;
+    }).sort(function (left, right) { return numbersOf(left.order) - numbersOf(right.order); });
+    var index = siblings.length;
+    if (position === "before" || position === "after") {
+      for (var at = 0; at < siblings.length; at += 1) {
+        if (siblings[at].id !== targetId) continue;
+        index = position === "before" ? at : at + 1;
+        break;
+      }
+    }
+    var ordered = siblings.slice();
+    ordered.splice(index, 0, moved);
+    var placed = Object.create(null);
+    ordered.forEach(function (item, order) { placed[item.id] = order + 1; });
+    var moving = Object.create(null);
+    moving[moved.id] = true;
+    descendantsOf(items, moved.id).forEach(function (item) { moving[item.id] = true; });
+    var next = items.map(copyItem);
+    next.forEach(function (item) {
+      if (placed[item.id] !== undefined) item.order = placed[item.id];
+      if (moving[item.id] === true) item.area = area;
+      if (item.id === moved.id) item.parent = parentId;
+    });
+    // 끝난 부모 안으로 넣으면 끝난 조상을 다시 연다. 옛 부모는 그대로 둔다.
+    var openId = parentId;
+    var seen = Object.create(null);
+    while (openId && !seen[openId]) {
+      seen[openId] = true;
+      var parent = itemOf(next, openId);
+      if (!parent || parent.status !== "done") break;
+      parent.status = "open";
+      parent.done_on = null;
+      openId = typeof parent.parent === "string" ? parent.parent : null;
+    }
+    return next;
+  }
+
   function applyOp(items, op) {
     switch (op.kind) {
       case "check": return applyCheck(items, op);
@@ -431,6 +514,7 @@
       case "edit": return applyEdit(items, op);
       case "hold": return applyToggleHold(items, op);
       case "remove": return applyRemove(items, op);
+      case "move": return applyMove(items, op);
       default: return null;
     }
   }
@@ -439,7 +523,9 @@
 
   var state = { items: [], areas: [], selected: null, view: "open", hideDone: true, loaded: false };
   var today = todayString();
-  var draft = { title: "", date: null };
+  var draft = null;
+  var renaming = null;
+  var renamingArea = null;
   var areaDraft = { open: false, name: "" };
   var pendingEdits = { title: null, wait: null };
   var writeQueue = Promise.resolve();
@@ -472,7 +558,7 @@
 
   function publish() {
     var item = selectedItem();
-    var sections = state.loaded ? buildSections(state.items, state.areas, today, state.hideDone) : [];
+    var sections = state.loaded ? buildSections(state.items, state.areas, today, state.hideDone, draft, renaming, renamingArea) : [];
     var log = state.loaded ? buildLog(state.items, state.areas, today) : [];
     var listEmpty = !sections.some(function (section) { return section.has_items; });
     var logEmpty = log.length === 0;
@@ -495,8 +581,6 @@
       held: item !== null && item.status === "held",
       selected_title: item ? textOf(item.title) : null,
       selected_remove_body: item ? textOf(item.title) + (hasChildItems(state.items, item.id) ? CHILD_REMOVE_PHRASE : "") : null,
-      add_title: draft.title,
-      add_date: draft.date,
       area_drafting: areaDraft.open,
       area_draft: areaDraft.name,
       area_idle: !areaDraft.open,
@@ -589,9 +673,10 @@
 
   function afterCommit(op) {
     if (op.kind !== "add") return;
-    draft = { title: "", date: null };
+    // 저장이 끝날 때까지 draft 행을 그대로 두어 같은 key의 행이 실제 항목으로 바뀌게 한다.
+    if (draft && draft.id === op.id) draft = null;
     state.selected = op.id;
-    bridge.setState({ adding: null, selected: op.id });
+    bridge.setState({ selected: op.id });
     publish();
   }
 
@@ -617,6 +702,54 @@
     var task = writeQueue.then(function () { return attemptArea(name, false); }, function () { return attemptArea(name, false); });
     writeQueue = task.then(function () {}, function () {});
     return task;
+  }
+
+  function enqueueTask(run) {
+    var task = writeQueue.then(run, run);
+    writeQueue = task.then(function () {}, function () {});
+    return task;
+  }
+
+  /** 묶음 목록에서 옛 이름 자리를 새 이름으로 바꾼다(목록에 없던 묶음이면 아무것도 하지 않는다). */
+  function attemptAreaRename(from, to, retried) {
+    if (state.areas.indexOf(from) === -1 || state.areas.indexOf(to) !== -1) return Promise.resolve();
+    var next = state.areas.map(function (name) { return name === from ? to : name; });
+    return bridge.setStorage("areas", next).then(function () {
+      state.areas = next;
+      publish();
+    }, function (error) {
+      if (!retried && error && error.id === CONFLICT_ID) {
+        return bridge.getStorage("areas").then(function (value) {
+          state.areas = asAreas(value);
+          return attemptAreaRename(from, to, true);
+        });
+      }
+      throw error;
+    });
+  }
+
+  /** 그 묶음의 모든 항목 area를 새 이름으로 바꾼다. */
+  function attemptItemsRename(from, to, retried) {
+    var changed = state.items.some(function (item) { return textOf(item.area) === from; });
+    if (!changed) return Promise.resolve();
+    var next = state.items.map(function (item) {
+      if (textOf(item.area) !== from) return item;
+      var copy = copyItem(item);
+      copy.area = to;
+      return copy;
+    });
+    return bridge.setStorage("items", next).then(function () {
+      state.items = asItems(next);
+      publish();
+    }, function (error) {
+      if (!retried && error && error.id === CONFLICT_ID) {
+        return bridge.getStorage("items").then(function (value) {
+          state.items = asItems(value);
+          return attemptItemsRename(from, to, true);
+        });
+      }
+      throw error;
+    });
   }
 
   function closeAreaDraft() {
@@ -732,12 +865,6 @@
     if (lifecycle.visible) refreshToday();
   });
 
-  function openDialog(area, parent) {
-    draft = { title: "", date: null };
-    bridge.setState({ adding: { area: area, parent: parent } });
-    publish();
-  }
-
   bridge.handle("check", function (context) {
     var item = context && isObject(context.item) ? context.item : null;
     var id = item && typeof item.key === "string" ? item.key : "";
@@ -749,36 +876,6 @@
     var id = context && typeof context.event === "string" ? context.event : "";
     if (!id || id.indexOf(DAY_PREFIX) === 0) return;
     bridge.setState("selected", id);
-  });
-
-  bridge.handle("add", function () {
-    var adding = bridge.getState("adding");
-    if (!isObject(adding)) return;
-    var title = draft.title.trim();
-    if (!title) return;
-    var area = textOf(adding.area);
-    if (!area) {
-      area = state.areas.length ? state.areas[0] : "";
-    }
-    if (!area) return;
-    var parent = typeof adding.parent === "string" && adding.parent ? adding.parent : null;
-    var id = newId();
-    return enqueue({
-      kind: "add",
-      id: id,
-      item: {
-        id: id,
-        title: draft.title,
-        area: area,
-        parent: parent,
-        status: "open",
-        date: draft.date,
-        wait: null,
-        done_on: null,
-        created_on: todayString(),
-        order: 0,
-      },
-    });
   });
 
   bridge.handle("edit", function (context) {
@@ -821,9 +918,11 @@
   bridge.handle("open_add_area", function (context) {
     var item = context && isObject(context.item) ? context.item : null;
     var area = item && typeof item.key === "string" ? item.key : "";
-    if (!area && state.areas.length) area = state.areas[0];
     if (!area) return;
-    openDialog(area, null);
+    draft = { id: newId(), area: area, parent: null };
+    renaming = null;
+    renamingArea = null;
+    publish();
   });
 
   bridge.handle("open_add_child", function (context) {
@@ -831,7 +930,129 @@
     var id = item && typeof item.key === "string" ? item.key : "";
     var target = id ? itemOf(state.items, id) : null;
     if (!target) return;
-    openDialog(textOf(target.area), target.id);
+    draft = { id: newId(), area: textOf(target.area), parent: target.id };
+    renaming = null;
+    renamingArea = null;
+    publish();
+  });
+
+  bridge.handle("edit_commit", function (context) {
+    var item = context && isObject(context.item) ? context.item : null;
+    var key = item && typeof item.key === "string" ? item.key : "";
+    var title = textOf(context && context.event);
+    if (draft && key === draft.id) {
+      if (draft.busy) return;
+      if (!title.trim()) {
+        draft = null;
+        publish();
+        return;
+      }
+      var piece = {
+        id: draft.id,
+        title: title,
+        area: draft.area,
+        parent: draft.parent,
+        status: "open",
+        date: null,
+        wait: null,
+        done_on: null,
+        created_on: todayString(),
+        order: 0,
+      };
+      draft.busy = true;
+      return enqueue({ kind: "add", id: piece.id, item: piece }).catch(function (error) {
+        draft.busy = false;
+        fail(error);
+        throw error;
+      });
+    }
+    if (renaming && key === renaming) {
+      var id = renaming;
+      renaming = null;
+      publish();
+      return enqueue({ kind: "edit", id: id, field: "title", value: title }).catch(function (error) {
+        fail(error);
+        throw error;
+      });
+    }
+  });
+
+  bridge.handle("edit_cancel", function (context) {
+    var item = context && isObject(context.item) ? context.item : null;
+    var key = item && typeof item.key === "string" ? item.key : "";
+    var changed = false;
+    if (draft && key === draft.id) { draft = null; changed = true; }
+    if (renaming && key === renaming) { renaming = null; changed = true; }
+    if (changed) publish();
+  });
+
+  bridge.handle("start_rename", function (context) {
+    var item = context && isObject(context.item) ? context.item : null;
+    var id = item && typeof item.key === "string" ? item.key : "";
+    if (!id || !itemOf(state.items, id)) return;
+    draft = null;
+    renaming = id;
+    renamingArea = null;
+    publish();
+  });
+
+  bridge.handle("move", function (context) {
+    var event = context && isObject(context.event) ? context.event : null;
+    if (!event || typeof event.key !== "string" || !event.key) return;
+    var parentItem = context && isObject(context.parent_item) ? context.parent_item : null;
+    var area = parentItem && typeof parentItem.key === "string" ? parentItem.key : "";
+    return enqueue({
+      kind: "move",
+      key: event.key,
+      target: typeof event.target === "string" && event.target ? event.target : null,
+      position: typeof event.position === "string" ? event.position : "",
+      area: area,
+    }).catch(function (error) {
+      fail(error);
+      throw error;
+    });
+  });
+
+  bridge.handle("start_rename_area", function (context) {
+    var item = context && isObject(context.item) ? context.item : null;
+    var name = item && typeof item.key === "string" ? item.key : "";
+    if (!name) return;
+    draft = null;
+    renaming = null;
+    renamingArea = name;
+    publish();
+  });
+
+  bridge.handle("rename_area", function (context) {
+    var from = renamingArea;
+    if (!from) return;
+    renamingArea = null;
+    publish();
+    var to = textOf(context && context.event).trim();
+    if (!to || to === from) return;
+    if (areaOptionList(state.items, state.areas).indexOf(to) !== -1) {
+      bridge.notice("같은 이름의 묶음이 이미 있습니다");
+      return;
+    }
+    var task = Promise.resolve();
+    if (state.areas.indexOf(from) !== -1) {
+      task = task.then(function () {
+        return enqueueTask(function () { return attemptAreaRename(from, to, false); });
+      });
+    }
+    task = task.then(function () {
+      return enqueueTask(function () { return attemptItemsRename(from, to, false); });
+    });
+    return task.catch(function (error) {
+      fail(error);
+      throw error;
+    });
+  });
+
+  bridge.handle("cancel_rename_area", function () {
+    if (!renamingArea) return;
+    renamingArea = null;
+    publish();
   });
 
   bridge.handle("start_area", function () {
@@ -858,23 +1079,6 @@
 
   bridge.handle("cancel_area", function () {
     closeAreaDraft();
-  });
-
-  bridge.handle("dialog_title", function (context) {
-    draft.title = textOf(context.event);
-    publish();
-  });
-
-  bridge.handle("dialog_date", function (context) {
-    var value = textOf(context.event);
-    draft.date = DATE_PATTERN.test(value) ? value : null;
-    publish();
-  });
-
-  bridge.handle("dialog_close", function () {
-    draft = { title: "", date: null };
-    bridge.setState("adding", null);
-    publish();
   });
 
   // ── 시작: 저장소를 읽고 화면을 그린다 ──
