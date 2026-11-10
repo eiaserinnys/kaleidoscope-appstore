@@ -330,7 +330,7 @@
             "child": {
               "type": "stack",
               "direction": "column",
-              "gap": "none",
+              "gap": "large",
               "children": [
                 {
                   "type": "when",
@@ -449,8 +449,7 @@
                   "child": {
                     "type": "input",
                     "kind": "text",
-                    "label": "새 묶음 이름",
-                    "label_position": "hidden",
+                    "label": "새 묶음",
                     "placeholder": "묶음 이름",
                     "focus": {
                       "client": "area_drafting"

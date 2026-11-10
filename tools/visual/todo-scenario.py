@@ -6,8 +6,10 @@
 
 2판에서 더한 확인: preview_app 경고, 완료한 일 숨기기 켬/끔과 체크 직후 사라짐,
 앱 안 묶음 추가(글칸·취소·빈 이름·중복·새 빈 구역), 기록 보기에서 잠긴 토글,
-앱 설정 화면에서 묶음 추가. 확인은 check()로 모아 두었다가 마지막에 한꺼번에
-실패로 알린다. 고치기 전 정의로 돌려 어느 확인이 실패하는지 한 번에 보기 위해서다.
+앱 설정 화면에서 묶음 추가. 2판 세라피엘 반려 반영으로 긴 목록 끝에서의 Enter·Escape·
+포인터로 초점 잃기를 더했다(초점이 맨 위로 튀는 것은 쉘 결함이라 화면만 찍는다).
+확인은 check()로 모아 두었다가 마지막에 한꺼번에 실패로 알린다. 고치기 전 정의로 돌려
+어느 확인이 실패하는지 한 번에 보기 위해서다.
 """
 
 import base64
@@ -561,8 +563,10 @@ assert areas_before == ["업무", "개인"], areas_before
 add_area_button = win.get_by_role("button", name="묶음 추가", exact=True)
 expect(add_area_button).to_be_visible()
 add_area_button.click()
-area_input = win.get_by_label("새 묶음 이름", exact=True)
+area_input = win.get_by_label("새 묶음", exact=True)
 expect(area_input).to_be_visible(timeout=10000)
+# 이름표 「새 묶음」이 화면에 보이고, 자리 표시는 「묶음 이름」이다(2판 반려 반영).
+expect(win.get_by_text("새 묶음", exact=True).first).to_be_visible()
 expect(area_input).to_have_attribute("placeholder", "묶음 이름")
 assert area_input.evaluate("el => document.activeElement === el"), "묶음 추가 글칸에 초점이 없습니다"
 expect(add_area_button).to_have_count(0)
@@ -575,7 +579,7 @@ assert read_storage("areas")["content"] == areas_before, "Esc 취소가 묶음�
 results["area_cancel"] = "ok"
 
 add_area_button.click()
-area_input = win.get_by_label("새 묶음 이름", exact=True)
+area_input = win.get_by_label("새 묶음", exact=True)
 expect(area_input).to_be_visible(timeout=10000)
 area_input.fill("독서")
 area_input.press("Enter")
@@ -589,7 +593,7 @@ results["area_add"] = "ok"
 
 def area_rejects(name, label):
     win.get_by_role("button", name="묶음 추가", exact=True).click()
-    field = win.get_by_label("새 묶음 이름", exact=True)
+    field = win.get_by_label("새 묶음", exact=True)
     expect(field).to_be_visible(timeout=10000)
     if name:
         field.fill(name)
@@ -1064,6 +1068,149 @@ def empty_store_check():
 
 
 check("empty_store", empty_store_check)
+
+# ── 12. 긴 목록 끝에서 묶음 추가: Enter, Escape, 포인터로 초점 잃기 ──
+
+# 표본 항목을 더해 목록을 창보다 길게 만든다(중립 자료, 시나리오 안에서만).
+# 글칸을 닫으면 초점이 첫 트리 행으로 가고 칸이 맨 위로 튀는 것은 쉘 결함이다(카드의 같은
+# 다른 세션이 쉘에서 고친다). 그래서 이 확인은 저장소 값과 글칸 닫힘만 단언하고, 그 화면은
+# 그대로 찍어 남긴다. 초점과 스크롤 값은 보고에 쓰려고 기록만 한다.
+
+TO_BOTTOM_JS = """() => {
+  const root = document.querySelector('[data-testid="app-window-todo"]');
+  [...root.querySelectorAll('*')].filter((el) => {
+    const style = getComputedStyle(el);
+    return el.scrollHeight > el.clientHeight + 2 && /(auto|scroll)/.test(style.overflowY);
+  }).forEach((el) => { el.scrollTop = el.scrollHeight; });
+}"""
+
+FOCUS_JS = """() => {
+  const el = document.activeElement;
+  if (!el || el === document.body) return "body";
+  return {
+    tree: el.getAttribute('data-tree-id'),
+    label: el.getAttribute('aria-label'),
+    text: (el.textContent || '').trim().slice(0, 30),
+  };
+}"""
+
+SCROLL_JS = """() => {
+  const root = document.querySelector('[data-testid="app-window-todo"]');
+  return [...root.querySelectorAll('*')].filter((el) => {
+    const style = getComputedStyle(el);
+    return el.scrollHeight > el.clientHeight + 2 && /(auto|scroll)/.test(style.overflowY);
+  }).map((el) => ({cls: String(el.className).slice(0, 60), top: Math.round(el.scrollTop),
+                   max: el.scrollHeight - el.clientHeight}));
+}"""
+
+
+def long_list_check():
+    items_snapshot = read_storage("items")
+    areas_snapshot = read_storage("areas")
+    root_orders = [it["order"] for it in items_snapshot["content"]
+                   if it["area"] == "개인" and it["parent"] is None]
+    extras = [{
+        "id": f"t-extra-{n}",
+        "title": f"표본 할 일 {n + 1}",
+        "area": "개인",
+        "parent": None,
+        "status": "open",
+        "date": None,
+        "wait": None,
+        "done_on": None,
+        "created_on": on_day(-30),
+        "order": max(root_orders, default=-1) + 1 + n,
+    } for n in range(12)]
+    captured = {}
+
+    def scroll_bottom():
+        win.evaluate(TO_BOTTOM_JS)
+        page.wait_for_timeout(400)
+
+    def open_area_field():
+        win.get_by_role("button", name="묶음 추가", exact=True).click()
+        field = win.get_by_label("새 묶음", exact=True)
+        expect(field).to_be_visible(timeout=10000)
+        return field
+
+    def snap_state():
+        return {"focus": page.evaluate(FOCUS_JS), "scroll": win.evaluate(SCROLL_JS)}
+
+    def flow_enter(label, width, name):
+        set_size(width, 700)
+        scroll_bottom()
+        sb.shot(f"long-{label}-bottom.png", "todo", settle=0.3)
+        field = open_area_field()
+        field.fill(name)
+        sb.shot(f"long-{label}-input.png", "todo", settle=0.3)
+        field.press("Enter")
+        wait_for(lambda: read_storage("areas")["content"][-1] == name, f"{label}: 묶음 저장", timeout=15)
+        expect(field).to_have_count(0, timeout=10000)
+        page.wait_for_timeout(800)
+        captured[f"{label}_enter"] = snap_state()
+        sb.shot(f"long-{label}-enter.png", "todo", settle=0.2)
+        log(f"{label} Enter 뒤", json.dumps(captured[f"{label}_enter"], ensure_ascii=False))
+
+    def flow_escape(label, width, name):
+        set_size(width, 700)
+        scroll_bottom()
+        field = open_area_field()
+        field.fill(name)
+        before = read_storage("areas")["content"]
+        field.press("Escape")
+        expect(field).to_have_count(0, timeout=10000)
+        page.wait_for_timeout(800)
+        assert read_storage("areas")["content"] == before, f"{label}: Escape가 묶음을 썼습니다"
+        captured[f"{label}_escape"] = snap_state()
+        sb.shot(f"long-{label}-escape.png", "todo", settle=0.2)
+        log(f"{label} Escape 뒤", json.dumps(captured[f"{label}_escape"], ensure_ascii=False))
+
+    def flow_blur(label, width, name):
+        set_size(width, 700)
+        scroll_bottom()
+        field = open_area_field()
+        field.fill(name)
+        before = read_storage("areas")["content"]
+        row("t-extra-11").click()
+        page.wait_for_timeout(800)
+        assert read_storage("areas")["content"] == before, f"{label}: 초점을 잃을 때 묶음을 썼습니다"
+        captured[f"{label}_blur"] = {"field_open": field.count() > 0, **snap_state()}
+        sb.shot(f"long-{label}-blur.png", "todo", settle=0.2)
+        log(f"{label} 초점 잃은 뒤", json.dumps(captured[f"{label}_blur"], ensure_ascii=False))
+        # 뒤처리: 열린 글칸을 Escape로 닫는다(블록이 초점을 잃을 때 닫았다면 그대로 둔다).
+        if field.count():
+            field.click()
+            field.press("Escape")
+            expect(field).to_have_count(0, timeout=10000)
+
+    try:
+        call("write_app_storage", {"app_id": "todo", "entry_id": "items",
+                                   "content": items_snapshot["content"] + extras,
+                                   "expected_revision": items_snapshot["revision"]})
+        wait_for(lambda: row("t-extra-11").count() > 0, "긴 목록 그려짐", timeout=15)
+        flow_enter("wide", 1040, "운동")
+        flow_escape("wide", 1040, "산책")
+        flow_blur("wide", 1040, "공부")
+        flow_enter("narrow", 380, "요리")
+        flow_escape("narrow", 380, "낚시")
+        flow_blur("narrow", 380, "청소")
+    finally:
+        set_size(1040, 700)
+        win.get_by_role("button", name="할 일", exact=True).click()
+        time.sleep(0.4)
+        latest = read_storage("items")
+        call("write_app_storage", {"app_id": "todo", "entry_id": "items",
+                                   "content": items_snapshot["content"],
+                                   "expected_revision": latest["revision"]})
+        latest_areas = read_storage("areas")
+        call("write_app_storage", {"app_id": "todo", "entry_id": "areas",
+                                   "content": areas_snapshot["content"],
+                                   "expected_revision": latest_areas["revision"]})
+        wait_for(lambda: row("t-extra-0").count() == 0, "긴 목록 되돌리기", timeout=20)
+    return captured
+
+
+check("long_list_area_flows", long_list_check)
 
 # 시험 쉘은 시나리오보다 먼저 --app을 열어, 자산 등록 전이라 앱 올리기가 실패해 있다.
 # 마지막에 같은 정의로 다시 올려 결과의 앱 보고를 성공으로 맞춘다(같은 정의라 unchanged).
