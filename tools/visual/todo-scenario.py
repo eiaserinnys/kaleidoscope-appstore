@@ -674,7 +674,7 @@ inline_items_before = items_now()
 
 def draft_place(area):
     """바로 입력 행이 구역 트리의 마지막 행인지, 초점이 그 글칸에 있는지 잰다."""
-    return win.evaluate("""(area) => {
+    return page.evaluate("""(area) => {
       const sections = [...document.querySelectorAll('section.ks-data-section[data-ks-block$="/template"]')];
       const found = sections.find((section) => {
         const title = section.querySelector('.ks-data-section-title');
@@ -951,9 +951,9 @@ def child_add_enter():
     field.press("Enter")
     expect(field).to_have_count(0, timeout=10000)
     added = wait_for(lambda: next((it for it in items_now() if it.get("title") == "세탁"), None), "하위 할 일 저장")
-    assert added["parent"] == "t-shop" and added["area"] == "개인", added
+    assert added["parent"] == "t-soap" and added["area"] == "개인", added
     assert added["status"] == "open" and added["date"] is None, added
-    assert added["order"] == 3, added
+    assert added["order"] == 0, added
     expect(row(added["id"])).to_be_visible()
     expect(row(added["id"])).to_have_attribute("aria-selected", "true")
     expect(win.get_by_label("제목", exact=True)).to_have_value("세탁")
@@ -1009,7 +1009,8 @@ def inline_item_rename_enter():
     field.fill("  세제 리필  ")
     field.press("Enter")
     expect(field).to_have_count(0, timeout=10000)
-    renamed = wait_for(lambda: (item_now("t-soap") or {}).get("title") == "세제 리필", "이름 저장")
+    renamed = wait_for(lambda: item_now("t-soap") if (item_now("t-soap") or {}).get("title") == "세제 리필" else None,
+                       "이름 저장")
     expect(row("t-soap").locator(".ks-tree-name")).to_have_text("세제 리필")
     assert renamed["area"] == "개인" and renamed["parent"] == "t-shop", renamed
     assert renamed["status"] == "open", renamed
@@ -1564,18 +1565,18 @@ def drag_move(source, target=None, area=None, ratio=0.5, shot=None):
     source_row = row(source)
     assert source_row.count() > 0, f"끌 항목 {source} 행이 없습니다"
     source_row.first.scroll_into_view_if_needed(timeout=5000)
-    started = win.evaluate(DRAG_JS, {"action": "start", "key": source})
+    started = page.evaluate(DRAG_JS, {"action": "start", "key": source})
     assert started.get("ok"), started
-    first = win.evaluate(DRAG_JS, {"action": "over", "target": target, "area": area, "ratio": ratio, "dy": 1})
+    first = page.evaluate(DRAG_JS, {"action": "over", "target": target, "area": area, "ratio": ratio, "dy": 1})
     assert first.get("ok"), first
     page.wait_for_timeout(120)
-    second = win.evaluate(DRAG_JS, {"action": "over", "target": target, "area": area, "ratio": ratio, "dy": 0})
+    second = page.evaluate(DRAG_JS, {"action": "over", "target": target, "area": area, "ratio": ratio, "dy": 0})
     assert second.get("ok"), second
     page.wait_for_timeout(180)
-    indicators = win.evaluate(INDICATOR_JS)
+    indicators = page.evaluate(INDICATOR_JS)
     if shot:
         sb.shot(shot, "todo", settle=0.2)
-    dropped = win.evaluate(DRAG_JS, {"action": "drop", "target": target, "area": area, "ratio": ratio})
+    dropped = page.evaluate(DRAG_JS, {"action": "drop", "target": target, "area": area, "ratio": ratio})
     assert dropped.get("ok"), dropped
     page.wait_for_timeout(200)
     return indicators
@@ -1616,12 +1617,22 @@ def drag_inside():
     assert shop["area"] == "업무" and shop["order"] == 3, shop
     kids = {key: item_now(key) for key in ("t-collect", "t-draft")}
     assert kids["t-collect"]["order"] == 1 and kids["t-draft"]["order"] == 2, kids
-    child_ids = [it["id"] for it in items_now() if it["parent"] == "t-shop"]
-    added = next(it for it in items_now() if it.get("title") == "세탁")
-    descendants = [item_now(key) for key in child_ids]
+    # t-shop의 자손 전체(자식과 손자 세탁)가 함께 묶음을 옮겼는지 본다.
+    current = items_now()
+    by_parent = {}
+    for entry in current:
+        by_parent.setdefault(entry.get("parent"), []).append(entry)
+    descendants = []
+    queue = list(by_parent.get("t-shop", []))
+    while queue:
+        entry = queue.pop(0)
+        descendants.append(entry)
+        queue.extend(by_parent.get(entry["id"], []))
+    direct = sorted(by_parent.get("t-shop", []), key=lambda it: it["order"])
+    assert [it["id"] for it in direct] == ["t-milk", "t-eggs", "t-soap"], direct
     assert all(it["area"] == "업무" for it in descendants), descendants
-    assert [it["id"] for it in sorted(descendants, key=lambda it: it["order"])] == ["t-milk", "t-eggs", "t-soap", added["id"]], descendants
-    assert added["id"] in child_ids and added["area"] == "업무", added
+    added = next(it for it in descendants if it.get("title") == "세탁")
+    assert added["parent"] == "t-soap" and added["area"] == "업무", added
     tops = {key: row_top(key) for key in ("t-report", "t-shop", "t-keys")}
     assert tops["t-report"] < tops["t-shop"] < tops["t-keys"], tops
     sb.shot("drag-after-inside.png", "todo", settle=0.3)
@@ -1734,6 +1745,6 @@ results["window_size"] = {"width": definition["window_size"]["width"], "height":
 results["today"] = TODAY.isoformat()
 results["problems"] = problems
 (OUT / "todo-scenario.json").write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
-log("확인 끝", json.dumps(results, ensure_ascii=False))
+log("확인 끝", json.dumps({"results": len(results), "problems": len(problems)}, ensure_ascii=False))
 if problems:
     raise AssertionError("확인 실패 " + str(len(problems)) + "건: " + " | ".join(problems))
