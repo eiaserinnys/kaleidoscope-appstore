@@ -1,0 +1,1589 @@
+{
+  "id": "eq",
+  "name": "EQ",
+  "description": "Windows의 모든 소리에 공간과 EQ를 겁니다. 출력 장치마다 따로 기억합니다.",
+  "icon": {
+    "asset": "eq-icon",
+    "version": 1006606469
+  },
+  "assets": [
+    {
+      "id": "eq-icon",
+      "version": 1006606469
+    },
+    {
+      "id": "eq-client",
+      "version": 1119099598
+    },
+    {
+      "id": "eq-graph-curve",
+      "version": 1928380887
+    },
+    {
+      "id": "eq-engine",
+      "version": 732948945
+    },
+    {
+      "id": "eq-mac",
+      "version": 929504196
+    }
+  ],
+  "requires": {
+    "blocks": 54,
+    "modules": {
+      "client": 4,
+      "process": 2,
+      "files": 4,
+      "storage": 1,
+      "assets": 1
+    }
+  },
+  "single_window": true,
+  "window_size": {
+    "width": 1040,
+    "height": 760
+  },
+  "permissions": [
+    {
+      "module": "process",
+      "id": "bridge",
+      "label": "사운드 엔진과 이야기하기 (PowerShell)",
+      "command": "powershell"
+    },
+    {
+      "module": "process",
+      "id": "bridge-mac",
+      "label": "사운드 엔진과 이야기하기 (macOS)",
+      "command": "sh"
+    },
+    {
+      "module": "files",
+      "id": "work",
+      "access": "read",
+      "label": "EQ 작업 폴더",
+      "default_folder": "music"
+    }
+  ],
+  "storage": {
+    "entries": [
+      {
+        "id": "profiles",
+        "key": "device-profiles",
+        "kind": "json",
+        "label": "기기별 설정",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              },
+              "scene": {
+                "type": "string"
+              },
+              "genre": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "color": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "amounts": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "number"
+                }
+              },
+              "edits": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              },
+              "spatial": {
+                "type": "number"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "auto_preamp": {
+                "type": "boolean"
+              },
+              "preamp": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "my_presets",
+        "key": "user-presets",
+        "kind": "json",
+        "label": "내 프리셋",
+        "presentation": "hidden",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "key",
+              "name",
+              "gains"
+            ],
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "desc": {
+                "type": "string"
+              },
+              "gains": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "reverb": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "default": []
+      },
+      {
+        "id": "eq",
+        "key": "eq",
+        "kind": "json",
+        "label": "이전 EQ 설정",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "required": [
+            "enabled",
+            "gains",
+            "auto_preamp",
+            "preamp"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "presets": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "gains": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            "auto_preamp": {
+              "type": "boolean"
+            },
+            "preamp": {
+              "type": "number"
+            }
+          }
+        },
+        "default": {
+          "enabled": true,
+          "presets": [],
+          "gains": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "auto_preamp": true,
+          "preamp": 0
+        }
+      }
+    ]
+  },
+  "client": {
+    "runtime": "javascript",
+    "entry": {
+      "id": "eq-client",
+      "version": 1119099598
+    },
+    "storage_entries": [
+      "profiles",
+      "my_presets",
+      "eq"
+    ],
+    "state_keys": [
+      "view",
+      "curve_input"
+    ],
+    "process_permissions": [
+      "bridge",
+      "bridge-mac"
+    ],
+    "device_storage": {
+      "prefixes": [
+        "bridge/"
+      ],
+      "scope": "window"
+    },
+    "actions": [
+      "power",
+      "setup",
+      "pick_scene",
+      "pick_mine",
+      "delete_mine",
+      "set_tone",
+      "set_band",
+      "reset_scene",
+      "save_mine",
+      "set_auto_preamp",
+      "set_preamp",
+      "copy_from",
+      "reinstall",
+      "uninstall",
+      "dismiss_note",
+      "recheck",
+      "set_space_amount",
+      "reset_all",
+      "pick_genre",
+      "set_genre_amount",
+      "pick_color",
+      "set_color_amount"
+    ],
+    "outputs": {
+      "device_title": {
+        "default": "EQ"
+      },
+      "device_meta": {
+        "default": "사운드 엔진 확인 중…"
+      },
+      "no_device": {
+        "default": true
+      },
+      "power": {
+        "default": true
+      },
+      "setup_show": {
+        "default": false
+      },
+      "setup_percent": {
+        "default": 0
+      },
+      "setup_step": {
+        "default": ""
+      },
+      "setup_title": {
+        "default": ""
+      },
+      "setup_text": {
+        "default": ""
+      },
+      "setup_button": {
+        "default": ""
+      },
+      "setup_icon": {
+        "default": "download"
+      },
+      "setup_has_button": {
+        "default": false
+      },
+      "need_folder": {
+        "default": false
+      },
+      "note_show": {
+        "default": false
+      },
+      "note": {
+        "default": ""
+      },
+      "scenes": {
+        "default": []
+      },
+      "space_amount_show": {
+        "default": false
+      },
+      "space_amount": {
+        "default": 100
+      },
+      "genres": {
+        "default": []
+      },
+      "genre_amount_show": {
+        "default": false
+      },
+      "genre_amount": {
+        "default": 100
+      },
+      "genre_desc": {
+        "default": ""
+      },
+      "colors": {
+        "default": []
+      },
+      "color_amount_show": {
+        "default": false
+      },
+      "color_amount": {
+        "default": 100
+      },
+      "color_desc": {
+        "default": ""
+      },
+      "scene_desc": {
+        "default": ""
+      },
+      "fresh_show": {
+        "default": false
+      },
+      "fresh_text": {
+        "default": ""
+      },
+      "copy_options": {
+        "default": []
+      },
+      "copy_value": {
+        "default": null
+      },
+      "tones": {
+        "default": []
+      },
+      "bands": {
+        "default": []
+      },
+      "custom": {
+        "default": false
+      },
+      "not_custom": {
+        "default": true
+      },
+      "custom_meta": {
+        "default": ""
+      },
+      "auto_preamp": {
+        "default": true
+      },
+      "manual_preamp": {
+        "default": false
+      },
+      "preamp": {
+        "default": 0
+      },
+      "preamp_text": {
+        "default": ""
+      },
+      "mine_show": {
+        "default": false
+      },
+      "mine": {
+        "default": []
+      },
+      "mine_selected": {
+        "default": null
+      },
+      "engine_show": {
+        "default": false
+      },
+      "engine_text": {
+        "default": ""
+      }
+    }
+  },
+  "window_title": {
+    "title": "EQ"
+  },
+  "state": {
+    "view": null,
+    "curve_input": null
+  },
+  "ui": {
+    "type": "stack",
+    "direction": "column",
+    "gap": "large",
+    "fill": 4,
+    "children": [
+      {
+        "type": "toolbar",
+        "start": [
+          {
+            "type": "text",
+            "style": "title",
+            "value": {
+              "client": "device_title"
+            }
+          },
+          {
+            "type": "text",
+            "style": "meta",
+            "value": {
+              "client": "device_meta"
+            }
+          },
+          {
+            "type": "toggle",
+            "label": "EQ",
+            "value": {
+              "client": "power"
+            },
+            "disabled": {
+              "client": "no_device"
+            },
+            "on_change": {
+              "client": "power"
+            }
+          },
+          {
+            "type": "button",
+            "label": "기본값으로 되돌리기",
+            "icon": "rotate-ccw",
+            "variant": "ghost",
+            "disabled": {
+              "client": "no_device"
+            },
+            "on_click": {
+              "client": "reset_all"
+            },
+            "confirm": {
+              "title": "이 기기의 설정을 기본값으로 되돌릴까요?",
+              "body": "공간, 장르, 정도, 세부 조정, 프리앰프가 처음 값(원래 소리)으로 돌아갑니다. 내 프리셋과 다른 기기의 설정은 그대로 남아요.",
+              "ok": "되돌리기"
+            }
+          }
+        ]
+      },
+      {
+        "type": "when",
+        "value": {
+          "client": "setup_show"
+        },
+        "child": {
+          "type": "section",
+          "title": {
+            "client": "setup_title"
+          },
+          "child": {
+            "type": "stack",
+            "direction": "column",
+            "gap": "small",
+            "children": [
+              {
+                "type": "progress",
+                "value": {
+                  "client": "setup_percent"
+                },
+                "max": 100,
+                "label": {
+                  "client": "setup_step"
+                }
+              },
+              {
+                "type": "text",
+                "value": {
+                  "client": "setup_text"
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "client": "need_folder"
+                },
+                "child": {
+                  "type": "folder",
+                  "root": {
+                    "permission": "work"
+                  },
+                  "read_only": true,
+                  "header": false
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "client": "setup_has_button"
+                },
+                "child": {
+                  "type": "stack",
+                  "direction": "row",
+                  "gap": "small",
+                  "children": [
+                    {
+                      "type": "button",
+                      "label": {
+                        "client": "setup_button"
+                      },
+                      "icon": {
+                        "client": "setup_icon"
+                      },
+                      "variant": "primary",
+                      "on_click": {
+                        "client": "setup"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "when",
+        "value": {
+          "client": "note_show"
+        },
+        "child": {
+          "type": "notice",
+          "kind": "info",
+          "message": {
+            "client": "note"
+          },
+          "actions": [
+            {
+              "label": "닫기",
+              "on_click": {
+                "client": "dismiss_note"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "when",
+        "value": {
+          "client": "fresh_show"
+        },
+        "child": {
+          "type": "stack",
+          "direction": "row",
+          "gap": "small",
+          "align": "center",
+          "fill": 0,
+          "wrap": true,
+          "children": [
+            {
+              "type": "text",
+              "style": "meta",
+              "value": {
+                "client": "fresh_text"
+              }
+            },
+            {
+              "type": "select",
+              "label": "다른 기기 설정 가져오기",
+              "label_position": "hidden",
+              "placeholder": "다른 기기 설정 가져오기",
+              "value": {
+                "client": "copy_value"
+              },
+              "options": {
+                "client": "copy_options"
+              },
+              "on_change": {
+                "client": "copy_from"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "type": "when",
+        "min_width": 640,
+        "child": {
+          "type": "stack",
+          "direction": "row",
+          "gap": "large",
+          "fill": [
+            0,
+            1
+          ],
+          "children": [
+            {
+              "type": "stack",
+              "direction": "column",
+              "gap": "none",
+              "fill": 0,
+              "children": [
+                {
+                  "type": "stack",
+                  "direction": "column",
+                  "gap": "large",
+                  "children": [
+                    {
+                      "type": "section",
+                      "title": "공간",
+                      "meta": {
+                        "client": "scene_desc"
+                      },
+                      "child": {
+                        "type": "stack",
+                        "direction": "column",
+                        "gap": "medium",
+                        "children": [
+                          {
+                            "type": "repeat",
+                            "key": "key",
+                            "layout": "grid",
+                            "gap": "small",
+                            "items": {
+                              "client": "scenes"
+                            },
+                            "grid": {
+                              "columns": "auto",
+                              "item_width": "small"
+                            },
+                            "template": {
+                              "type": "button",
+                              "label": {
+                                "item": "name"
+                              },
+                              "variant": "chip",
+                              "pressed": {
+                                "item": "on"
+                              },
+                              "on_click": {
+                                "client": "pick_scene"
+                              }
+                            }
+                          },
+                          {
+                            "type": "when",
+                            "value": {
+                              "client": "space_amount_show"
+                            },
+                            "child": {
+                              "type": "slider",
+                              "label": "공간 정도",
+                              "label_position": "hidden",
+                              "value": {
+                                "client": "space_amount"
+                              },
+                              "min": 0,
+                              "max": 100,
+                              "step": 5,
+                              "show_value": true,
+                              "on_change": {
+                                "client": "set_space_amount"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "title": "장르",
+                      "meta": {
+                        "client": "genre_desc"
+                      },
+                      "child": {
+                        "type": "stack",
+                        "direction": "column",
+                        "gap": "medium",
+                        "children": [
+                          {
+                            "type": "repeat",
+                            "key": "key",
+                            "layout": "grid",
+                            "gap": "small",
+                            "items": {
+                              "client": "genres"
+                            },
+                            "grid": {
+                              "columns": "auto",
+                              "item_width": "small"
+                            },
+                            "template": {
+                              "type": "button",
+                              "label": {
+                                "item": "name"
+                              },
+                              "variant": "chip",
+                              "pressed": {
+                                "item": "on"
+                              },
+                              "on_click": {
+                                "client": "pick_genre"
+                              }
+                            }
+                          },
+                          {
+                            "type": "when",
+                            "value": {
+                              "client": "genre_amount_show"
+                            },
+                            "child": {
+                              "type": "slider",
+                              "label": "장르 정도",
+                              "label_position": "hidden",
+                              "value": {
+                                "client": "genre_amount"
+                              },
+                              "min": 0,
+                              "max": 100,
+                              "step": 5,
+                              "show_value": true,
+                              "on_change": {
+                                "client": "set_genre_amount"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "title": "음색",
+                      "meta": {
+                        "client": "color_desc"
+                      },
+                      "child": {
+                        "type": "stack",
+                        "direction": "column",
+                        "gap": "medium",
+                        "children": [
+                          {
+                            "type": "repeat",
+                            "key": "key",
+                            "layout": "grid",
+                            "gap": "small",
+                            "items": {
+                              "client": "colors"
+                            },
+                            "grid": {
+                              "columns": "auto",
+                              "item_width": "small"
+                            },
+                            "template": {
+                              "type": "button",
+                              "label": {
+                                "item": "name"
+                              },
+                              "variant": "chip",
+                              "pressed": {
+                                "item": "on"
+                              },
+                              "on_click": {
+                                "client": "pick_color"
+                              }
+                            }
+                          },
+                          {
+                            "type": "when",
+                            "value": {
+                              "client": "color_amount_show"
+                            },
+                            "child": {
+                              "type": "slider",
+                              "label": "음색 정도",
+                              "label_position": "hidden",
+                              "value": {
+                                "client": "color_amount"
+                              },
+                              "min": 0,
+                              "max": 100,
+                              "step": 5,
+                              "show_value": true,
+                              "on_change": {
+                                "client": "set_color_amount"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "mine_show"
+                      },
+                      "child": {
+                        "type": "section",
+                        "title": "내 프리셋",
+                        "child": {
+                          "type": "list",
+                          "items": {
+                            "client": "mine"
+                          },
+                          "selected": {
+                            "client": "mine_selected"
+                          },
+                          "on_select": {
+                            "client": "pick_mine"
+                          },
+                          "on_remove": {
+                            "client": "delete_mine"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "title": "세부 조정",
+                      "meta": {
+                        "client": "custom_meta"
+                      },
+                      "collapsible": true,
+                      "collapsed": true,
+                      "child": {
+                        "type": "stack",
+                        "direction": "column",
+                        "gap": "medium",
+                        "children": [
+                          {
+                            "type": "repeat",
+                            "key": "key",
+                            "layout": "grid",
+                            "gap": "small",
+                            "grid": {
+                              "columns": 3
+                            },
+                            "items": {
+                              "client": "tones"
+                            },
+                            "template": {
+                              "type": "stack",
+                              "direction": "column",
+                              "gap": "none",
+                              "children": [
+                                {
+                                  "type": "stack",
+                                  "direction": "row",
+                                  "gap": "small",
+                                  "align": "baseline",
+                                  "fill": 1,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "value": {
+                                        "item": "label"
+                                      }
+                                    },
+                                    {
+                                      "type": "text",
+                                      "style": "meta",
+                                      "value": {
+                                        "item": "hz"
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "slider",
+                                  "label": {
+                                    "item": "label"
+                                  },
+                                  "label_position": "hidden",
+                                  "value": {
+                                    "item": "value"
+                                  },
+                                  "min": -12,
+                                  "max": 12,
+                                  "step": 0.5,
+                                  "show_value": true,
+                                  "on_change": {
+                                    "client": "set_tone"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "text",
+                            "style": "meta",
+                            "value": "밴드별"
+                          },
+                          {
+                            "type": "repeat",
+                            "key": "key",
+                            "layout": "grid",
+                            "gap": "small",
+                            "grid": {
+                              "columns": "auto",
+                              "item_width": "small"
+                            },
+                            "items": {
+                              "client": "bands"
+                            },
+                            "template": {
+                              "type": "stack",
+                              "direction": "column",
+                              "gap": "none",
+                              "children": [
+                                {
+                                  "type": "stack",
+                                  "direction": "row",
+                                  "gap": "small",
+                                  "align": "baseline",
+                                  "fill": 1,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "value": {
+                                        "item": "label"
+                                      }
+                                    },
+                                    {
+                                      "type": "text",
+                                      "style": "meta",
+                                      "value": {
+                                        "item": "hz"
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "slider",
+                                  "label": {
+                                    "item": "label"
+                                  },
+                                  "label_position": "hidden",
+                                  "value": {
+                                    "item": "gain"
+                                  },
+                                  "min": -15,
+                                  "max": 15,
+                                  "step": 0.5,
+                                  "show_value": true,
+                                  "on_change": {
+                                    "client": "set_band"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "type": "stack",
+                            "direction": "row",
+                            "gap": "small",
+                            "wrap": true,
+                            "children": [
+                              {
+                                "type": "button",
+                                "label": "내 프리셋으로 저장",
+                                "icon": "bookmark",
+                                "on_click": {
+                                  "client": "save_mine"
+                                },
+                                "disabled": {
+                                  "client": "no_device"
+                                }
+                              },
+                              {
+                                "type": "button",
+                                "label": "고친 값 지우기",
+                                "icon": "x",
+                                "variant": "ghost",
+                                "on_click": {
+                                  "client": "reset_scene"
+                                },
+                                "disabled": {
+                                  "client": "not_custom"
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "type": "toggle",
+                            "label": "클리핑 방지 (곡선 꼭대기에 맞춰 자동으로 줄임)",
+                            "value": {
+                              "client": "auto_preamp"
+                            },
+                            "on_change": {
+                              "client": "set_auto_preamp"
+                            }
+                          },
+                          {
+                            "type": "when",
+                            "value": {
+                              "client": "manual_preamp"
+                            },
+                            "child": {
+                              "type": "slider",
+                              "label": "프리앰프",
+                              "value": {
+                                "client": "preamp"
+                              },
+                              "min": -24,
+                              "max": 6,
+                              "step": 0.5,
+                              "show_value": true,
+                              "on_change": {
+                                "client": "set_preamp"
+                              }
+                            }
+                          },
+                          {
+                            "type": "text",
+                            "style": "meta",
+                            "value": {
+                              "client": "preamp_text"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "stack",
+              "direction": "column",
+              "gap": "none",
+              "fill": 0,
+              "children": [
+                {
+                  "type": "stack",
+                  "direction": "column",
+                  "gap": "large",
+                  "children": [
+                    {
+                      "type": "section",
+                      "title": "EQ",
+                      "child": {
+                        "type": "sandbox",
+                        "asset": "eq-graph-curve",
+                        "height": 220,
+                        "state_keys": [
+                          "view",
+                          "curve_input"
+                        ],
+                        "title": "EQ 주파수 응답 곡선: 점을 위아래로 끌어 밴드를 고친다"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "when",
+        "max_width": 639,
+        "child": {
+          "type": "stack",
+          "direction": "column",
+          "gap": "none",
+          "fill": 0,
+          "children": [
+            {
+              "type": "stack",
+              "direction": "column",
+              "gap": "large",
+              "children": [
+                {
+                  "type": "section",
+                  "title": "EQ",
+                  "child": {
+                    "type": "sandbox",
+                    "asset": "eq-graph-curve",
+                    "height": 220,
+                    "state_keys": [
+                      "view",
+                      "curve_input"
+                    ],
+                    "title": "EQ 주파수 응답 곡선: 점을 위아래로 끌어 밴드를 고친다"
+                  }
+                },
+                {
+                  "type": "section",
+                  "title": "공간",
+                  "meta": {
+                    "client": "scene_desc"
+                  },
+                  "child": {
+                    "type": "stack",
+                    "direction": "column",
+                    "gap": "medium",
+                    "children": [
+                      {
+                        "type": "repeat",
+                        "key": "key",
+                        "layout": "grid",
+                        "gap": "small",
+                        "items": {
+                          "client": "scenes"
+                        },
+                        "grid": {
+                          "columns": "auto",
+                          "item_width": "small"
+                        },
+                        "template": {
+                          "type": "button",
+                          "label": {
+                            "item": "name"
+                          },
+                          "variant": "chip",
+                          "pressed": {
+                            "item": "on"
+                          },
+                          "on_click": {
+                            "client": "pick_scene"
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "client": "space_amount_show"
+                        },
+                        "child": {
+                          "type": "slider",
+                          "label": "공간 정도",
+                          "label_position": "hidden",
+                          "value": {
+                            "client": "space_amount"
+                          },
+                          "min": 0,
+                          "max": 100,
+                          "step": 5,
+                          "show_value": true,
+                          "on_change": {
+                            "client": "set_space_amount"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "section",
+                  "title": "장르",
+                  "meta": {
+                    "client": "genre_desc"
+                  },
+                  "child": {
+                    "type": "stack",
+                    "direction": "column",
+                    "gap": "medium",
+                    "children": [
+                      {
+                        "type": "repeat",
+                        "key": "key",
+                        "layout": "grid",
+                        "gap": "small",
+                        "items": {
+                          "client": "genres"
+                        },
+                        "grid": {
+                          "columns": "auto",
+                          "item_width": "small"
+                        },
+                        "template": {
+                          "type": "button",
+                          "label": {
+                            "item": "name"
+                          },
+                          "variant": "chip",
+                          "pressed": {
+                            "item": "on"
+                          },
+                          "on_click": {
+                            "client": "pick_genre"
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "client": "genre_amount_show"
+                        },
+                        "child": {
+                          "type": "slider",
+                          "label": "장르 정도",
+                          "label_position": "hidden",
+                          "value": {
+                            "client": "genre_amount"
+                          },
+                          "min": 0,
+                          "max": 100,
+                          "step": 5,
+                          "show_value": true,
+                          "on_change": {
+                            "client": "set_genre_amount"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "section",
+                  "title": "음색",
+                  "meta": {
+                    "client": "color_desc"
+                  },
+                  "child": {
+                    "type": "stack",
+                    "direction": "column",
+                    "gap": "medium",
+                    "children": [
+                      {
+                        "type": "repeat",
+                        "key": "key",
+                        "layout": "grid",
+                        "gap": "small",
+                        "items": {
+                          "client": "colors"
+                        },
+                        "grid": {
+                          "columns": "auto",
+                          "item_width": "small"
+                        },
+                        "template": {
+                          "type": "button",
+                          "label": {
+                            "item": "name"
+                          },
+                          "variant": "chip",
+                          "pressed": {
+                            "item": "on"
+                          },
+                          "on_click": {
+                            "client": "pick_color"
+                          }
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "client": "color_amount_show"
+                        },
+                        "child": {
+                          "type": "slider",
+                          "label": "음색 정도",
+                          "label_position": "hidden",
+                          "value": {
+                            "client": "color_amount"
+                          },
+                          "min": 0,
+                          "max": 100,
+                          "step": 5,
+                          "show_value": true,
+                          "on_change": {
+                            "client": "set_color_amount"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": "when",
+                  "value": {
+                    "client": "mine_show"
+                  },
+                  "child": {
+                    "type": "section",
+                    "title": "내 프리셋",
+                    "child": {
+                      "type": "list",
+                      "items": {
+                        "client": "mine"
+                      },
+                      "selected": {
+                        "client": "mine_selected"
+                      },
+                      "on_select": {
+                        "client": "pick_mine"
+                      },
+                      "on_remove": {
+                        "client": "delete_mine"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "section",
+                  "title": "세부 조정",
+                  "meta": {
+                    "client": "custom_meta"
+                  },
+                  "collapsible": true,
+                  "collapsed": true,
+                  "child": {
+                    "type": "stack",
+                    "direction": "column",
+                    "gap": "medium",
+                    "children": [
+                      {
+                        "type": "repeat",
+                        "key": "key",
+                        "layout": "grid",
+                        "gap": "small",
+                        "grid": {
+                          "columns": 3
+                        },
+                        "items": {
+                          "client": "tones"
+                        },
+                        "template": {
+                          "type": "stack",
+                          "direction": "column",
+                          "gap": "none",
+                          "children": [
+                            {
+                              "type": "stack",
+                              "direction": "row",
+                              "gap": "small",
+                              "align": "baseline",
+                              "fill": 1,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "value": {
+                                    "item": "label"
+                                  }
+                                },
+                                {
+                                  "type": "text",
+                                  "style": "meta",
+                                  "value": {
+                                    "item": "hz"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "slider",
+                              "label": {
+                                "item": "label"
+                              },
+                              "label_position": "hidden",
+                              "value": {
+                                "item": "value"
+                              },
+                              "min": -12,
+                              "max": 12,
+                              "step": 0.5,
+                              "show_value": true,
+                              "on_change": {
+                                "client": "set_tone"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "text",
+                        "style": "meta",
+                        "value": "밴드별"
+                      },
+                      {
+                        "type": "repeat",
+                        "key": "key",
+                        "layout": "grid",
+                        "gap": "small",
+                        "grid": {
+                          "columns": "auto",
+                          "item_width": "small"
+                        },
+                        "items": {
+                          "client": "bands"
+                        },
+                        "template": {
+                          "type": "stack",
+                          "direction": "column",
+                          "gap": "none",
+                          "children": [
+                            {
+                              "type": "stack",
+                              "direction": "row",
+                              "gap": "small",
+                              "align": "baseline",
+                              "fill": 1,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "value": {
+                                    "item": "label"
+                                  }
+                                },
+                                {
+                                  "type": "text",
+                                  "style": "meta",
+                                  "value": {
+                                    "item": "hz"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "slider",
+                              "label": {
+                                "item": "label"
+                              },
+                              "label_position": "hidden",
+                              "value": {
+                                "item": "gain"
+                              },
+                              "min": -15,
+                              "max": 15,
+                              "step": 0.5,
+                              "show_value": true,
+                              "on_change": {
+                                "client": "set_band"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "type": "stack",
+                        "direction": "row",
+                        "gap": "small",
+                        "wrap": true,
+                        "children": [
+                          {
+                            "type": "button",
+                            "label": "내 프리셋으로 저장",
+                            "icon": "bookmark",
+                            "on_click": {
+                              "client": "save_mine"
+                            },
+                            "disabled": {
+                              "client": "no_device"
+                            }
+                          },
+                          {
+                            "type": "button",
+                            "label": "고친 값 지우기",
+                            "icon": "x",
+                            "variant": "ghost",
+                            "on_click": {
+                              "client": "reset_scene"
+                            },
+                            "disabled": {
+                              "client": "not_custom"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "toggle",
+                        "label": "클리핑 방지 (곡선 꼭대기에 맞춰 자동으로 줄임)",
+                        "value": {
+                          "client": "auto_preamp"
+                        },
+                        "on_change": {
+                          "client": "set_auto_preamp"
+                        }
+                      },
+                      {
+                        "type": "when",
+                        "value": {
+                          "client": "manual_preamp"
+                        },
+                        "child": {
+                          "type": "slider",
+                          "label": "프리앰프",
+                          "value": {
+                            "client": "preamp"
+                          },
+                          "min": -24,
+                          "max": 6,
+                          "step": 0.5,
+                          "show_value": true,
+                          "on_change": {
+                            "client": "set_preamp"
+                          }
+                        }
+                      },
+                      {
+                        "type": "text",
+                        "style": "meta",
+                        "value": {
+                          "client": "preamp_text"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "type": "when",
+        "value": {
+          "client": "engine_show"
+        },
+        "child": {
+          "type": "section",
+          "title": "사운드 엔진",
+          "meta": {
+            "client": "engine_text"
+          },
+          "collapsible": true,
+          "collapsed": true,
+          "child": {
+            "type": "stack",
+            "direction": "row",
+            "gap": "small",
+            "align": "center",
+            "wrap": true,
+            "children": [
+              {
+                "type": "text",
+                "style": "meta",
+                "value": "엔진을 새 판으로 바꾸거나 이 PC에서 지울 수 있어요."
+              },
+              {
+                "type": "button",
+                "label": "다시 설치",
+                "variant": "ghost",
+                "on_click": {
+                  "client": "reinstall"
+                }
+              },
+              {
+                "type": "button",
+                "label": "엔진 제거",
+                "variant": "ghost",
+                "on_click": {
+                  "client": "uninstall"
+                },
+                "confirm": {
+                  "title": "사운드 엔진을 제거할까요?",
+                  "body": "모든 장치에서 EQ가 꺼지고 소리가 1초쯤 끊깁니다. 설정은 남아 있어 다시 설치하면 그대로 돌아옵니다.",
+                  "ok": "제거"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}
