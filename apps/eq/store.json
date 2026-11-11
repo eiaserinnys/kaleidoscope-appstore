@@ -1,0 +1,51 @@
+{
+  "summary": "Windows와 Mac의 모든 소리에 공간, 장르, 음색 EQ를 겁니다",
+  "description": "EQ를 몰라도 공간을 고르면 컴퓨터의 모든 소리가 바뀝니다. 헤드폰, 에어팟, 스피커마다 따로 기억합니다.\n\n- 공간(Concert Hall, Jazz Club 등), 장르(Rock, Jazz 등), 음색(Deep Bass, Vocal 등)을 겹쳐 쓰고 각각 정도를 정합니다\n- EQ 곡선의 점을 끌어 직접 고칠 수 있고, 고친 값은 기기마다 자동 저장됩니다\n- 기기를 바꿔 끼우면 그 기기 설정으로 저절로 바뀝니다\n\nWindows: 처음 한 번 PowerShell 실행 허용과 사운드 엔진 설치(관리자 승인 한 번, 재부팅 없음)가 필요합니다. 엔진은 이 앱이 직접 만든 오디오 처리 모듈(APO)입니다. 독점 모드로 소리를 내는 일부 게임과 음악 작업 프로그램에는 적용되지 않습니다.\n\nMac: macOS 14.2 이상의 Apple Silicon Mac에서 됩니다. 처음 한 번 sh 실행 허용, 사운드 엔진 설치(관리자 비밀번호와 재시동 없음), macOS의 시스템 오디오 녹음 허용이 필요합니다. 받은 소리는 곧바로 스피커나 헤드폰으로 내보내고 저장하지 않습니다.\n\n두 엔진 모두 서드파티 프로그램이나 드라이버를 쓰지 않습니다.",
+  "category": "음악",
+  "publisher": "senhyo",
+  "release": 1,
+  "listed": true,
+  "icon": "assets/icon.svg",
+  "assets": [
+    {
+      "id": "eq-icon",
+      "version": 1006606469,
+      "file": "assets/icon.svg",
+      "format": "svg",
+      "source": "eq-app/icon.svg (직접 그림, 스토어 아이콘 틀)",
+      "license": "MIT"
+    },
+    {
+      "id": "eq-client",
+      "version": 1119099598,
+      "file": "assets/eq-client.javascript",
+      "format": "javascript",
+      "source": "eq-app/client.js (화면 로직, PowerShell 다리 bridge.ps1과 설치 스크립트 register.ps1을 gzip으로 담음)",
+      "license": "MIT"
+    },
+    {
+      "id": "eq-graph-curve",
+      "version": 1928380887,
+      "file": "assets/eq-graph-curve.html",
+      "format": "html",
+      "source": "eq-app/graph.js (EQ 곡선 그림)",
+      "license": "MIT"
+    },
+    {
+      "id": "eq-engine",
+      "version": 732948945,
+      "file": "assets/eq-engine.javascript",
+      "format": "javascript",
+      "source": "eq-app/engine (직접 만든 Windows APO KaleidoscopeEQ.dll을 gzip+base64로 담은 JS 문자열)",
+      "license": "MIT"
+    },
+    {
+      "id": "eq-mac",
+      "version": 929504196,
+      "file": "assets/eq-mac.javascript",
+      "format": "javascript",
+      "source": "eq-app/macos (직접 만든 macOS 엔진과 다리 keq-mac을 gzip+base64로 담은 JS 문자열)",
+      "license": "MIT"
+    }
+  ]
+}
