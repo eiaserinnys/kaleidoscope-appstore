@@ -1,0 +1,3839 @@
+{
+  "id": "moodboard",
+  "name": "무드보드",
+  "description": "이미지, 영상, 링크, 글을 한 판에 모으고 색으로 정렬합니다.",
+  "icon": {
+    "asset": "moodboard-icon",
+    "version": 1
+  },
+  "requires": {
+    "blocks": 52,
+    "modules": {
+      "assets": 1,
+      "client": 7,
+      "http": 2,
+      "storage": 1,
+      "web": 1
+    }
+  },
+  "permissions": [
+    {
+      "module": "http",
+      "id": "yt-oembed",
+      "label": "유튜브 정보",
+      "base_url": "https://www.youtube.com",
+      "paths": [
+        "/oembed"
+      ]
+    },
+    {
+      "module": "http",
+      "id": "yt-thumb",
+      "label": "유튜브 썸네일",
+      "base_url": "https://i.ytimg.com",
+      "paths": [
+        "/vi/"
+      ]
+    },
+    {
+      "module": "http",
+      "id": "pin-oembed",
+      "label": "핀터레스트 정보",
+      "base_url": "https://www.pinterest.com",
+      "paths": [
+        "/oembed.json"
+      ]
+    },
+    {
+      "module": "http",
+      "id": "pin-img",
+      "label": "핀터레스트 이미지",
+      "base_url": "https://i.pinimg.com",
+      "paths": [
+        "/originals/",
+        "/1200x/",
+        "/736x/",
+        "/564x/",
+        "/474x/",
+        "/236x/"
+      ]
+    }
+  ],
+  "state": {
+    "draft": "",
+    "board_name": "",
+    "board": null,
+    "yt_embed": null,
+    "rename_open": false,
+    "board_menu_open": false,
+    "delete_open": false,
+    "group_name": "",
+    "theme": "light",
+    "selected": null,
+    "view": null,
+    "mode": "manual",
+    "cmd": null,
+    "paste_inbox": null,
+    "crop_target": null,
+    "drop_inbox": null,
+    "drop_ack": null
+  },
+  "assets": [
+    {
+      "id": "moodboard",
+      "version": 12
+    },
+    {
+      "id": "moodboard-manifest",
+      "version": 3
+    },
+    {
+      "id": "moodboard-client-1",
+      "version": 2
+    },
+    {
+      "id": "moodboard-client-2",
+      "version": 2
+    },
+    {
+      "id": "moodboard-board-js-1",
+      "version": 2
+    },
+    {
+      "id": "moodboard-board-js-2",
+      "version": 2
+    },
+    {
+      "id": "moodboard-export",
+      "version": 4
+    },
+    {
+      "id": "moodboard-icon",
+      "version": 1
+    }
+  ],
+  "storage": {
+    "entries": [
+      {
+        "id": "boards",
+        "key": "boards",
+        "kind": "json",
+        "label": "보드",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "required": [
+            "boards"
+          ],
+          "properties": {
+            "version": {
+              "type": "number"
+            },
+            "boards": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "cards": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "kind": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "color": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "manual": {
+                          "type": "object",
+                          "properties": {
+                            "x": {
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "w": {
+                              "type": "number"
+                            },
+                            "h": {
+                              "type": "number"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "hasThumb": {
+                          "type": "boolean"
+                        },
+                        "anim": {
+                          "type": "boolean"
+                        },
+                        "includeVideo": {
+                          "type": "boolean"
+                        },
+                        "updatedAt": {
+                          "type": "number"
+                        },
+                        "origKey": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "note": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "url": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "text": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "groupId": {
+                          "type": "string"
+                        },
+                        "paper": {
+                          "type": "string"
+                        },
+                        "deleted": {
+                          "type": "boolean"
+                        },
+                        "label": {
+                          "type": "string"
+                        },
+                        "memo": {
+                          "type": "string"
+                        },
+                        "crop": {
+                          "type": "object",
+                          "required": [
+                            "x",
+                            "y",
+                            "w",
+                            "h"
+                          ],
+                          "properties": {
+                            "x": {
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "w": {
+                              "type": "number"
+                            },
+                            "h": {
+                              "type": "number"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "groups": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "rect": {
+                          "type": "object",
+                          "properties": {
+                            "x": {
+                              "type": "number"
+                            },
+                            "y": {
+                              "type": "number"
+                            },
+                            "w": {
+                              "type": "number"
+                            },
+                            "h": {
+                              "type": "number"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        "collapsed": {
+                          "type": "boolean"
+                        },
+                        "updatedAt": {
+                          "type": "number"
+                        },
+                        "deleted": {
+                          "type": "boolean"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  },
+                  "bg": {
+                    "type": "string"
+                  },
+                  "updatedAt": {
+                    "type": "number"
+                  },
+                  "deleted": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "default": {
+          "version": 1,
+          "boards": []
+        }
+      },
+      {
+        "id": "thumbs_000",
+        "key": "thumbs_000",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_001",
+        "key": "thumbs_001",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_002",
+        "key": "thumbs_002",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_003",
+        "key": "thumbs_003",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_004",
+        "key": "thumbs_004",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_005",
+        "key": "thumbs_005",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_006",
+        "key": "thumbs_006",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_007",
+        "key": "thumbs_007",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_008",
+        "key": "thumbs_008",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_009",
+        "key": "thumbs_009",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_010",
+        "key": "thumbs_010",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_011",
+        "key": "thumbs_011",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_012",
+        "key": "thumbs_012",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_013",
+        "key": "thumbs_013",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_014",
+        "key": "thumbs_014",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_015",
+        "key": "thumbs_015",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_016",
+        "key": "thumbs_016",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_017",
+        "key": "thumbs_017",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_018",
+        "key": "thumbs_018",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_019",
+        "key": "thumbs_019",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_020",
+        "key": "thumbs_020",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_021",
+        "key": "thumbs_021",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_022",
+        "key": "thumbs_022",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_023",
+        "key": "thumbs_023",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_024",
+        "key": "thumbs_024",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_025",
+        "key": "thumbs_025",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_026",
+        "key": "thumbs_026",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_027",
+        "key": "thumbs_027",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_028",
+        "key": "thumbs_028",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_029",
+        "key": "thumbs_029",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_030",
+        "key": "thumbs_030",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_031",
+        "key": "thumbs_031",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_032",
+        "key": "thumbs_032",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_033",
+        "key": "thumbs_033",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_034",
+        "key": "thumbs_034",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_035",
+        "key": "thumbs_035",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_036",
+        "key": "thumbs_036",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_037",
+        "key": "thumbs_037",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_038",
+        "key": "thumbs_038",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_039",
+        "key": "thumbs_039",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_040",
+        "key": "thumbs_040",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_041",
+        "key": "thumbs_041",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_042",
+        "key": "thumbs_042",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_043",
+        "key": "thumbs_043",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_044",
+        "key": "thumbs_044",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_045",
+        "key": "thumbs_045",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_046",
+        "key": "thumbs_046",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_047",
+        "key": "thumbs_047",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_048",
+        "key": "thumbs_048",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_049",
+        "key": "thumbs_049",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_050",
+        "key": "thumbs_050",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_051",
+        "key": "thumbs_051",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_052",
+        "key": "thumbs_052",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_053",
+        "key": "thumbs_053",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_054",
+        "key": "thumbs_054",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_055",
+        "key": "thumbs_055",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_056",
+        "key": "thumbs_056",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_057",
+        "key": "thumbs_057",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_058",
+        "key": "thumbs_058",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_059",
+        "key": "thumbs_059",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_060",
+        "key": "thumbs_060",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_061",
+        "key": "thumbs_061",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_062",
+        "key": "thumbs_062",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_063",
+        "key": "thumbs_063",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_064",
+        "key": "thumbs_064",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_065",
+        "key": "thumbs_065",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_066",
+        "key": "thumbs_066",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_067",
+        "key": "thumbs_067",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_068",
+        "key": "thumbs_068",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_069",
+        "key": "thumbs_069",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_070",
+        "key": "thumbs_070",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_071",
+        "key": "thumbs_071",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_072",
+        "key": "thumbs_072",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_073",
+        "key": "thumbs_073",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_074",
+        "key": "thumbs_074",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_075",
+        "key": "thumbs_075",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_076",
+        "key": "thumbs_076",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_077",
+        "key": "thumbs_077",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_078",
+        "key": "thumbs_078",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_079",
+        "key": "thumbs_079",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_080",
+        "key": "thumbs_080",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_081",
+        "key": "thumbs_081",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_082",
+        "key": "thumbs_082",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_083",
+        "key": "thumbs_083",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_084",
+        "key": "thumbs_084",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_085",
+        "key": "thumbs_085",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_086",
+        "key": "thumbs_086",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_087",
+        "key": "thumbs_087",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_088",
+        "key": "thumbs_088",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_089",
+        "key": "thumbs_089",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_090",
+        "key": "thumbs_090",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_091",
+        "key": "thumbs_091",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_092",
+        "key": "thumbs_092",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_093",
+        "key": "thumbs_093",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_094",
+        "key": "thumbs_094",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_095",
+        "key": "thumbs_095",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_096",
+        "key": "thumbs_096",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_097",
+        "key": "thumbs_097",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_098",
+        "key": "thumbs_098",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_099",
+        "key": "thumbs_099",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_100",
+        "key": "thumbs_100",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_101",
+        "key": "thumbs_101",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_102",
+        "key": "thumbs_102",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_103",
+        "key": "thumbs_103",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_104",
+        "key": "thumbs_104",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_105",
+        "key": "thumbs_105",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_106",
+        "key": "thumbs_106",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_107",
+        "key": "thumbs_107",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_108",
+        "key": "thumbs_108",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_109",
+        "key": "thumbs_109",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_110",
+        "key": "thumbs_110",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_111",
+        "key": "thumbs_111",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_112",
+        "key": "thumbs_112",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_113",
+        "key": "thumbs_113",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_114",
+        "key": "thumbs_114",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_115",
+        "key": "thumbs_115",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_116",
+        "key": "thumbs_116",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_117",
+        "key": "thumbs_117",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_118",
+        "key": "thumbs_118",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_119",
+        "key": "thumbs_119",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_120",
+        "key": "thumbs_120",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_121",
+        "key": "thumbs_121",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_122",
+        "key": "thumbs_122",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_123",
+        "key": "thumbs_123",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_124",
+        "key": "thumbs_124",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_125",
+        "key": "thumbs_125",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_126",
+        "key": "thumbs_126",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "thumbs_127",
+        "key": "thumbs_127",
+        "kind": "json",
+        "label": "썸네일",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_00",
+        "key": "gifs_00",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_01",
+        "key": "gifs_01",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_02",
+        "key": "gifs_02",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_03",
+        "key": "gifs_03",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_04",
+        "key": "gifs_04",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_05",
+        "key": "gifs_05",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_06",
+        "key": "gifs_06",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_07",
+        "key": "gifs_07",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_08",
+        "key": "gifs_08",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_09",
+        "key": "gifs_09",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_10",
+        "key": "gifs_10",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_11",
+        "key": "gifs_11",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_12",
+        "key": "gifs_12",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_13",
+        "key": "gifs_13",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_14",
+        "key": "gifs_14",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_15",
+        "key": "gifs_15",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_16",
+        "key": "gifs_16",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_17",
+        "key": "gifs_17",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_18",
+        "key": "gifs_18",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_19",
+        "key": "gifs_19",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_20",
+        "key": "gifs_20",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_21",
+        "key": "gifs_21",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_22",
+        "key": "gifs_22",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_23",
+        "key": "gifs_23",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_24",
+        "key": "gifs_24",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_25",
+        "key": "gifs_25",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_26",
+        "key": "gifs_26",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_27",
+        "key": "gifs_27",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_28",
+        "key": "gifs_28",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_29",
+        "key": "gifs_29",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_30",
+        "key": "gifs_30",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_31",
+        "key": "gifs_31",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      }
+    ]
+  },
+  "client": {
+    "runtime": "javascript",
+    "entry": {
+      "id": "moodboard",
+      "version": 12
+    },
+    "outputs": {
+      "selected": {
+        "default": null
+      },
+      "selected_url": {
+        "default": null
+      },
+      "board_options": {
+        "default": []
+      },
+      "notice": {
+        "default": null
+      },
+      "export_info": {
+        "default": ""
+      },
+      "has_export_info": {
+        "default": false
+      },
+      "board": {
+        "default": null
+      },
+      "board_label": {
+        "default": ""
+      },
+      "mode": {
+        "default": "manual"
+      },
+      "sorted": {
+        "default": false
+      },
+      "manual_mode": {
+        "default": true
+      },
+      "has_notice": {
+        "default": false
+      },
+      "sel_has": {
+        "default": false
+      },
+      "sel_none": {
+        "default": true
+      },
+      "sel_kind": {
+        "default": null
+      },
+      "sel_title": {
+        "default": ""
+      },
+      "sel_note": {
+        "default": null
+      },
+      "board_html": {
+        "default": "<!doctype html><html lang=\"ko\"><head><meta charset=\"utf-8\"><title>무드보드</title><style>html,body{margin:0;height:100%;overflow:hidden;background:#f7f3f7;color:#302a36;font:13px system-ui,sans-serif}@media (prefers-color-scheme:dark){html,body{background:#2a2230;color:#ece3f2}}.mb-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:#675a70}@media (prefers-color-scheme:dark){.mb-msg{color:#b8a7c5}}</style></head><body><div class=\"mb-msg\" role=\"status\">보드를 불러오는 중…</div></body></html>\n"
+      },
+      "sel_heading": {
+        "default": ""
+      },
+      "sel_label": {
+        "default": ""
+      },
+      "sel_memo": {
+        "default": ""
+      },
+      "has_memo_input": {
+        "default": false
+      },
+      "sel_has_note": {
+        "default": false
+      },
+      "sel_image": {
+        "default": null
+      },
+      "sel_show_image": {
+        "default": false
+      },
+      "sel_thumb_preview": {
+        "default": false
+      },
+      "sel_is_video": {
+        "default": false
+      },
+      "sel_video": {
+        "default": null
+      },
+      "sel_show_video": {
+        "default": false
+      },
+      "sel_video_missing": {
+        "default": false
+      },
+      "sel_include_video": {
+        "default": false
+      },
+      "sel_is_youtube": {
+        "default": false
+      },
+      "embed_url": {
+        "default": null
+      },
+      "sel_is_text": {
+        "default": false
+      },
+      "sel_text": {
+        "default": ""
+      },
+      "sel_color": {
+        "default": "#9e9e9e"
+      },
+      "sel_openable": {
+        "default": false
+      },
+      "group_selected": {
+        "default": null
+      },
+      "has_group_selected": {
+        "default": false
+      },
+      "group_count_label": {
+        "default": ""
+      },
+      "board_delete_text": {
+        "default": ""
+      },
+      "board_bg": {
+        "default": "#f7f3f7"
+      },
+      "has_board_bg": {
+        "default": false
+      },
+      "sel_paper": {
+        "default": "#ffffff"
+      },
+      "has_text_paper": {
+        "default": false
+      },
+      "can_crop": {
+        "default": false
+      },
+      "has_crop": {
+        "default": false
+      }
+    },
+    "actions": [
+      "drop",
+      "pick",
+      "add_text",
+      "sort_color",
+      "sort_manual",
+      "zoom_in",
+      "zoom_out",
+      "zoom_fit",
+      "delete_selected",
+      "set_text_color",
+      "set_text",
+      "toggle_include_video",
+      "board_select",
+      "board_new",
+      "board_rename",
+      "export",
+      "group_add",
+      "group_rename",
+      "group_delete",
+      "set_board_bg",
+      "reset_board_bg",
+      "set_text_paper",
+      "reset_text_paper",
+      "set_card_label",
+      "set_card_memo",
+      "board_delete",
+      "crop_start",
+      "crop_clear"
+    ],
+    "state_keys": [
+      "draft",
+      "board_name",
+      "yt_embed",
+      "rename_open",
+      "board_menu_open",
+      "delete_open",
+      "group_name",
+      "theme",
+      "board",
+      "selected",
+      "view",
+      "mode",
+      "cmd",
+      "paste_inbox",
+      "crop_target",
+      "drop_inbox",
+      "drop_ack"
+    ],
+    "storage_entries": [
+      "boards",
+      "thumbs_000",
+      "thumbs_001",
+      "thumbs_002",
+      "thumbs_003",
+      "thumbs_004",
+      "thumbs_005",
+      "thumbs_006",
+      "thumbs_007",
+      "thumbs_008",
+      "thumbs_009",
+      "thumbs_010",
+      "thumbs_011",
+      "thumbs_012",
+      "thumbs_013",
+      "thumbs_014",
+      "thumbs_015",
+      "thumbs_016",
+      "thumbs_017",
+      "thumbs_018",
+      "thumbs_019",
+      "thumbs_020",
+      "thumbs_021",
+      "thumbs_022",
+      "thumbs_023",
+      "thumbs_024",
+      "thumbs_025",
+      "thumbs_026",
+      "thumbs_027",
+      "thumbs_028",
+      "thumbs_029",
+      "thumbs_030",
+      "thumbs_031",
+      "thumbs_032",
+      "thumbs_033",
+      "thumbs_034",
+      "thumbs_035",
+      "thumbs_036",
+      "thumbs_037",
+      "thumbs_038",
+      "thumbs_039",
+      "thumbs_040",
+      "thumbs_041",
+      "thumbs_042",
+      "thumbs_043",
+      "thumbs_044",
+      "thumbs_045",
+      "thumbs_046",
+      "thumbs_047",
+      "thumbs_048",
+      "thumbs_049",
+      "thumbs_050",
+      "thumbs_051",
+      "thumbs_052",
+      "thumbs_053",
+      "thumbs_054",
+      "thumbs_055",
+      "thumbs_056",
+      "thumbs_057",
+      "thumbs_058",
+      "thumbs_059",
+      "thumbs_060",
+      "thumbs_061",
+      "thumbs_062",
+      "thumbs_063",
+      "thumbs_064",
+      "thumbs_065",
+      "thumbs_066",
+      "thumbs_067",
+      "thumbs_068",
+      "thumbs_069",
+      "thumbs_070",
+      "thumbs_071",
+      "thumbs_072",
+      "thumbs_073",
+      "thumbs_074",
+      "thumbs_075",
+      "thumbs_076",
+      "thumbs_077",
+      "thumbs_078",
+      "thumbs_079",
+      "thumbs_080",
+      "thumbs_081",
+      "thumbs_082",
+      "thumbs_083",
+      "thumbs_084",
+      "thumbs_085",
+      "thumbs_086",
+      "thumbs_087",
+      "thumbs_088",
+      "thumbs_089",
+      "thumbs_090",
+      "thumbs_091",
+      "thumbs_092",
+      "thumbs_093",
+      "thumbs_094",
+      "thumbs_095",
+      "thumbs_096",
+      "thumbs_097",
+      "thumbs_098",
+      "thumbs_099",
+      "thumbs_100",
+      "thumbs_101",
+      "thumbs_102",
+      "thumbs_103",
+      "thumbs_104",
+      "thumbs_105",
+      "thumbs_106",
+      "thumbs_107",
+      "thumbs_108",
+      "thumbs_109",
+      "thumbs_110",
+      "thumbs_111",
+      "thumbs_112",
+      "thumbs_113",
+      "thumbs_114",
+      "thumbs_115",
+      "thumbs_116",
+      "thumbs_117",
+      "thumbs_118",
+      "thumbs_119",
+      "thumbs_120",
+      "thumbs_121",
+      "thumbs_122",
+      "thumbs_123",
+      "thumbs_124",
+      "thumbs_125",
+      "thumbs_126",
+      "thumbs_127",
+      "gifs_00",
+      "gifs_01",
+      "gifs_02",
+      "gifs_03",
+      "gifs_04",
+      "gifs_05",
+      "gifs_06",
+      "gifs_07",
+      "gifs_08",
+      "gifs_09",
+      "gifs_10",
+      "gifs_11",
+      "gifs_12",
+      "gifs_13",
+      "gifs_14",
+      "gifs_15",
+      "gifs_16",
+      "gifs_17",
+      "gifs_18",
+      "gifs_19",
+      "gifs_20",
+      "gifs_21",
+      "gifs_22",
+      "gifs_23",
+      "gifs_24",
+      "gifs_25",
+      "gifs_26",
+      "gifs_27",
+      "gifs_28",
+      "gifs_29",
+      "gifs_30",
+      "gifs_31"
+    ],
+    "http_permissions": [
+      "yt-oembed",
+      "yt-thumb",
+      "pin-oembed",
+      "pin-img"
+    ],
+    "device_storage": {
+      "prefixes": [
+        "orig/"
+      ]
+    }
+  },
+  "file_drop": {
+    "accept": [
+      {
+        "mime": "image/*",
+        "extensions": [
+          "png",
+          "jpg",
+          "jpeg",
+          "gif",
+          "webp",
+          "avif",
+          "bmp",
+          "heic",
+          "heif"
+        ]
+      },
+      {
+        "mime": "video/mp4",
+        "extensions": [
+          "mp4",
+          "m4v"
+        ]
+      }
+    ],
+    "multiple": true,
+    "client": "drop"
+  },
+  "window_size": {
+    "width": 1200,
+    "height": 800
+  },
+  "ui": {
+    "type": "stack",
+    "direction": "column",
+    "gap": "none",
+    "fill": 3,
+    "children": [
+      {
+        "type": "toolbar",
+        "start": [
+          {
+            "type": "select",
+            "label": "보드",
+            "label_position": "hidden",
+            "value": {
+              "client": "board"
+            },
+            "options": {
+              "client": "board_options"
+            },
+            "on_change": {
+              "client": "board_select"
+            }
+          },
+          {
+            "type": "button",
+            "label": "보드 메뉴",
+            "icon": "ellipsis",
+            "icon_only": true,
+            "on_click": [
+              {
+                "set_state": "board_menu_open",
+                "value": true
+              }
+            ]
+          },
+          {
+            "type": "input",
+            "label": "링크나 글",
+            "label_position": "hidden",
+            "placeholder": "링크나 글을 넣고 Enter",
+            "value": {
+              "state": "draft"
+            },
+            "commit": "submit",
+            "on_change": {
+              "set_state": "draft"
+            },
+            "on_submit": {
+              "client": "add_text"
+            }
+          }
+        ],
+        "end": [
+          {
+            "type": "button",
+            "label": "파일 추가",
+            "icon": "upload",
+            "icon_only": true,
+            "on_click": {
+              "pick_files": {
+                "accept": [
+                  {
+                    "mime": "image/*",
+                    "extensions": [
+                      "png",
+                      "jpg",
+                      "jpeg",
+                      "gif",
+                      "webp",
+                      "avif",
+                      "bmp",
+                      "heic",
+                      "heif"
+                    ]
+                  },
+                  {
+                    "mime": "video/mp4",
+                    "extensions": [
+                      "mp4",
+                      "m4v"
+                    ]
+                  }
+                ],
+                "multiple": true,
+                "client": "pick"
+              }
+            }
+          },
+          {
+            "type": "button",
+            "label": "묶음 추가",
+            "icon": "folder",
+            "icon_only": true,
+            "on_click": {
+              "client": "group_add"
+            }
+          },
+          {
+            "type": "button",
+            "label": "색으로 정렬",
+            "icon": "paint-bucket",
+            "icon_only": true,
+            "on_click": {
+              "client": "sort_color"
+            },
+            "variant": "chip",
+            "pressed": {
+              "client": "sorted"
+            }
+          },
+          {
+            "type": "button",
+            "label": "내 배치",
+            "icon": "grid-2x2",
+            "icon_only": true,
+            "on_click": {
+              "client": "sort_manual"
+            },
+            "variant": "chip",
+            "pressed": {
+              "client": "manual_mode"
+            }
+          },
+          {
+            "type": "button",
+            "label": "축소",
+            "icon": "zoom-out",
+            "icon_only": true,
+            "on_click": {
+              "client": "zoom_out"
+            }
+          },
+          {
+            "type": "button",
+            "label": "확대",
+            "icon": "zoom-in",
+            "icon_only": true,
+            "on_click": {
+              "client": "zoom_in"
+            }
+          },
+          {
+            "type": "button",
+            "label": "화면에 맞춤",
+            "icon": "maximize-2",
+            "icon_only": true,
+            "on_click": {
+              "client": "zoom_fit"
+            }
+          },
+          {
+            "type": "button",
+            "label": "내보내기",
+            "icon": "share",
+            "icon_only": true,
+            "on_click": {
+              "client": "export"
+            }
+          }
+        ]
+      },
+      {
+        "type": "when",
+        "value": {
+          "client": "has_notice"
+        },
+        "child": {
+          "type": "notice",
+          "message": {
+            "client": "notice"
+          }
+        }
+      },
+      {
+        "type": "when",
+        "value": {
+          "client": "has_export_info"
+        },
+        "child": {
+          "type": "text",
+          "style": "meta",
+          "value": {
+            "client": "export_info"
+          }
+        }
+      },
+      {
+        "type": "split",
+        "direction": "row",
+        "sizes": [
+          0.72,
+          0.28
+        ],
+        "children": [
+          {
+            "type": "sandbox",
+            "value": {
+              "client": "board_html"
+            },
+            "title": "무드보드: 끌어 옮기고, 두 손가락으로 이동, 집어서 확대",
+            "state_keys": [
+              "board",
+              "selected",
+              "view",
+              "mode",
+              "cmd",
+              "paste_inbox",
+              "crop_target",
+              "drop_inbox",
+              "drop_ack"
+            ],
+            "storage_entries": [
+              "boards",
+              "thumbs_000",
+              "thumbs_001",
+              "thumbs_002",
+              "thumbs_003",
+              "thumbs_004",
+              "thumbs_005",
+              "thumbs_006",
+              "thumbs_007",
+              "thumbs_008",
+              "thumbs_009",
+              "thumbs_010",
+              "thumbs_011",
+              "thumbs_012",
+              "thumbs_013",
+              "thumbs_014",
+              "thumbs_015",
+              "thumbs_016",
+              "thumbs_017",
+              "thumbs_018",
+              "thumbs_019",
+              "thumbs_020",
+              "thumbs_021",
+              "thumbs_022",
+              "thumbs_023",
+              "thumbs_024",
+              "thumbs_025",
+              "thumbs_026",
+              "thumbs_027",
+              "thumbs_028",
+              "thumbs_029",
+              "thumbs_030",
+              "thumbs_031",
+              "thumbs_032",
+              "thumbs_033",
+              "thumbs_034",
+              "thumbs_035",
+              "thumbs_036",
+              "thumbs_037",
+              "thumbs_038",
+              "thumbs_039",
+              "thumbs_040",
+              "thumbs_041",
+              "thumbs_042",
+              "thumbs_043",
+              "thumbs_044",
+              "thumbs_045",
+              "thumbs_046",
+              "thumbs_047",
+              "thumbs_048",
+              "thumbs_049",
+              "thumbs_050",
+              "thumbs_051",
+              "thumbs_052",
+              "thumbs_053",
+              "thumbs_054",
+              "thumbs_055",
+              "thumbs_056",
+              "thumbs_057",
+              "thumbs_058",
+              "thumbs_059",
+              "thumbs_060",
+              "thumbs_061",
+              "thumbs_062",
+              "thumbs_063",
+              "thumbs_064",
+              "thumbs_065",
+              "thumbs_066",
+              "thumbs_067",
+              "thumbs_068",
+              "thumbs_069",
+              "thumbs_070",
+              "thumbs_071",
+              "thumbs_072",
+              "thumbs_073",
+              "thumbs_074",
+              "thumbs_075",
+              "thumbs_076",
+              "thumbs_077",
+              "thumbs_078",
+              "thumbs_079",
+              "thumbs_080",
+              "thumbs_081",
+              "thumbs_082",
+              "thumbs_083",
+              "thumbs_084",
+              "thumbs_085",
+              "thumbs_086",
+              "thumbs_087",
+              "thumbs_088",
+              "thumbs_089",
+              "thumbs_090",
+              "thumbs_091",
+              "thumbs_092",
+              "thumbs_093",
+              "thumbs_094",
+              "thumbs_095",
+              "thumbs_096",
+              "thumbs_097",
+              "thumbs_098",
+              "thumbs_099",
+              "thumbs_100",
+              "thumbs_101",
+              "thumbs_102",
+              "thumbs_103",
+              "thumbs_104",
+              "thumbs_105",
+              "thumbs_106",
+              "thumbs_107",
+              "thumbs_108",
+              "thumbs_109",
+              "thumbs_110",
+              "thumbs_111",
+              "thumbs_112",
+              "thumbs_113",
+              "thumbs_114",
+              "thumbs_115",
+              "thumbs_116",
+              "thumbs_117",
+              "thumbs_118",
+              "thumbs_119",
+              "thumbs_120",
+              "thumbs_121",
+              "thumbs_122",
+              "thumbs_123",
+              "thumbs_124",
+              "thumbs_125",
+              "thumbs_126",
+              "thumbs_127",
+              "gifs_00",
+              "gifs_01",
+              "gifs_02",
+              "gifs_03",
+              "gifs_04",
+              "gifs_05",
+              "gifs_06",
+              "gifs_07",
+              "gifs_08",
+              "gifs_09",
+              "gifs_10",
+              "gifs_11",
+              "gifs_12",
+              "gifs_13",
+              "gifs_14",
+              "gifs_15",
+              "gifs_16",
+              "gifs_17",
+              "gifs_18",
+              "gifs_19",
+              "gifs_20",
+              "gifs_21",
+              "gifs_22",
+              "gifs_23",
+              "gifs_24",
+              "gifs_25",
+              "gifs_26",
+              "gifs_27",
+              "gifs_28",
+              "gifs_29",
+              "gifs_30",
+              "gifs_31"
+            ]
+          },
+          {
+            "type": "stack",
+            "direction": "column",
+            "gap": "small",
+            "children": [
+              {
+                "type": "when",
+                "value": {
+                  "client": "has_group_selected"
+                },
+                "child": {
+                  "type": "stack",
+                  "direction": "column",
+                  "gap": "small",
+                  "children": [
+                    {
+                      "type": "input",
+                      "label": "묶음 이름",
+                      "label_position": "top",
+                      "placeholder": "묶음 이름을 넣고 Enter",
+                      "value": {
+                        "state": "group_name"
+                      },
+                      "commit": "submit",
+                      "on_change": {
+                        "set_state": "group_name"
+                      },
+                      "on_submit": {
+                        "client": "group_rename"
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "style": "meta",
+                      "value": {
+                        "client": "group_count_label"
+                      }
+                    },
+                    {
+                      "type": "button",
+                      "label": "묶음 삭제",
+                      "variant": "danger",
+                      "on_click": {
+                        "client": "group_delete"
+                      },
+                      "confirm": {
+                        "title": "이 묶음을 지울까요? 안의 카드는 남아요",
+                        "ok": "삭제"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "client": "sel_has"
+                },
+                "child": {
+                  "type": "stack",
+                  "direction": "column",
+                  "gap": "small",
+                  "children": [
+                    {
+                      "type": "text",
+                      "style": "title",
+                      "value": {
+                        "client": "sel_heading"
+                      }
+                    },
+                    {
+                      "type": "input",
+                      "label": "이름",
+                      "label_position": "top",
+                      "placeholder": {
+                        "client": "sel_title"
+                      },
+                      "value": {
+                        "client": "sel_label"
+                      },
+                      "commit": "submit",
+                      "on_change": {
+                        "client": "set_card_label"
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "has_memo_input"
+                      },
+                      "child": {
+                        "type": "input",
+                        "label": "메모",
+                        "label_position": "top",
+                        "multiline": true,
+                        "rows": 3,
+                        "placeholder": "메모 (500자까지)",
+                        "value": {
+                          "client": "sel_memo"
+                        },
+                        "commit": "debounce",
+                        "on_change": {
+                          "client": "set_card_memo"
+                        }
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "sel_has_note"
+                      },
+                      "child": {
+                        "type": "text",
+                        "style": "meta",
+                        "value": {
+                          "client": "sel_note"
+                        }
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "can_crop"
+                      },
+                      "child": {
+                        "type": "button",
+                        "label": "자르기",
+                        "icon": "crop",
+                        "on_click": {
+                          "client": "crop_start"
+                        }
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "has_crop"
+                      },
+                      "child": {
+                        "type": "button",
+                        "label": "자르기 해제",
+                        "on_click": {
+                          "client": "crop_clear"
+                        }
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "sel_show_image"
+                      },
+                      "child": {
+                        "type": "image",
+                        "src": {
+                          "client": "sel_image"
+                        },
+                        "fit": "contain",
+                        "zoom": true
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "sel_thumb_preview"
+                      },
+                      "child": {
+                        "type": "canvas",
+                        "surface": "preview",
+                        "aspect_ratio": 1.333,
+                        "description": {
+                          "client": "sel_title"
+                        }
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "sel_show_video"
+                      },
+                      "child": {
+                        "type": "media",
+                        "src": {
+                          "client": "sel_video"
+                        },
+                        "kind": "video"
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "sel_video_missing"
+                      },
+                      "child": {
+                        "type": "text",
+                        "value": "원본은 다른 PC에 있어요"
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "sel_is_video"
+                      },
+                      "child": {
+                        "type": "toggle",
+                        "label": "내보내기에 재생 포함",
+                        "value": {
+                          "client": "sel_include_video"
+                        },
+                        "on_change": {
+                          "client": "toggle_include_video"
+                        }
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "sel_is_youtube"
+                      },
+                      "child": {
+                        "type": "web_view",
+                        "url": {
+                          "state": "yt_embed"
+                        }
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "sel_is_text"
+                      },
+                      "child": {
+                        "type": "input",
+                        "label": "글",
+                        "label_position": "hidden",
+                        "multiline": true,
+                        "rows": 6,
+                        "value": {
+                          "client": "sel_text"
+                        },
+                        "on_change": {
+                          "client": "set_text"
+                        }
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "sel_is_text"
+                      },
+                      "child": {
+                        "type": "color",
+                        "label": "색",
+                        "value": {
+                          "client": "sel_color"
+                        },
+                        "on_change": {
+                          "client": "set_text_color"
+                        }
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "sel_is_text"
+                      },
+                      "child": {
+                        "type": "color",
+                        "label": "종이 색",
+                        "value": {
+                          "client": "sel_paper"
+                        },
+                        "on_change": {
+                          "client": "set_text_paper"
+                        }
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "has_text_paper"
+                      },
+                      "child": {
+                        "type": "button",
+                        "label": "기본 종이",
+                        "on_click": {
+                          "client": "reset_text_paper"
+                        }
+                      }
+                    },
+                    {
+                      "type": "when",
+                      "value": {
+                        "client": "sel_openable"
+                      },
+                      "child": {
+                        "type": "button",
+                        "label": "브라우저로 열기",
+                        "on_click": {
+                          "open_url": {
+                            "client": "selected_url"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "button",
+                      "label": "삭제",
+                      "variant": "danger",
+                      "on_click": {
+                        "client": "delete_selected"
+                      },
+                      "confirm": {
+                        "title": "이 카드를 지울까요?",
+                        "ok": "삭제"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "when",
+                "value": {
+                  "client": "sel_none"
+                },
+                "child": {
+                  "type": "text",
+                  "style": "meta",
+                  "value": "카드를 누르면 여기에 자세히 보여요"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "dialog",
+        "open": {
+          "state": "rename_open"
+        },
+        "title": "보드 이름 바꾸기",
+        "close_label": "바꾸기",
+        "child": {
+          "type": "input",
+          "label": "새 이름",
+          "label_position": "top",
+          "focus": {
+            "state": "rename_open"
+          },
+          "placeholder": {
+            "client": "board_label"
+          },
+          "value": {
+            "state": "board_name"
+          },
+          "on_change": {
+            "set_state": "board_name"
+          },
+          "on_submit": {
+            "client": "board_rename"
+          }
+        },
+        "on_confirm": {
+          "client": "board_rename"
+        },
+        "on_close": [
+          {
+            "set_state": "rename_open",
+            "value": false
+          },
+          {
+            "set_state": "board_name",
+            "value": ""
+          }
+        ]
+      },
+      {
+        "type": "dialog",
+        "open": {
+          "state": "board_menu_open"
+        },
+        "title": "보드",
+        "close_label": "닫기",
+        "child": {
+          "type": "stack",
+          "direction": "column",
+          "gap": "small",
+          "children": [
+            {
+              "type": "button",
+              "variant": "row",
+              "icon": "plus",
+              "label": "새 보드",
+              "on_click": {
+                "client": "board_new"
+              }
+            },
+            {
+              "type": "button",
+              "variant": "row",
+              "icon": "pencil",
+              "label": "이름 바꾸기",
+              "on_click": [
+                {
+                  "set_state": "board_menu_open",
+                  "value": false
+                },
+                {
+                  "set_state": "rename_open",
+                  "value": true
+                }
+              ]
+            },
+            {
+              "type": "color",
+              "label": "배경색",
+              "value": {
+                "client": "board_bg"
+              },
+              "on_change": {
+                "client": "set_board_bg"
+              }
+            },
+            {
+              "type": "button",
+              "variant": "row",
+              "icon": "rotate-ccw",
+              "label": "기본 배경",
+              "on_click": {
+                "client": "reset_board_bg"
+              }
+            },
+            {
+              "type": "button",
+              "variant": "row",
+              "icon": "trash-2",
+              "label": "보드 삭제",
+              "on_click": [
+                {
+                  "set_state": "board_menu_open",
+                  "value": false
+                },
+                {
+                  "set_state": "delete_open",
+                  "value": true
+                }
+              ]
+            }
+          ]
+        },
+        "on_close": [
+          {
+            "set_state": "board_menu_open",
+            "value": false
+          }
+        ]
+      },
+      {
+        "type": "dialog",
+        "open": {
+          "state": "delete_open"
+        },
+        "title": "보드 삭제",
+        "danger": true,
+        "close_label": "삭제",
+        "cancel_label": "취소",
+        "child": {
+          "type": "text",
+          "value": {
+            "client": "board_delete_text"
+          }
+        },
+        "on_confirm": {
+          "client": "board_delete"
+        },
+        "on_close": [
+          {
+            "set_state": "delete_open",
+            "value": false
+          }
+        ]
+      }
+    ]
+  }
+}
