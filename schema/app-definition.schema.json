@@ -1743,6 +1743,9 @@
           "$ref": "#/$defs/ShellAddShortcutAction"
         },
         {
+          "$ref": "#/$defs/ShellImportAction"
+        },
+        {
           "$ref": "#/$defs/ClientAction"
         },
         {
@@ -2037,6 +2040,10 @@
         },
         "id": {
           "$ref": "#/$defs/Binding"
+        },
+        "allow_custom": {
+          "description": "출처 없는 앱(커스텀 앱)을 이 기기에서 지우는 요청. 생략은 false이며 store 모듈 4판부터다.",
+          "type": "boolean"
         }
       },
       "additionalProperties": false,
@@ -2080,6 +2087,23 @@
       "required": [
         "shell.add_shortcut"
       ]
+    },
+    "ShellImportAction": {
+      "description": "앱 정의 파일 하나를 골라 이 기기에 가져온다. 인자가 없다.",
+      "type": "object",
+      "properties": {
+        "shell.import_app": {
+          "$ref": "#/$defs/ShellImportSpec"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "shell.import_app"
+      ]
+    },
+    "ShellImportSpec": {
+      "type": "object",
+      "additionalProperties": false
     },
     "CopyTextAction": {
       "description": "바인딩이 낸 글을 이 기기의 클립보드에 쓴다. 단독으로 쓴다.",
@@ -2481,6 +2505,42 @@
                   "type": "null"
                 }
               ]
+            },
+            "segments": {
+              "description": "(64판) 바를 같은 폭의 이 수만큼 나누는 칸막이를 그린다. 2 이상이어야 한다.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint32",
+              "minimum": 0
+            },
+            "marker": {
+              "description": "(64판) `value`와 같은 0..`max` 눈금에서 한 지점을 가리키는 세로 커서의 값.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Binding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "warning_at": {
+              "description": "(65판) `value`와 같은 눈금의 경고 색 기준.",
+              "type": [
+                "number",
+                "null"
+              ],
+              "format": "double"
+            },
+            "danger_at": {
+              "description": "(65판) `value`와 같은 눈금의 위험 색 기준.",
+              "type": [
+                "number",
+                "null"
+              ],
+              "format": "double"
             }
           },
           "additionalProperties": false,
@@ -3637,6 +3697,17 @@
                 }
               ]
             },
+            "on_move": {
+              "description": "(66판) 구역을 끌어 놓으면 실행한다. `$event`는 {key, target, position}이고 position은 before 또는 after다.\n`$item`은 놓은 자리의 반복 항목이다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Actions"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
             "child": {
               "$ref": "#/$defs/Block"
             }
@@ -4613,7 +4684,7 @@
           ]
         },
         {
-          "description": "(9판) 순서가 있는 수치 시리즈를 표시한다.",
+          "description": "(9판) 순서가 있는 수치 시리즈를 표시한다.\n(62판) `stacked`면 막대를 계열끼리 쌓고, `number_format`이 눈금과 값의 수 표시를 정하며,\n`selected`가 처음 고른 칸을 읽는다. 계열 색은 계열 값의 `color`로 정한다.\n막대와 면적의 세로축은 0을 포함하고 자료를 담는 보기 좋은 끝으로 올린다.\n면적은 각 선과 0 사이를 칠한다.",
           "type": "object",
           "properties": {
             "type": {
@@ -4636,6 +4707,32 @@
             "height": {
               "$ref": "#/$defs/ChartHeight",
               "default": "medium"
+            },
+            "stacked": {
+              "description": "(62판) `kind: \"bar\"`일 때 계열을 한 막대에 쌓는지. 기본은 거짓이다.",
+              "type": "boolean"
+            },
+            "number_format": {
+              "description": "(62판) 눈금, 값 표시, 접근 가능한 표의 수 표시 형식.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/NumberFormat"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "selected": {
+              "description": "(62판) 처음 고른 칸의 시점 값. 읽기 전용이며 칸 고르기는 `on_select`가 한다.\n포인터나 키보드가 떠나면 이 칸으로 돌아온다. 생략하면 마지막으로 누른 칸을 기억한다.",
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Binding"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "on_select": {
               "anyOf": [
@@ -5222,6 +5319,13 @@
           "format": "uint8",
           "minimum": 0,
           "maximum": 255
+        },
+        "sort_field": {
+          "description": "(62판) 머리를 눌러 정렬할 때 이 열의 칸 대신 읽을 행 필드. 보이는 칸 글은 그대로 둔다.\n행 표의 머리 정렬에만 쓰인다. 칸 고르기 표(selection cell)는 머리 정렬이 없다.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "additionalProperties": false,
@@ -5521,6 +5625,73 @@
         "compact",
         "medium",
         "tall"
+      ]
+    },
+    "NumberFormat": {
+      "description": "차트의 수 표시 형식. 눈금, 값 표시, 접근 가능한 표의 수에 함께 쓴다.",
+      "type": "object",
+      "properties": {
+        "notation": {
+          "description": "수를 보이는 방법. `compact`는 1.6억처럼 짧게 줄인다.",
+          "$ref": "#/$defs/NumberNotation",
+          "default": "standard"
+        },
+        "style": {
+          "description": "수의 갈래. `currency`면 `currency`에 통화 코드가 필요하다.",
+          "$ref": "#/$defs/NumberStyle",
+          "default": "decimal"
+        },
+        "currency": {
+          "description": "`style: \"currency\"`일 때 쓸 ISO 4217 통화 코드 세 글자(예: `USD`, `KRW`).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "maximum_fraction_digits": {
+          "description": "소수 아래 최대 자릿수(0~6). 생략하면 기기의 기본값을 쓴다.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint8",
+          "minimum": 0,
+          "maximum": 255
+        }
+      },
+      "additionalProperties": false
+    },
+    "NumberNotation": {
+      "oneOf": [
+        {
+          "description": "수를 그대로 쓴다.",
+          "type": "string",
+          "const": "standard"
+        },
+        {
+          "description": "기기 언어의 짧은 표기(예: 한국어 기기에서 1.6억).",
+          "type": "string",
+          "const": "compact"
+        }
+      ]
+    },
+    "NumberStyle": {
+      "oneOf": [
+        {
+          "description": "보통 수.",
+          "type": "string",
+          "const": "decimal"
+        },
+        {
+          "description": "통화. `currency`에 코드를 적는다.",
+          "type": "string",
+          "const": "currency"
+        },
+        {
+          "description": "백분율. 값 0.37은 37%로 보인다.",
+          "type": "string",
+          "const": "percent"
+        }
       ]
     },
     "WindowTitleDecl": {
