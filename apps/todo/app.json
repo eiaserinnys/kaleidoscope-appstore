@@ -12,7 +12,7 @@
   },
   "single_window": true,
   "requires": {
-    "blocks": 61,
+    "blocks": 66,
     "modules": {
       "assets": 1,
       "client": 1,
@@ -22,7 +22,7 @@
   "assets": [
     {
       "id": "todo-client",
-      "version": 3
+      "version": 4
     },
     {
       "id": "todo-icon",
@@ -150,7 +150,7 @@
     "runtime": "javascript",
     "entry": {
       "id": "todo-client",
-      "version": 3
+      "version": 4
     },
     "outputs": {
       "loading": {
@@ -229,6 +229,12 @@
       "edit_cancel",
       "start_rename",
       "move",
+      "move_up",
+      "move_down",
+      "move_area",
+      "move_area_up",
+      "move_area_down",
+      "remove_area",
       "start_rename_area",
       "rename_area",
       "cancel_rename_area",
@@ -361,6 +367,32 @@
                         "on_select": {
                           "client": "start_rename_area"
                         }
+                      },
+                      {
+                        "label": "위로 옮기기",
+                        "on_select": {
+                          "client": "move_area_up"
+                        }
+                      },
+                      {
+                        "label": "아래로 옮기기",
+                        "on_select": {
+                          "client": "move_area_down"
+                        }
+                      },
+                      {
+                        "label": "지우기",
+                        "danger": true,
+                        "confirm": {
+                          "title": "묶음을 지울까요?",
+                          "body": {
+                            "item": "remove_body"
+                          },
+                          "ok": "지우기"
+                        },
+                        "on_select": {
+                          "client": "remove_area"
+                        }
                       }
                     ],
                     "editing": {
@@ -371,6 +403,9 @@
                     },
                     "on_edit_cancel": {
                       "client": "cancel_rename_area"
+                    },
+                    "on_move": {
+                      "client": "move_area"
                     },
                     "collapsible": true,
                     "actions": [
@@ -422,6 +457,18 @@
                           "label": "하위 할 일 추가",
                           "on_select": {
                             "client": "open_add_child"
+                          }
+                        },
+                        {
+                          "label": "위로 옮기기",
+                          "on_select": {
+                            "client": "move_up"
+                          }
+                        },
+                        {
+                          "label": "아래로 옮기기",
+                          "on_select": {
+                            "client": "move_down"
                           }
                         },
                         {
