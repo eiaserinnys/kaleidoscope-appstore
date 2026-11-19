@@ -1,5 +1,5 @@
 /*
- * 할 일 — kaleidoscope 클라이언트 (todo-client v3)
+ * 할 일 — kaleidoscope 클라이언트 (todo-client v4)
  *
  * 목록 안 바로 입력(draft), 이름 바꾸기, 끌어 옮기기는 client 지역 값으로만 열고,
  * 저장소에는 확정할 때 한 번 쓴다.
@@ -222,7 +222,9 @@
     };
     return sectionNames(items, areas, visible).map(function (area) {
       var nodes = nodesFor(null, area);
-      var section = { key: area, name: area, has_items: nodes.length > 0, children: nodes };
+      var count = items.filter(function (item) { return areaOf(item) === area; }).length;
+      var section = { key: area, name: area, has_items: nodes.length > 0, children: nodes,
+        remove_body: area + "\n\n" + (count ? "할 일 " + count + "개도 함께 지워집니다" : "할 일이 없습니다") };
       if (renamingArea === area) section.editing = true;
       return section;
     });
@@ -527,6 +529,9 @@
       case "edit": return applyEdit(items, op);
       case "hold": return applyToggleHold(items, op);
       case "remove": return applyRemove(items, op);
+      case "remove_area":
+        return items.some(function (item) { return textOf(item.area) === op.area; })
+          ? items.filter(function (item) { return textOf(item.area) !== op.area; }) : null;
       case "move": return applyMove(items, op);
       default: return null;
     }
@@ -742,6 +747,47 @@
         return bridge.getStorage("areas").then(function (value) {
           state.areas = asAreas(value);
           return attemptAreaRename(from, to, true);
+        });
+      }
+      throw error;
+    });
+  }
+
+  function attemptAreaMove(key, target, position, retried) {
+    var names = sectionNames(state.items, state.areas, visibleIds(state.items, today, state.hideDone));
+    var from = names.indexOf(key);
+    var to = names.indexOf(target);
+    if (from === -1 || to === -1 || from === to || (position !== "before" && position !== "after")) return Promise.resolve();
+    var next = names.slice();
+    next.splice(from, 1);
+    to = next.indexOf(target) + (position === "after" ? 1 : 0);
+    next.splice(to, 0, key);
+    if (next.every(function (name, index) { return name === names[index]; })) return Promise.resolve();
+    return bridge.setStorage("areas", next).then(function () {
+      state.areas = next;
+      publish();
+    }, function (error) {
+      if (!retried && error && error.id === CONFLICT_ID) {
+        return bridge.getStorage("areas").then(function (value) {
+          state.areas = asAreas(value);
+          return attemptAreaMove(key, target, position, true);
+        });
+      }
+      throw error;
+    });
+  }
+
+  function attemptAreaRemove(name, retried) {
+    if (state.areas.indexOf(name) === -1) return Promise.resolve();
+    var next = state.areas.filter(function (area) { return area !== name; });
+    return bridge.setStorage("areas", next).then(function () {
+      state.areas = next;
+      publish();
+    }, function (error) {
+      if (!retried && error && error.id === CONFLICT_ID) {
+        return bridge.getStorage("areas").then(function (value) {
+          state.areas = asAreas(value);
+          return attemptAreaRemove(name, true);
         });
       }
       throw error;
@@ -1039,6 +1085,54 @@
       fail(error);
       throw error;
     });
+  });
+
+  function moveItemBy(context, delta) {
+    var id = targetId(context);
+    return enqueueTask(function () {
+      var item = itemOf(state.items, id);
+      if (!item) return;
+      var visible = visibleIds(state.items, today, state.hideDone).ids;
+      var siblings = state.items.filter(function (other) {
+        return visible[other.id] && textOf(other.area) === textOf(item.area)
+          && (other.parent || null) === (item.parent || null);
+      }).sort(function (left, right) { return numbersOf(left.order) - numbersOf(right.order); });
+      var index = siblings.findIndex(function (other) { return other.id === id; });
+      var neighbor = index === -1 ? null : siblings[index + delta];
+      if (!neighbor) return;
+      return attempt({ kind: "move", key: id, target: neighbor.id, position: delta < 0 ? "before" : "after" }, false);
+    }).catch(function (error) { fail(error); throw error; });
+  }
+
+  bridge.handle("move_up", function (context) { return moveItemBy(context, -1); });
+  bridge.handle("move_down", function (context) { return moveItemBy(context, 1); });
+
+  function moveAreaBy(context, delta) {
+    var name = targetId(context);
+    return enqueueTask(function () {
+      var names = sectionNames(state.items, state.areas, visibleIds(state.items, today, state.hideDone));
+      var index = names.indexOf(name);
+      var target = index === -1 ? null : names[index + delta];
+      if (!target) return;
+      return attemptAreaMove(name, target, delta < 0 ? "before" : "after", false);
+    }).catch(function (error) { fail(error); throw error; });
+  }
+
+  bridge.handle("move_area", function (context) {
+    var event = context && isObject(context.event) ? context.event : {};
+    return enqueueTask(function () { return attemptAreaMove(event.key, event.target, event.position, false); })
+      .catch(function (error) { fail(error); throw error; });
+  });
+  bridge.handle("move_area_up", function (context) { return moveAreaBy(context, -1); });
+  bridge.handle("move_area_down", function (context) { return moveAreaBy(context, 1); });
+  bridge.handle("remove_area", function (context) {
+    var name = targetId(context);
+    if (!name) return;
+    return enqueueTask(function () {
+      return attemptAreaRemove(name, false).then(function () {
+        return attempt({ kind: "remove_area", area: name }, false);
+      });
+    }).catch(function (error) { fail(error); throw error; });
   });
 
   bridge.handle("start_rename_area", function (context) {

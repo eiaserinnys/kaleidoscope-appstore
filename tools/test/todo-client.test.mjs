@@ -11,7 +11,8 @@ const ASSET = resolve(HERE, "../../apps/todo/assets/todo-client.javascript");
 const ACTIONS = [
   "check", "select_log", "edit", "toggle_hold", "remove",
   "open_add_area", "open_add_child", "edit_commit", "edit_cancel",
-  "start_rename", "move", "start_rename_area", "rename_area", "cancel_rename_area",
+  "start_rename", "move", "move_up", "move_down", "move_area", "move_area_up", "move_area_down", "remove_area",
+  "start_rename_area", "rename_area", "cancel_rename_area",
   "start_area", "area_draft_change", "add_area", "cancel_area",
 ];
 
@@ -1721,4 +1722,104 @@ test("묶음 쓰기 대기 중 중복 판정은 저장소 원래 이름으로 �
   assert.equal(rejected, true);
   assert.deepEqual(app.store.areas, ["회사", "개인"]);
   assert.deepEqual(app.store.items.map(entry => entry.area), ["회사", "개인"]);
+});
+
+test("묶음 끌기는 앞뒤로 옮기며 암묵 묶음도 순서에 저장한다", async () => {
+  const items = [item("h", { area: "취미" })];
+  const app = boot({ items, areas: ["업무", "개인"] });
+  await app.settle();
+  await app.run("move_area", { event: { key: "취미", target: "업무", position: "before" } });
+  assert.deepEqual(app.store.areas, ["취미", "업무", "개인"]);
+  await app.run("move_area", { event: { key: "취미", target: "개인", position: "after" } });
+  assert.deepEqual(app.store.areas, ["업무", "개인", "취미"]);
+  assert.deepEqual(app.store.items, items);
+});
+
+test("묶음을 같은 자리나 자기 자신에 놓거나 없는 이름을 놓으면 쓰지 않는다", async () => {
+  const app = boot({ areas: ["업무", "개인", "취미"] });
+  await app.settle();
+  for (const event of [
+    { key: "업무", target: "개인", position: "before" },
+    { key: "개인", target: "업무", position: "after" },
+    { key: "업무", target: "업무", position: "before" },
+    { key: "없는 묶음", target: "업무", position: "before" },
+    { key: "업무", target: "없는 묶음", position: "after" },
+  ]) await app.run("move_area", { event });
+  assert.equal(app.attempts.length, 0);
+});
+
+test("묶음 끌기 충돌 뒤 새 목록을 읽어 이동을 다시 적용한다", async () => {
+  const app = boot({ areas: ["업무", "개인"] });
+  await app.settle();
+  app.conflictNext({ store: ["업무", "개인", "독서"] });
+  await app.run("move_area", { event: { key: "개인", target: "업무", position: "before" } });
+  assert.equal(app.attempts.length, 2);
+  assert.deepEqual(app.store.areas, ["개인", "업무", "독서"]);
+});
+
+test("묶음 메뉴로 보이는 순서를 한 칸씩 옮기고 양 끝에서는 쓰지 않는다", async () => {
+  const app = boot({ items: [item("h", { area: "취미" })], areas: ["업무", "개인"] });
+  await app.settle();
+  await app.run("move_area_up", { item: { key: "업무" } });
+  await app.run("move_area_down", { item: { key: "취미" } });
+  assert.equal(app.attempts.length, 0);
+  await app.run("move_area_up", { item: { key: "취미" } });
+  assert.deepEqual(app.store.areas, ["업무", "취미", "개인"]);
+  await app.run("move_area_down", { item: { key: "업무" } });
+  assert.deepEqual(app.store.areas, ["취미", "업무", "개인"]);
+});
+
+test("묶음 행의 삭제 설명은 숨은 일과 자손을 포함한 개수와 빈 묶음을 알려 준다", async () => {
+  const app = boot({ items: [item("a"), item("b", { parent: "a", status: "held" }), item("c", { status: "done", done_on: "2026-11-01" })], areas: ["업무", "개인"], hideDone: true });
+  await app.settle();
+  assert.equal(sectionOf(app, "업무").remove_body, "업무\n\n할 일 3개도 함께 지워집니다");
+  assert.equal(sectionOf(app, "개인").remove_body, "개인\n\n할 일이 없습니다");
+});
+
+test("묶음 삭제는 숨은 일과 자손을 지우고 다른 묶음을 보존하며 선택을 푼다", async () => {
+  const items = [item("a"), item("child", { parent: "a", status: "held" }), item("done", { status: "done", done_on: "2026-11-01" }), item("other", { area: "개인", order: 7 })];
+  const app = boot({ items, areas: ["업무", "개인"], selected: "child", hideDone: true });
+  await app.settle();
+  await app.run("remove_area", { item: { key: "업무" } });
+  assert.deepEqual(app.store.areas, ["개인"]);
+  assert.deepEqual(app.store.items, [items[3]]);
+  assert.equal(app.win.selected, null);
+  assert.deepEqual(app.writes.map(write => write.entry), ["areas", "items"]);
+});
+
+test("할 일 메뉴는 숨은 형제를 건너 보이는 형제와 위아래로 옮긴다", async () => {
+  const items = [item("parent"), item("a", { parent: "parent", order: 1 }), item("done", { parent: "parent", status: "done", done_on: "2026-11-01", order: 2 }), item("b", { parent: "parent", order: 3 }), item("other-parent", { order: 8 }), item("other-child", { parent: "other-parent", order: 9 }), item("other-area", { area: "개인", order: 10 })];
+  const app = boot({ items, hideDone: true });
+  await app.settle();
+  await app.run("move_up", { item: { key: "a" }, parent_item: { key: "업무" } });
+  await app.run("move_down", { item: { key: "b" }, parent_item: { key: "업무" } });
+  assert.equal(app.attempts.length, 0);
+  await app.run("move_up", { item: { key: "b" }, parent_item: { key: "업무" } });
+  assert.deepEqual(app.store.items.filter(entry => entry.parent === "parent").sort((a, b) => a.order - b.order).map(entry => entry.id), ["b", "a", "done"]);
+  await app.run("move_down", { item: { key: "b" }, parent_item: { key: "업무" } });
+  assert.deepEqual(app.store.items.filter(entry => entry.parent === "parent").sort((a, b) => a.order - b.order).map(entry => entry.id), ["a", "b", "done"]);
+  for (const id of ["other-parent", "other-child", "other-area"]) assert.deepEqual(app.store.items.find(entry => entry.id === id), items.find(entry => entry.id === id));
+});
+
+test("앱 정의는 섹션과 할 일 메뉴 및 클라이언트 동작을 연결한다", () => {
+  const app = JSON.parse(readFileSync(resolve(HERE, "../../apps/todo/app.json"), "utf8"));
+  function findRepeat(block) {
+    if (block?.type === "repeat" && block.items?.client === "sections") return block;
+    for (const value of Object.values(block ?? {})) {
+      if (value && typeof value === "object") {
+        const found = findRepeat(value);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+  const section = findRepeat(app.ui).template;
+  assert.equal(section.on_move.client, "move_area");
+  assert.deepEqual(section.menu.map(entry => entry.label), ["이름 바꾸기", "위로 옮기기", "아래로 옮기기", "지우기"]);
+  assert.deepEqual(section.menu.map(entry => entry.on_select.client), ["start_rename_area", "move_area_up", "move_area_down", "remove_area"]);
+  assert.deepEqual(section.menu[3].confirm, { title: "묶음을 지울까요?", body: { item: "remove_body" }, ok: "지우기" });
+  assert.equal(section.menu[3].danger, true);
+  assert.deepEqual(section.child.item_menu.map(entry => entry.label), ["이름 바꾸기", "하위 할 일 추가", "위로 옮기기", "아래로 옮기기", "보류", "지우기"]);
+  assert.deepEqual(section.child.item_menu.map(entry => entry.on_select.client), ["start_rename", "open_add_child", "move_up", "move_down", "toggle_hold", "remove"]);
+  assert.deepEqual(app.client.actions, ACTIONS);
 });
