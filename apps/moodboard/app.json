@@ -85,27 +85,27 @@
     },
     {
       "id": "moodboard-manifest",
-      "version": 3
+      "version": 4
     },
     {
       "id": "moodboard-client-1",
-      "version": 2
+      "version": 3
     },
     {
       "id": "moodboard-client-2",
-      "version": 2
+      "version": 3
     },
     {
       "id": "moodboard-board-js-1",
-      "version": 2
+      "version": 3
     },
     {
       "id": "moodboard-board-js-2",
-      "version": 2
+      "version": 3
     },
     {
       "id": "moodboard-export",
-      "version": 4
+      "version": 5
     },
     {
       "id": "moodboard-icon",
@@ -2571,6 +2571,454 @@
           }
         },
         "default": {}
+      },
+      {
+        "id": "gifs_32",
+        "key": "gifs_32",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_33",
+        "key": "gifs_33",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_34",
+        "key": "gifs_34",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_35",
+        "key": "gifs_35",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_36",
+        "key": "gifs_36",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_37",
+        "key": "gifs_37",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_38",
+        "key": "gifs_38",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_39",
+        "key": "gifs_39",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_40",
+        "key": "gifs_40",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_41",
+        "key": "gifs_41",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_42",
+        "key": "gifs_42",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_43",
+        "key": "gifs_43",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_44",
+        "key": "gifs_44",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_45",
+        "key": "gifs_45",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_46",
+        "key": "gifs_46",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_47",
+        "key": "gifs_47",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_48",
+        "key": "gifs_48",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_49",
+        "key": "gifs_49",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_50",
+        "key": "gifs_50",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_51",
+        "key": "gifs_51",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_52",
+        "key": "gifs_52",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_53",
+        "key": "gifs_53",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_54",
+        "key": "gifs_54",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_55",
+        "key": "gifs_55",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_56",
+        "key": "gifs_56",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_57",
+        "key": "gifs_57",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_58",
+        "key": "gifs_58",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_59",
+        "key": "gifs_59",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_60",
+        "key": "gifs_60",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_61",
+        "key": "gifs_61",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_62",
+        "key": "gifs_62",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
+      },
+      {
+        "id": "gifs_63",
+        "key": "gifs_63",
+        "kind": "json",
+        "label": "움직이는 GIF",
+        "presentation": "hidden",
+        "schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "default": {}
       }
     ]
   },
@@ -2732,6 +3180,7 @@
       "zoom_in",
       "zoom_out",
       "zoom_fit",
+      "undo",
       "delete_selected",
       "set_text_color",
       "set_text",
@@ -2933,7 +3382,39 @@
       "gifs_28",
       "gifs_29",
       "gifs_30",
-      "gifs_31"
+      "gifs_31",
+      "gifs_32",
+      "gifs_33",
+      "gifs_34",
+      "gifs_35",
+      "gifs_36",
+      "gifs_37",
+      "gifs_38",
+      "gifs_39",
+      "gifs_40",
+      "gifs_41",
+      "gifs_42",
+      "gifs_43",
+      "gifs_44",
+      "gifs_45",
+      "gifs_46",
+      "gifs_47",
+      "gifs_48",
+      "gifs_49",
+      "gifs_50",
+      "gifs_51",
+      "gifs_52",
+      "gifs_53",
+      "gifs_54",
+      "gifs_55",
+      "gifs_56",
+      "gifs_57",
+      "gifs_58",
+      "gifs_59",
+      "gifs_60",
+      "gifs_61",
+      "gifs_62",
+      "gifs_63"
     ],
     "http_permissions": [
       "yt-oembed",
@@ -3077,6 +3558,15 @@
           },
           {
             "type": "button",
+            "label": "되돌리기 (⌘Z, Ctrl+Z)",
+            "icon": "rotate-ccw",
+            "icon_only": true,
+            "on_click": {
+              "client": "undo"
+            }
+          },
+          {
+            "type": "button",
             "label": "색으로 정렬",
             "icon": "paint-bucket",
             "icon_only": true,
@@ -3177,7 +3667,7 @@
             "value": {
               "client": "board_html"
             },
-            "title": "무드보드: 끌어 옮기고, 두 손가락으로 이동, 집어서 확대",
+            "title": "무드보드: 끌어 옮기고, 빈 곳이나 스페이스를 누른 채 끌어 이동, 휠이나 집기로 확대",
             "state_keys": [
               "board",
               "selected",
@@ -3350,7 +3840,39 @@
               "gifs_28",
               "gifs_29",
               "gifs_30",
-              "gifs_31"
+              "gifs_31",
+              "gifs_32",
+              "gifs_33",
+              "gifs_34",
+              "gifs_35",
+              "gifs_36",
+              "gifs_37",
+              "gifs_38",
+              "gifs_39",
+              "gifs_40",
+              "gifs_41",
+              "gifs_42",
+              "gifs_43",
+              "gifs_44",
+              "gifs_45",
+              "gifs_46",
+              "gifs_47",
+              "gifs_48",
+              "gifs_49",
+              "gifs_50",
+              "gifs_51",
+              "gifs_52",
+              "gifs_53",
+              "gifs_54",
+              "gifs_55",
+              "gifs_56",
+              "gifs_57",
+              "gifs_58",
+              "gifs_59",
+              "gifs_60",
+              "gifs_61",
+              "gifs_62",
+              "gifs_63"
             ]
           },
           {
