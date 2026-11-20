@@ -1725,8 +1725,10 @@ def long_list_check():
             expect(field).to_have_count(0, timeout=10000)
 
     def flow_narrow_enter_five():
-        # 좁은 창에서 「묶음 추가」를 Enter로 다섯 번 확정한다. 매번 초점이 새 묶음 머리 단추에
-        # 가고, Enter 앞뒤로 스크롤 수치가 제자리인지 본다.
+        # 좁은 창에서 「묶음 추가」를 Enter로 다섯 번 확정한다. 매번 새 묶음이 저장되어 화면에
+        # 보이고, 초점이 문서 몸체로 떨어지지 않고 할 일 목록(트리) 안에 남는지, Enter 앞뒤로
+        # 스크롤 수치가 제자리인지 본다. 쉘 #1230(PR #584)이 새로 붙은 모음 항목 안의 조작에는
+        # 초점을 옮기지 않고 트리(ks-data-view ks-data-tree)에 두므로 머리 단추를 단언하지 않는다.
         set_size(380, 700)
         metrics = []
         for step in range(1, 6):
@@ -1751,11 +1753,11 @@ def long_list_check():
             metrics.append(sample)
             log(f"좁은 창 묶음 추가 {step}번째", json.dumps(sample, ensure_ascii=False))
             sb.shot(f"long-narrow-enter-{step}.png", "todo", settle=0.2)
-            assert focus.get("section") == name, f"반복{step}: Enter 뒤 초점이 새 묶음 머리에 없습니다: {focus}"
-            assert focus.get("in_header"), f"반복{step}: Enter 뒤 초점이 머리 안이 아닙니다: {focus}"
-            assert "ks-data-section-toggle" in (focus.get("cls") or ""), (
-                f"반복{step}: Enter 뒤 초점이 머리 접기 단추가 아닙니다: {focus}")
-            assert focus.get("expanded") == "true", f"반복{step}: 새 묶음 머리가 펼쳐져 있지 않습니다: {focus}"
+            expect(section(name)).to_be_visible(timeout=15000)
+            focus_classes = focus.get("cls") or ""
+            assert focus.get("tag") != "body", f"반복{step}: Enter 뒤 초점이 문서 몸체로 떨어졌습니다: {focus}"
+            assert "ks-data-view" in focus_classes and "ks-data-tree" in focus_classes, (
+                f"반복{step}: Enter 뒤 초점이 할 일 목록(트리) 안에 없습니다: {focus}")
             assert not moved, f"반복{step}: Enter 뒤 스크롤이 움직였습니다: {moved}"
         captured["narrow_enter_5"] = metrics
         return metrics
