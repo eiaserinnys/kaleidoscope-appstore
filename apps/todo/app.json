@@ -55,7 +55,7 @@
         ],
         "label": "묶음",
         "description": "할 일을 나눌 묶음과 그 순서",
-        "presentation": "settings"
+        "presentation": "hidden"
       },
       {
         "id": "items",

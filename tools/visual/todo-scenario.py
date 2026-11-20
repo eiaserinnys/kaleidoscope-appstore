@@ -766,37 +766,49 @@ def area_rejects(name, label):
 check("area_empty", lambda: area_rejects("", "빈 이름"))
 check("area_duplicate", lambda: area_rejects(" 업무 ", "중복 이름"))
 
-# ── 5. 앱 설정 화면: 「묶음」에 이름을 넣고 「묶음 추가」를 눌러 새 구역이 생기는지 본다 ──
+# ── 5. 앱 설정 단추: 저장 항목 areas가 presentation hidden이 되었으므로 쉘은 단추를 내린다 ──
+#
+# 묶음 목록은 앱 안(묶음 추가, 이름 바꾸기, 순서, 우클릭 지우기)에서만 관리한다.
+# 단추가 남는 옛 쉘이면 설정 화면에 「묶음」 목록이 없는지로 확인한다.
+# 이후 단계가 쓰는 「취미」 묶음은 설정 화면 대신 앱 안 「묶음 추가」로 만든다.
 
 
 def app_settings_check():
-    settings_heading = win.get_by_role("heading", name="앱 설정", exact=True)
-    win.get_by_role("button", name="앱 설정", exact=True).click()
-    try:
-        expect(settings_heading).to_be_visible(timeout=10000)
-        # 앱 설정의 글칸과 단추가 같은 이름이라 역할로 구분한다.
-        field = win.get_by_role("textbox", name="묶음 추가", exact=True)
-        expect(field).to_be_visible(timeout=10000)
-        sb.shot("app-settings.png", "todo", settle=0.4)
-        field.fill("취미")
-        add_button = win.get_by_role("button", name="묶음 추가", exact=True)
-        expect(add_button).to_be_enabled(timeout=10000)
-        add_button.click()
-        wait_for(lambda: "취미" in (read_storage("areas") or {}).get("content", []),
-                 "앱 설정에서 묶음 저장", timeout=15)
-    finally:
-        back = win.get_by_role("button", name="앱으로 돌아가기", exact=True)
-        if back.count() > 0:
-            back.first.click()
-    expect(settings_heading).to_be_hidden(timeout=10000)
+    sb.shot("app-settings-probe.png", "todo", settle=0.4)
+    settings_button = win.get_by_role("button", name="앱 설정", exact=True)
+    if settings_button.count() > 0:
+        settings_heading = win.get_by_role("heading", name="앱 설정", exact=True)
+        settings_button.first.click()
+        try:
+            expect(settings_heading).to_be_visible(timeout=10000)
+            expect(win.get_by_role("textbox", name="묶음 추가", exact=True)).to_have_count(0)
+            sb.shot("app-settings-without-areas.png", "todo", settle=0.4)
+        finally:
+            back = win.get_by_role("button", name="앱으로 돌아가기", exact=True)
+            if back.count() > 0:
+                back.first.click()
+        expect(settings_heading).to_be_hidden(timeout=10000)
+        button_state = "settings button left, areas list gone"
+    else:
+        expect(win.get_by_role("heading", name="앱 설정", exact=True)).to_have_count(0)
+        button_state = "settings button gone"
+
+    win.get_by_role("button", name="묶음 추가", exact=True).click()
+    field = win.get_by_label("새 묶음", exact=True)
+    expect(field).to_be_visible(timeout=10000)
+    field.fill("취미")
+    field.press("Enter")
+    wait_for(lambda: read_storage("areas")["content"] == ["업무", "개인", "독서", "취미"],
+             "앱 안 묶음 관리로 저장", timeout=15)
+    expect(field).to_have_count(0, timeout=10000)
     expect(section("취미")).to_be_visible(timeout=15000)
     sb.shot("app-settings-applied.png", "todo", settle=0.4)
     stored = read_storage("areas")["content"]
     assert stored == ["업무", "개인", "독서", "취미"], stored
-    return {"areas": stored}
+    return {"button": button_state, "areas": stored}
 
 
-check("app_settings_add_area", app_settings_check)
+check("app_settings_hidden", app_settings_check)
 
 # ── 4. 구역 + → 목록 안 글칸 → Escape 취소 → Enter로 추가 → 새 항목이 고른 상태 ──
 
