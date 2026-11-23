@@ -1,5 +1,5 @@
 /*
- * 할 일 — kaleidoscope 클라이언트 (todo-client v4)
+ * 할 일 — kaleidoscope 클라이언트 (todo-client v5)
  *
  * 목록 안 바로 입력(draft), 이름 바꾸기, 끌어 옮기기는 client 지역 값으로만 열고,
  * 저장소에는 확정할 때 한 번 쓴다.
