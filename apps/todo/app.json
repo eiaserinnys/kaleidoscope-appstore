@@ -39,7 +39,7 @@
     "entries": [
       {
         "id": "areas",
-        "key": "settings/areas",
+        "key": "settings/areas-probe",
         "kind": "json",
         "schema": {
           "type": "array",
