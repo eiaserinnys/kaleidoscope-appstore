@@ -32,11 +32,31 @@ jobs:
             printf '%s\n' '초기화 PR: main에 검사 코드가 없어 이 PR의 검사 코드로 검사했습니다' | tee -a "$GITHUB_STEP_SUMMARY"
           fi
           git archive "$REF" tools schema package.json package-lock.json | tar -x -C "$RUNNER_TEMP/store-check"
+      - name: 업데이트 검사 코드 준비
+        id: upgrade_code
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [ ! -f "$RUNNER_TEMP/store-check/tools/upgrade-check.mjs" ]; then
+            git show "$HEAD_SHA:tools/upgrade-check.mjs" > "$RUNNER_TEMP/store-check/tools/upgrade-check.mjs"
+            printf '%s\n' '초기화 PR: base에 업데이트 검사 코드가 없어 이 PR의 검사 코드로 검사했습니다' | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
       - name: 검사 의존성 설치
         run: npm ci --ignore-scripts --prefix "$RUNNER_TEMP/store-check"
+      - name: kaleidoscope 판정 도구 준비
+        id: kaleidoscope
+        run: |
+          git clone --depth 1 --branch main https://github.com/eiaserinnys/kaleidoscope "$RUNNER_TEMP/kaleidoscope"
+          git -C "$RUNNER_TEMP/kaleidoscope" log -1 --format='판정 도구 커밋: %H'
       - name: 앱 검사
         env:
           BASE_REF: ${{ github.base_ref }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: node "$RUNNER_TEMP/store-check/tools/check.mjs" --base "origin/$BASE_REF" --head "$HEAD_SHA" --author "$PR_AUTHOR"
+      - name: 앱 업데이트 호환성 검사
+        if: ${{ !cancelled() && steps.upgrade_code.outcome == 'success' && steps.kaleidoscope.outcome == 'success' }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: node "$RUNNER_TEMP/store-check/tools/upgrade-check.mjs" --kaleidoscope "$RUNNER_TEMP/kaleidoscope" --base "origin/$BASE_REF" --head HEAD
